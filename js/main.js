@@ -8,13 +8,17 @@ import {
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('calculate-btn').addEventListener('click', calculateNet);
+  document.getElementById('salary-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    calculateNet();
+  });
 });
 
 function calculateNet() {
   const gross = parseFloat(document.getElementById('gross').value);
   const resultDiv = document.getElementById('result');
 
-  if (isNaN(gross) || gross <= 0) {
+  if (isNaN(gross) || gross < 5000000) {
     resultDiv.innerText = 'Please enter a valid gross salary.';
     return;
   }
@@ -56,14 +60,16 @@ function calculateNet() {
   const employerCost = gross + totalInsuranceEmplyr + employerUnion;
 
   resultDiv.innerHTML = `
-  Employee Insurance: ${totalInsuranceEmp.toLocaleString('vi-VN')} VND<br>
-  Employee Income Tax: ${incomeTax.toLocaleString('vi-VN')} VND<br>
+  <b>Gross Salary: ${gross.toLocaleString('us-US')} VND</b><br>
   <hr>
-  <b>Net Salary: ${net.toLocaleString('vi-VN')} VND</b><br>
+  Employee Insurance: ${totalInsuranceEmp.toLocaleString('us-US')} VND<br>
+  Employee Personal Income Tax: ${incomeTax.toLocaleString('us-US')} VND<br>
   <hr>
-  Employer Insurance: ${totalInsuranceEmplyr.toLocaleString('vi-VN')}VND<br>
-  Employer Union Fee: ${employerUnion.toLocaleString('vi-VN')} VND<br>
+  <b>Net Salary: ${net.toLocaleString('us-US')} VND</b><br>
   <hr>
-  <b>Employer Cost: ${employerCost.toLocaleString('vi-VN')} VND</b><br>
+  Employer Insurance: ${totalInsuranceEmplyr.toLocaleString('us-US')}VND<br>
+  Employer Union Fee: ${employerUnion.toLocaleString('us-US')} VND<br>
+  <hr>
+  <b>Employer Cost: ${employerCost.toLocaleString('us-US')} VND</b><br>
   `;
 }
