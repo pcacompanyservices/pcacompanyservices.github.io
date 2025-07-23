@@ -58,10 +58,12 @@ function calculateNet() {
   resultDiv.innerHTML = `
   Employee Insurance: ${totalInsuranceEmp.toLocaleString('vi-VN')} VND<br>
   Employee Income Tax: ${incomeTax.toLocaleString('vi-VN')} VND<br>
-  Net Salary: ${net.toLocaleString('vi-VN')} VND<br>
-  <br>
+  <hr>
+  <b>Net Salary: ${net.toLocaleString('vi-VN')} VND</b><br>
+  <hr>
   Employer Insurance: ${totalInsuranceEmplyr.toLocaleString('vi-VN')}VND<br>
   Employer Union Fee: ${employerUnion.toLocaleString('vi-VN')} VND<br>
-  Employer Cost: ${employerCost.toLocaleString('vi-VN')} VND<br>
+  <hr>
+  <b>Employer Cost: ${employerCost.toLocaleString('vi-VN')} VND</b><br>
   `;
 }

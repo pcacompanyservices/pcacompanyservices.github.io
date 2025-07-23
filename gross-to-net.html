@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculate From Gross</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <h1>Calculate From Gross</h1>
+
+  <form id="salary-form">
+    <label for="status">Residential Status:</label>
+    <select id="status" disabled>
+      <option value="local">Local</option>
+    </select>
+
+    <label for="relationship">Legal Relationship:</label>
+    <select id="relationship" disabled>
+      <option value="laborContract">Labor Contract</option>
+    </select>
+
+    <label for="contractType">Duration:</label>
+    <select id="contractType" disabled>
+      <option value="more">More than 3 months</option>
+    </select>
+
+    <label for="gross">Gross Base Salary:</label>
+    <input type="number" id="gross" placeholder="Enter salary" />
+
+    <div class="checkbox-group">
+      <label class="checkbox-item">
+        <input type="checkbox" disabled> Allowance
+      </label>
+      <label class="checkbox-item">
+        <input type="checkbox" disabled> Bonus
+      </label>
+    </div>
+
+    <button type="button" id="calculate-btn">Calculate</button>
+  </form>
+
+  <div class="result" id="result"></div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
