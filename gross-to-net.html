@@ -15,27 +15,8 @@
       <option value="expat">Expat</option>
     </select>
 
-    <label for="residential">Residential Status:</label>
-    <select id="residential">
-      <option value="yes">Residential</option>
-      <option value="no">Non-residential</option>
-    </select>
-
-    <label for="contract">Labor Contract:</label>
-    <select id="contract">
-      <option value="yes">Signed</option>
-      <option value="no">Did not sign</option>
-    </select>
-
-    <label for="duration">Duration:</label>
-    <select id="duration">
-      <option value="more-than-3m">More than 3 months</option>
-      <option value="1m-to-3m">From 1 to 3 months</option>
-      <option value="less-than-1m">Less than 1 month</option>
-    </select>
-
     <label for="gross">Base Salary:</label>
-    <input type="text" id="gross" placeholder="Min 5,000,000 VND" />
+    <input type="text" id="base-salary" placeholder="Min 5,000,000 VND" />
 
     <div class="checkbox-group">
       <div id="allowance-container">
@@ -45,7 +26,7 @@
       </div>
       <div id="bonus-container">
         <label class="checkbox-item">
-          <input type="checkbox" id="bonus" /> Bonus
+          <input type="checkbox" id="bonus-checkbox" /> Bonus
         </label>
       </div>
     </div>

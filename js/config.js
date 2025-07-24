@@ -14,6 +14,8 @@ export const insuranceRate = {
   }
 };
 
+export const lunchCap = 730000; // Maximum lunch allowance
+
 export const taxRate = [
   { max: 5000000, rate: 0.05, reduce: 0 },
   { max: 10000000, rate: 0.10, reduce: 250000 },
@@ -28,11 +30,11 @@ export const unionFee = 0.02;
 export const personalDeduction = 11000000;
 
 export function calculateNet() {
-  const grossInput = document.getElementById('gross').value.replace(/,/g, '');
-  const gross = parseFloat(grossInput);
+  const baseSalaryInput = document.getElementById('base-salary').value.replace(/,/g, '');
+  const baseSalary = parseFloat(baseSalaryInput);
   const resultDiv = document.getElementById('result');
 
-  if (isNaN(gross) || gross < 5000000) {
+  if (isNaN(baseSalary) || baseSalary < 5000000) {
     resultDiv.innerText = 'Please enter a valid base salary (minimum 5,000,000 VND).';
     return;
   }
@@ -40,8 +42,8 @@ export function calculateNet() {
   // === Cap insurance salary base (split caps)
   const insuranceCapSocialHealth = 20 * baseWage;
   const insuranceCapUnemployment = 20 * regionalMinimum;
-  const insuranceBaseSalarySocialHealth = Math.min(gross, insuranceCapSocialHealth);
-  const insuranceBaseSalaryUnemployment = Math.min(gross, insuranceCapUnemployment);
+  const insuranceBaseSalarySocialHealth = Math.min(baseSalary, insuranceCapSocialHealth);
+  const insuranceBaseSalaryUnemployment = Math.min(baseSalary, insuranceCapUnemployment);
 
   // === Insurance deduction (employee side, split caps)
   const totalInsuranceEmp =
@@ -49,7 +51,7 @@ export function calculateNet() {
     insuranceBaseSalaryUnemployment * insuranceRate.employee.unemployment;
 
   // === Taxable income
-  const taxableIncome = gross - totalInsuranceEmp - personalDeduction;
+  const taxableIncome = baseSalary - totalInsuranceEmp - personalDeduction;
   let incomeTax = 0;
 
   if (taxableIncome > 0) {
@@ -61,7 +63,7 @@ export function calculateNet() {
     }
   }
 
-  const net = gross - totalInsuranceEmp - incomeTax;
+  const net = baseSalary - totalInsuranceEmp - incomeTax;
 
   // === Employer total cost (split caps)
   const totalInsuranceEmplyr =
@@ -69,10 +71,10 @@ export function calculateNet() {
     insuranceBaseSalaryUnemployment * insuranceRate.employer.unemployment;
 
   const employerUnion = insuranceBaseSalarySocialHealth * unionFee;
-  const employerCost = gross + totalInsuranceEmplyr + employerUnion;
+  const employerCost = baseSalary + totalInsuranceEmplyr + employerUnion;
 
   resultDiv.innerHTML = `
-  <b>Gross Salary: ${gross.toLocaleString('us-US')} VND</b><br>
+  <b>Base Salary: ${baseSalary.toLocaleString('us-US')} VND</b><br>
   <hr>
   Employee Insurance: ${totalInsuranceEmp.toLocaleString('us-US')} VND<br>
   Employee Personal Income Tax: ${incomeTax.toLocaleString('us-US')} VND<br>
