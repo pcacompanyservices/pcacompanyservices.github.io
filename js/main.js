@@ -3,7 +3,8 @@ import {
   taxRate,
   unionFee,
   personalDeduction,
-  baseWage
+  baseWage,
+  regionalMinimum
 } from './config.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -23,16 +24,16 @@ function calculateNet() {
     return;
   }
 
-  // === Cap insurance salary base
-  const insuranceCap = 20 * baseWage;
-  const insuranceBaseSalary = Math.min(gross, insuranceCap);
+  // === Cap insurance salary base (split caps)
+  const insuranceCapSocialHealth = 20 * baseWage;
+  const insuranceCapUnemployment = 20 * regionalMinimum;
+  const insuranceBaseSalarySocialHealth = Math.min(gross, insuranceCapSocialHealth);
+  const insuranceBaseSalaryUnemployment = Math.min(gross, insuranceCapUnemployment);
 
-  // === Insurance deduction (employee side)
+  // === Insurance deduction (employee side, split caps)
   const totalInsuranceEmp =
-    insuranceBaseSalary *
-    (insuranceRate.employee.social +
-      insuranceRate.employee.health +
-      insuranceRate.employee.unemployment);
+    insuranceBaseSalarySocialHealth * (insuranceRate.employee.social + insuranceRate.employee.health) +
+    insuranceBaseSalaryUnemployment * insuranceRate.employee.unemployment;
 
   // === Taxable income
   const taxableIncome = gross - totalInsuranceEmp - personalDeduction;
@@ -49,14 +50,12 @@ function calculateNet() {
 
   const net = gross - totalInsuranceEmp - incomeTax;
 
-  // === Employer total cost
+  // === Employer total cost (split caps)
   const totalInsuranceEmplyr =
-    insuranceBaseSalary *
-    (insuranceRate.employer.social +
-      insuranceRate.employer.health +
-      insuranceRate.employer.unemployment);
+    insuranceBaseSalarySocialHealth * (insuranceRate.employer.social + insuranceRate.employer.health) +
+    insuranceBaseSalaryUnemployment * insuranceRate.employer.unemployment;
 
-  const employerUnion = insuranceBaseSalary * unionFee;
+  const employerUnion = insuranceBaseSalarySocialHealth * unionFee;
   const employerCost = gross + totalInsuranceEmplyr + employerUnion;
 
   resultDiv.innerHTML = `
