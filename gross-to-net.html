@@ -1,20 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Calculate From Gross</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond&display=swap" rel="stylesheet" />
 </head>
 <body>
-
   <h1>Calculate From Gross</h1>
-
   <form id="salary-form">
-    <label for="status">Residential Status:</label>
-    <select id="status">
+    <label for="national">National Status:</label>
+    <select id="national">
       <option value="local">Local</option>
       <option value="expat">Expat</option>
+    </select>
+
+    <label for="residential">Residential Status:</label>
+    <select id="residential">
+      <option value="yes">Residential</option>
+      <option value="no">Non-residential</option>
     </select>
 
     <label for="contract">Labor Contract:</label>
@@ -26,26 +30,30 @@
     <label for="duration">Duration:</label>
     <select id="duration">
       <option value="more-than-3m">More than 3 months</option>
-      <option value="less-than-3m">Less than 3 months</option>
+      <option value="1m-to-3m">From 1 to 3 months</option>
+      <option value="less-than-1m">Less than 1 month</option>
     </select>
 
     <label for="gross">Base Salary:</label>
     <input type="text" id="gross" placeholder="Min 5,000,000 VND" />
 
     <div class="checkbox-group">
-      <label class="checkbox-item">
-        <input type="checkbox"> Allowance
-      </label>
-      <label class="checkbox-item">
-        <input type="checkbox"> Bonus
-      </label>
+      <div id="allowance-container">
+        <label class="checkbox-item">
+          <input type="checkbox" id="allowance" /> Allowance
+        </label>
+      </div>
+      <div id="bonus-container">
+        <label class="checkbox-item">
+          <input type="checkbox" id="bonus" /> Bonus
+        </label>
+      </div>
     </div>
 
     <button type="button" id="calculate-btn">Calculate</button>
   </form>
 
   <div class="result" id="result"></div>
-
   <script type="module" src="js/main.js"></script>
 </body>
 </html>

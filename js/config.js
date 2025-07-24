@@ -33,7 +33,7 @@ export function calculateNet() {
   const resultDiv = document.getElementById('result');
 
   if (isNaN(gross) || gross < 5000000) {
-    resultDiv.innerText = 'Please enter a valid gross salary.';
+    resultDiv.innerText = 'Please enter a valid base salary (minimum 5,000,000 VND).';
     return;
   }
 
