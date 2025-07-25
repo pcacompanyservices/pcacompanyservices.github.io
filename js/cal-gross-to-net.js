@@ -122,42 +122,23 @@ export function calculateFromGrossToNet() {
   // Total Employer Cost
   const totalEmployerCost = grossSalary + employerInsurance + unionFeeAmount;
 
-  // Formatting helpers
-  const fmt = (v) => Math.round(v).toLocaleString('us-US');
-  const formatLine = (label, value) => value ? `- ${label}: ${fmt(value)} VND<br>` : '';
-
-  // Allowances HTML
-  let allowanceHTML = '';
-  allowanceHTML += formatLine('Lunch', lunchAllowance);
-  allowanceHTML += formatLine('Fuel', fuelAllowance);
-  allowanceHTML += formatLine('Phone', phoneAllowance);
-  allowanceHTML += formatLine('Travel', travelAllowance);
-  allowanceHTML += formatLine('Uniform', uniformAllowance);
-
-  // Bonuses HTML
-  let bonusHTML = '';
-  bonusHTML += formatLine('Productivity', productivityBonus);
-  bonusHTML += formatLine('Incentive', incentiveBonus);
-  bonusHTML += formatLine('KPI', kpiBonus);
-
-  // Output
-  resultDiv.innerHTML = `
-    <b>Base Salary: ${fmt(baseSalary)} VND</b><br>
-    <hr>
-    ${allowanceHTML ? 'Allowances:<br>' + allowanceHTML + '<hr>' : ''}
-    ${bonusHTML ? 'Bonuses:<br>' + bonusHTML + '<hr>' : ''}
-    <b>Gross Salary: ${fmt(grossSalary)} VND</b><br>
-    <hr>
-    Employee Insurance: ${fmt(employeeInsurance)} VND<br>
-    <hr>
-    (Taxable Income: ${fmt(taxableIncome)} VND)<br>
-    Employee Personal Income Tax: ${fmt(incomeTax)} VND<br>
-    <hr>
-    <b>Employee Net Salary: ${fmt(netSalary)} VND</b><br>
-    <hr>
-    Employer Insurance: ${fmt(employerInsurance)} VND<br>
-    Employer Union Fee: ${fmt(unionFeeAmount)} VND<br>
-    <hr>
-    <b>Total Employer Cost: ${fmt(totalEmployerCost)} VND</b><br>
-  `;
+  return {
+    baseSalary: Math.round(baseSalary),
+    lunchAllowance: Math.round(lunchAllowance),
+    fuelAllowance: Math.round(fuelAllowance),
+    phoneAllowance: Math.round(phoneAllowance),
+    travelAllowance: Math.round(travelAllowance),
+    uniformAllowance: Math.round(uniformAllowance),
+    productivityBonus: Math.round(productivityBonus),
+    incentiveBonus: Math.round(incentiveBonus),
+    kpiBonus: Math.round(kpiBonus),
+    grossSalary: Math.round(grossSalary),
+    employeeInsurance: Math.round(employeeInsurance),
+    taxableIncome: Math.round(taxableIncome),
+    incomeTax: Math.round(incomeTax),
+    netSalary: Math.round(netSalary),
+    employerInsurance: Math.round(employerInsurance),
+    employerUnionFee: Math.round(unionFeeAmount),
+    totalEmployerCost: Math.round(totalEmployerCost)
+  };
 }

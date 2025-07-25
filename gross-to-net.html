@@ -5,6 +5,7 @@
   <title>Calculate From Gross</title>
   <link rel="stylesheet" href="css/style.css" />
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond&display=swap" rel="stylesheet" />
+  <script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
 </head>
 <body>
   <h1>Calculate From Gross</h1>
@@ -97,6 +98,10 @@
   </form>
 
   <div class="result" id="result"></div>
+  <div class="chart-container">
+    <canvas id="salary-structure-chart"></canvas>
+    <canvas id="salary-breakdown-chart"></canvas>
+  </div>
   <script type="module" src="js/gross-to-net.js"></script>
 </body>
 </html>
