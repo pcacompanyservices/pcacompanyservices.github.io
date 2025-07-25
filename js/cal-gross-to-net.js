@@ -37,127 +37,127 @@ const dependentsDeduction = 4400000;
 
 // Calculation
 
+// Helper function to get rounded value based on input and checkbox
+function getRoundedValue(id, checkboxId) {
+  return document.getElementById(checkboxId)?.checked
+    ? parseFloat(document.getElementById(id).value.replace(/,/g, '')) || 0
+    : 0;
+}
+
 export function calculateFromGrossToNet() {
   const resultDiv = document.getElementById('result');
-
   const baseSalary = parseFloat(document.getElementById('base-salary').value.replace(/,/g, ''));
+
   if (isNaN(baseSalary) || baseSalary < 5000000) {
     resultDiv.innerText = 'Please enter a valid base salary (minimum 5,000,000 VND).';
     return;
   }
 
-  let lunchAllowance = 0;
-  let fuelAllowance = 0;
-  let phoneAllowance = 0;
-  let travelAllowance = 0;
-  let uniformAllowance = 0;
+  // Grouped: Allowances
+  const isAllowanceEnabled = document.getElementById('allowance-checkbox').checked;
+  const lunchAllowance = isAllowanceEnabled ? getRoundedValue('allowance-lunch', 'lunch-checkbox') : 0;
+  const fuelAllowance = isAllowanceEnabled ? getRoundedValue('allowance-fuel', 'fuel-checkbox') : 0;
+  const phoneAllowance = isAllowanceEnabled ? getRoundedValue('allowance-phone', 'phone-checkbox') : 0;
+  const travelAllowance = isAllowanceEnabled ? getRoundedValue('allowance-travel', 'travel-checkbox') : 0;
+  const uniformAllowance = isAllowanceEnabled ? getRoundedValue('allowance-uniform', 'uniform-checkbox') : 0;
 
-  if (document.getElementById('allowance-checkbox').checked) {
-    lunchAllowance = document.getElementById('lunch-checkbox').checked ? parseFloat(document.getElementById('allowance-lunch').value.replace(/,/g, '')) || 0 : 0;
-    fuelAllowance = document.getElementById('fuel-checkbox').checked ? parseFloat(document.getElementById('allowance-fuel').value.replace(/,/g, '')) || 0 : 0;
-    phoneAllowance = document.getElementById('phone-checkbox').checked ? parseFloat(document.getElementById('allowance-phone').value.replace(/,/g, '')) || 0 : 0;
-    travelAllowance = document.getElementById('travel-checkbox').checked ? parseFloat(document.getElementById('allowance-travel').value.replace(/,/g, '')) || 0 : 0;
-    uniformAllowance = document.getElementById('uniform-checkbox').checked ? parseFloat(document.getElementById('allowance-uniform').value.replace(/,/g, '')) || 0 : 0;
-  }
+  // Grouped: Bonuses
+  const isBonusEnabled = document.getElementById('bonus-checkbox').checked;
+  const productivityBonus = isBonusEnabled ? getRoundedValue('bonus-productivity', 'productivity-checkbox') : 0;
+  const incentiveBonus = isBonusEnabled ? getRoundedValue('bonus-incentive', 'incentive-checkbox') : 0;
+  const kpiBonus = isBonusEnabled ? getRoundedValue('bonus-kpi', 'kpi-checkbox') : 0;
 
-  let productivityBonus = 0;
-  let incentiveBonus = 0;
-  let kpiBonus = 0;
+  const national = document.getElementById('national').value;
 
-  if (document.getElementById('bonus-checkbox').checked) {
-    productivityBonus = document.getElementById('productivity-checkbox').checked ? parseFloat(document.getElementById('bonus-productivity').value.replace(/,/g, '')) || 0 : 0;
-    incentiveBonus = document.getElementById('incentive-checkbox').checked ? parseFloat(document.getElementById('bonus-incentive').value.replace(/,/g, '')) || 0 : 0;
-    kpiBonus = document.getElementById('kpi-checkbox').checked ? parseFloat(document.getElementById('bonus-kpi').value.replace(/,/g, '')) || 0 : 0;
-  }
+  // Gross Salary
+  const grossSalary =
+    baseSalary +
+    lunchAllowance +
+    fuelAllowance +
+    phoneAllowance +
+    travelAllowance +
+    uniformAllowance +
+    productivityBonus +
+    incentiveBonus +
+    kpiBonus;
 
-  function calculateEmployeeGross() {
-    return baseSalary + lunchAllowance + fuelAllowance + phoneAllowance + travelAllowance + uniformAllowance + productivityBonus + incentiveBonus + kpiBonus;
-  }
+  // Employee Insurance
+  const employeeInsurance =
+    Math.min(baseSalary, socialHealthCapSalaryForInsurance) * (insuranceRate.employee.social + insuranceRate.employee.health) +
+    (national === 'local'
+      ? Math.min(baseSalary, unemploymentCapSalaryForInsurance) * insuranceRate.employee.unemployment
+      : 0);
 
-  function calculateEmployeeInsurance() {
-    const socialHealthInsurance = Math.min(baseSalary, socialHealthCapSalaryForInsurance) * (insuranceRate.employee.social + insuranceRate.employee.health);
-    const unemploymentInsurance = Math.min(baseSalary, unemploymentCapSalaryForInsurance) * insuranceRate.employee.unemployment;
-    return socialHealthInsurance + (document.getElementById('national').value === 'local' ? unemploymentInsurance : 0);
-  }
+  // Employer Insurance
+  const employerInsurance =
+    Math.min(baseSalary, socialHealthCapSalaryForInsurance) * (insuranceRate.employer.social + insuranceRate.employer.health) +
+    (national === 'local'
+      ? Math.min(baseSalary, unemploymentCapSalaryForInsurance) * insuranceRate.employer.unemployment
+      : 0);
 
-  function calculateEmployerInsurance() {
-    const socialHealthInsurance = Math.min(baseSalary, socialHealthCapSalaryForInsurance) * (insuranceRate.employer.social + insuranceRate.employer.health);
-    const unemploymentInsurance = Math.min(baseSalary, unemploymentCapSalaryForInsurance) * insuranceRate.employer.unemployment;
-    return socialHealthInsurance + (document.getElementById('national').value === 'local' ? unemploymentInsurance : 0);
-  }
+  // Taxable Income
+  const taxableIncome =
+    grossSalary -
+    employeeInsurance -
+    personalDeduction -
+    phoneAllowance -
+    Math.min(lunchAllowance, lunchCap) -
+    Math.min(uniformAllowance, uniformCap);
 
-  function calculateEmployeeTaxableIncome() {
-    const gross = calculateEmployeeGross();
-    const insurance = calculateEmployeeInsurance();
-    return gross - insurance - personalDeduction - phoneAllowance - Math.min(lunchAllowance, lunchCap) - Math.min(uniformAllowance, uniformCap);
-  }
-
-  function calculateEmployeePIT() {
-    const taxableIncome = calculateEmployeeTaxableIncome();
-    let tax = 0;
-    if (taxableIncome > 0) {
-      for (const bracket of taxRate) {
-        if (taxableIncome <= bracket.max) {
-          tax = taxableIncome * bracket.rate - bracket.reduce;
-          break;
-        }
+  // Income Tax
+  let incomeTax = 0;
+  if (taxableIncome > 0) {
+    for (const bracket of taxRate) {
+      if (taxableIncome <= bracket.max) {
+        incomeTax = taxableIncome * bracket.rate - bracket.reduce;
+        break;
       }
     }
-    return tax;
   }
 
-  function calculateEmployeeNet() {
-    const gross = calculateEmployeeGross();
-    const insurance = calculateEmployeeInsurance();
-    const tax = calculateEmployeePIT();
-    return gross - insurance - tax;
-  }
+  // Net Salary
+  const netSalary = grossSalary - employeeInsurance - incomeTax;
+  // Employer Union Fee
+  const unionFeeAmount = Math.min(baseSalary, socialHealthCapSalaryForInsurance) * unionFee;
+  // Total Employer Cost
+  const totalEmployerCost = grossSalary + employerInsurance + unionFeeAmount;
 
-  function calculateEmployerCost() {
-    const gross = calculateEmployeeGross();
-    const insurance = calculateEmployerInsurance();
-    const union = Math.min(baseSalary, socialHealthCapSalaryForInsurance) * unionFee;
-    return gross + insurance + union;
-  }
+  // Formatting helpers
+  const fmt = (v) => Math.round(v).toLocaleString('us-US');
+  const formatLine = (label, value) => value ? `- ${label}: ${fmt(value)} VND<br>` : '';
 
-  const grossSalary = calculateEmployeeGross();
-  const totalInsuranceEmployee = calculateEmployeeInsurance();
-  const taxableIncome = calculateEmployeeTaxableIncome();
-  const incomeTax = calculateEmployeePIT();
-  const net = calculateEmployeeNet();
-  const totalInsuranceEmployer = calculateEmployerInsurance();
-  const employerUnion = Math.min(baseSalary, socialHealthCapSalaryForInsurance) * unionFee;
-  const employerCost = calculateEmployerCost();
-
+  // Allowances HTML
   let allowanceHTML = '';
-  if (lunchAllowance) allowanceHTML += `- Lunch: ${Math.round(lunchAllowance).toLocaleString('us-US')} VND<br>`;
-  if (fuelAllowance) allowanceHTML += `- Fuel: ${Math.round(fuelAllowance).toLocaleString('us-US')} VND<br>`;
-  if (phoneAllowance) allowanceHTML += `- Phone: ${Math.round(phoneAllowance).toLocaleString('us-US')} VND<br>`;
-  if (travelAllowance) allowanceHTML += `- Travel: ${Math.round(travelAllowance).toLocaleString('us-US')} VND<br>`;
-  if (uniformAllowance) allowanceHTML += `- Uniform: ${Math.round(uniformAllowance).toLocaleString('us-US')} VND<br>`;
+  allowanceHTML += formatLine('Lunch', lunchAllowance);
+  allowanceHTML += formatLine('Fuel', fuelAllowance);
+  allowanceHTML += formatLine('Phone', phoneAllowance);
+  allowanceHTML += formatLine('Travel', travelAllowance);
+  allowanceHTML += formatLine('Uniform', uniformAllowance);
 
+  // Bonuses HTML
   let bonusHTML = '';
-  if (productivityBonus) bonusHTML += `- Productivity: ${Math.round(productivityBonus).toLocaleString('us-US')} VND<br>`;
-  if (incentiveBonus) bonusHTML += `- Incentive: ${Math.round(incentiveBonus).toLocaleString('us-US')} VND<br>`;
-  if (kpiBonus) bonusHTML += `- KPI: ${Math.round(kpiBonus).toLocaleString('us-US')} VND<br>`;
+  bonusHTML += formatLine('Productivity', productivityBonus);
+  bonusHTML += formatLine('Incentive', incentiveBonus);
+  bonusHTML += formatLine('KPI', kpiBonus);
 
+  // Output
   resultDiv.innerHTML = `
-    <b>Base Salary: ${Math.round(baseSalary).toLocaleString('us-US')} VND</b><br>
+    <b>Base Salary: ${fmt(baseSalary)} VND</b><br>
     <hr>
     ${allowanceHTML ? 'Allowances:<br>' + allowanceHTML + '<hr>' : ''}
     ${bonusHTML ? 'Bonuses:<br>' + bonusHTML + '<hr>' : ''}
-    <b>Gross Salary: ${Math.round(grossSalary).toLocaleString('us-US')} VND</b><br>
+    <b>Gross Salary: ${fmt(grossSalary)} VND</b><br>
     <hr>
-    Employee Insurance: ${Math.round(totalInsuranceEmployee).toLocaleString('us-US')} VND<br>
+    Employee Insurance: ${fmt(employeeInsurance)} VND<br>
     <hr>
-    (Taxable Income: ${Math.round(taxableIncome).toLocaleString('us-US')} VND)<br>
-    Employee Personal Income Tax: ${Math.round(incomeTax).toLocaleString('us-US')} VND<br>
+    (Taxable Income: ${fmt(taxableIncome)} VND)<br>
+    Employee Personal Income Tax: ${fmt(incomeTax)} VND<br>
     <hr>
-    <b>Employee Net Salary: ${Math.round(net).toLocaleString('us-US')} VND</b><br>
+    <b>Employee Net Salary: ${fmt(netSalary)} VND</b><br>
     <hr>
-    Employer Insurance: ${Math.round(totalInsuranceEmployer).toLocaleString('us-US')} VND<br>
-    Employer Union Fee: ${Math.round(employerUnion).toLocaleString('us-US')} VND<br>
+    Employer Insurance: ${fmt(employerInsurance)} VND<br>
+    Employer Union Fee: ${fmt(unionFeeAmount)} VND<br>
     <hr>
-    <b>Total Employer Cost: ${Math.round(employerCost).toLocaleString('us-US')} VND</b><br>
+    <b>Total Employer Cost: ${fmt(totalEmployerCost)} VND</b><br>
   `;
 }
