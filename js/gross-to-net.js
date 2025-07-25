@@ -126,6 +126,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Pie chart rendering
+  const structureChart = document.getElementById('salary-structure-chart');
+  const breakdownChart = document.getElementById('salary-breakdown-chart');
   const structureChartLabel = document.getElementById('structure-chart-label');
   const breakdownChartLabel = document.getElementById('breakdown-chart-label');
   function renderPieChart(data) {
@@ -135,40 +137,50 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const bonusAndAllowance = data.grossSalary - data.baseSalary;
 
-    if (window.salaryChart) window.salaryChart.destroy();
+    if (bonusAndAllowance === 0) {
+      if (window.salaryChart) {
+        window.salaryChart.destroy();
+        window.salaryChart = null;
+      }
+      structureChart.style.display = 'none';
+      structureChartLabel.style.display = 'none';
+    } else {
+      if (window.salaryChart) window.salaryChart.destroy();
 
-    window.salaryChart = new Chart(ctx, {
-      type: 'pie',
-      data: {
-        labels: ['Base Salary', 'Bonus & Allowance'],
-        datasets: [{
-          data: [data.baseSalary, bonusAndAllowance],
-          backgroundColor: ['#4caf50', '#f9a825']
-        }]
-      },
-      options: {
-        responsive: false,
-        plugins: {
-          legend: {
-            display: false
-          },
-          tooltip: {
-            bodyFont: {
-              family: 'EB Garamond'
+      window.salaryChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: ['Base Salary', 'Bonus & Allowance'],
+          datasets: [{
+            data: [data.baseSalary, bonusAndAllowance],
+            backgroundColor: ['#9aff9a', '#87cefa']
+          }]
+        },
+        options: {
+          responsive: false,
+          plugins: {
+            legend: {
+              display: false
             },
-            callbacks: {
-              label: function(context) {
-                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                const value = context.raw;
-                const percent = ((value / total) * 100).toFixed(2);
-                return `${context.label}: ${value.toLocaleString('en-US')} VND (${percent}%)`;
+            tooltip: {
+              bodyFont: {
+                family: 'EB Garamond'
+              },
+              callbacks: {
+                label: function(context) {
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const value = context.raw;
+                  const percent = ((value / total) * 100).toFixed(2);
+                  return `${context.label}: ${value.toLocaleString('en-US')} VND (${percent}%)`;
+                }
               }
             }
           }
         }
-      }
-    });
-    structureChartLabel.style.display = 'block';
+      });
+      structureChart.style.display = 'block';
+      structureChartLabel.style.display = 'block';
+    }
 
     // Render the second pie chart for salary breakdown
     const breakdownCanvas = document.getElementById('salary-breakdown-chart');
@@ -176,7 +188,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const breakdownCtx = breakdownCanvas.getContext('2d');
 
     const breakdownData = [
-      data.baseSalary,
       data.employeeInsurance,
       data.incomeTax,
       data.netSalary,
@@ -184,9 +195,8 @@ document.addEventListener('DOMContentLoaded', () => {
       data.employerUnionFee,
     ];
     const breakdownLabels = [
-      'Base Salary',
       'Employee Insurance',
-      'PIT (Personal Income Tax)',
+      'Personal Income Tax',
       'Net Salary',
       'Employer Insurance',
       'Union Fee'
@@ -200,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
         labels: breakdownLabels,
         datasets: [{
           data: breakdownData,
-          backgroundColor: ['#4caf50', '#2196f3', '#ff9800', '#8bc34a', '#9c27b0', '#ffc107']
+          backgroundColor: ['#ffaaa5', '#ff8b94', '#9aff9a', '#fff4a5ff', '#ffb68bff']
         }]
       },
       options: {
@@ -225,6 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     });
+    breakdownChart.style.display = 'block';
     breakdownChartLabel.style.display = 'block';
   }
 });
