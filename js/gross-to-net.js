@@ -126,6 +126,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Pie chart rendering
+  const structureChartLabel = document.getElementById('structure-chart-label');
+  const breakdownChartLabel = document.getElementById('breakdown-chart-label');
   function renderPieChart(data) {
     const canvas = document.getElementById('salary-structure-chart');
     if (!canvas || !window.Chart) return;
@@ -148,12 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
         responsive: false,
         plugins: {
           legend: {
-            position: 'bottom',
-            labels: {
-              font: {
-                family: 'EB Garamond'
-              }
-            }
+            display: false
           },
           tooltip: {
             bodyFont: {
@@ -171,5 +168,63 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     });
+    structureChartLabel.style.display = 'block';
+
+    // Render the second pie chart for salary breakdown
+    const breakdownCanvas = document.getElementById('salary-breakdown-chart');
+    if (!breakdownCanvas) return;
+    const breakdownCtx = breakdownCanvas.getContext('2d');
+
+    const breakdownData = [
+      data.baseSalary,
+      data.employeeInsurance,
+      data.incomeTax,
+      data.netSalary,
+      data.employerInsurance,
+      data.employerUnionFee,
+    ];
+    const breakdownLabels = [
+      'Base Salary',
+      'Employee Insurance',
+      'PIT (Personal Income Tax)',
+      'Net Salary',
+      'Employer Insurance',
+      'Union Fee'
+    ];
+
+    if (window.breakdownChart) window.breakdownChart.destroy();
+
+    window.breakdownChart = new Chart(breakdownCtx, {
+      type: 'pie',
+      data: {
+        labels: breakdownLabels,
+        datasets: [{
+          data: breakdownData,
+          backgroundColor: ['#4caf50', '#2196f3', '#ff9800', '#8bc34a', '#9c27b0', '#ffc107']
+        }]
+      },
+      options: {
+        responsive: false,
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            bodyFont: {
+              family: 'EB Garamond'
+            },
+            callbacks: {
+              label: function(context) {
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const value = context.raw;
+                const percent = ((value / total) * 100).toFixed(2);
+                return `${context.label}: ${value.toLocaleString('en-US')} VND (${percent}%)`;
+              }
+            }
+          }
+        }
+      }
+    });
+    breakdownChartLabel.style.display = 'block';
   }
 });

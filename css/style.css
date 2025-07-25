@@ -83,3 +83,25 @@ button:hover {
 #bonus-inputs {
   padding-left: 20px;
 }
+
+/* Chart container styles */
+.chart-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  margin: 40px auto 0;
+  flex-wrap: wrap;
+  font-family: 'EB Garamond', serif;
+  font-size: 16px;
+}
+
+#salary-structure-chart {
+  max-width: 300px;
+  max-height: 300px;
+}
+
+#salary-breakdown-chart {
+  max-width: 300px;
+  max-height: 300px;
+}
