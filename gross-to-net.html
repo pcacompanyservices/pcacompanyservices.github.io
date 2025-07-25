@@ -15,7 +15,7 @@
       <option value="expat">Expat</option>
     </select>
 
-    <label for="gross">Base Salary:</label>
+    <label for="base-salary">Base Salary:</label>
     <input type="text" id="base-salary" placeholder="Min 5,000,000 VND" />
 
     <div class="checkbox-group">
@@ -23,11 +23,22 @@
         <label class="checkbox-item">
           <input type="checkbox" id="allowance" /> Allowance
         </label>
+        <div id="allowance-inputs" style="display: none;">
+          <label for="lunch">Allowance for Lunch:</label>
+          <input type="text" id="lunch" placeholder="Please enter your lunch allowance" min="0" />
+          <label for="phone">Allowance for Phone:</label>
+          <input type="text" id="phone" placeholder="Please enter your phone allowance" min="0" />
+          <label for="other-allowance">Other Allowances:</label>
+          <input type="text" id="other-allowance" placeholder="Please enter other allowances in total" min="0" />
+        </div>
       </div>
       <div id="bonus-container">
         <label class="checkbox-item">
           <input type="checkbox" id="bonus-checkbox" /> Bonus
         </label>
+        <div id="bonus-input-wrapper" style="display: none;">
+          <input type="text" id="bonus" placeholder="Please enter your total bonus" min="0" />
+        </div>
       </div>
     </div>
 
