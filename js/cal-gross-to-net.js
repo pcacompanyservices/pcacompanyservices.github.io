@@ -46,15 +46,29 @@ export function calculateFromGrossToNet() {
     return;
   }
 
-  const lunchAllowance = parseFloat(document.getElementById('allowance-lunch').value.replace(/,/g, '')) || 0;
-  const fuelAllowance = parseFloat(document.getElementById('allowance-fuel').value.replace(/,/g, '')) || 0;
-  const phoneAllowance = parseFloat(document.getElementById('allowance-phone').value.replace(/,/g, '')) || 0;
-  const travelAllowance = parseFloat(document.getElementById('allowance-travel').value.replace(/,/g, '')) || 0;
-  const uniformAllowance = parseFloat(document.getElementById('allowance-uniform').value.replace(/,/g, '')) || 0;
+  let lunchAllowance = 0;
+  let fuelAllowance = 0;
+  let phoneAllowance = 0;
+  let travelAllowance = 0;
+  let uniformAllowance = 0;
 
-  const productivityBonus = parseFloat(document.getElementById('bonus-productivity').value.replace(/,/g, '')) || 0;
-  const incentiveBonus = parseFloat(document.getElementById('bonus-incentive').value.replace(/,/g, '')) || 0;
-  const kpiBonus = parseFloat(document.getElementById('bonus-kpi').value.replace(/,/g, '')) || 0;
+  if (document.getElementById('allowance-checkbox').checked) {
+    lunchAllowance = document.getElementById('lunch-checkbox').checked ? parseFloat(document.getElementById('allowance-lunch').value.replace(/,/g, '')) || 0 : 0;
+    fuelAllowance = document.getElementById('fuel-checkbox').checked ? parseFloat(document.getElementById('allowance-fuel').value.replace(/,/g, '')) || 0 : 0;
+    phoneAllowance = document.getElementById('phone-checkbox').checked ? parseFloat(document.getElementById('allowance-phone').value.replace(/,/g, '')) || 0 : 0;
+    travelAllowance = document.getElementById('travel-checkbox').checked ? parseFloat(document.getElementById('allowance-travel').value.replace(/,/g, '')) || 0 : 0;
+    uniformAllowance = document.getElementById('uniform-checkbox').checked ? parseFloat(document.getElementById('allowance-uniform').value.replace(/,/g, '')) || 0 : 0;
+  }
+
+  let productivityBonus = 0;
+  let incentiveBonus = 0;
+  let kpiBonus = 0;
+
+  if (document.getElementById('bonus-checkbox').checked) {
+    productivityBonus = document.getElementById('productivity-checkbox').checked ? parseFloat(document.getElementById('bonus-productivity').value.replace(/,/g, '')) || 0 : 0;
+    incentiveBonus = document.getElementById('incentive-checkbox').checked ? parseFloat(document.getElementById('bonus-incentive').value.replace(/,/g, '')) || 0 : 0;
+    kpiBonus = document.getElementById('kpi-checkbox').checked ? parseFloat(document.getElementById('bonus-kpi').value.replace(/,/g, '')) || 0 : 0;
+  }
 
   function calculateEmployeeGross() {
     return baseSalary + lunchAllowance + fuelAllowance + phoneAllowance + travelAllowance + uniformAllowance + productivityBonus + incentiveBonus + kpiBonus;
@@ -115,33 +129,35 @@ export function calculateFromGrossToNet() {
   const employerUnion = Math.min(baseSalary, socialHealthCapSalaryForInsurance) * unionFee;
   const employerCost = calculateEmployerCost();
 
+  let allowanceHTML = '';
+  if (lunchAllowance) allowanceHTML += `- Lunch: ${Math.round(lunchAllowance).toLocaleString('us-US')} VND<br>`;
+  if (fuelAllowance) allowanceHTML += `- Fuel: ${Math.round(fuelAllowance).toLocaleString('us-US')} VND<br>`;
+  if (phoneAllowance) allowanceHTML += `- Phone: ${Math.round(phoneAllowance).toLocaleString('us-US')} VND<br>`;
+  if (travelAllowance) allowanceHTML += `- Travel: ${Math.round(travelAllowance).toLocaleString('us-US')} VND<br>`;
+  if (uniformAllowance) allowanceHTML += `- Uniform: ${Math.round(uniformAllowance).toLocaleString('us-US')} VND<br>`;
+
+  let bonusHTML = '';
+  if (productivityBonus) bonusHTML += `- Productivity: ${Math.round(productivityBonus).toLocaleString('us-US')} VND<br>`;
+  if (incentiveBonus) bonusHTML += `- Incentive: ${Math.round(incentiveBonus).toLocaleString('us-US')} VND<br>`;
+  if (kpiBonus) bonusHTML += `- KPI: ${Math.round(kpiBonus).toLocaleString('us-US')} VND<br>`;
+
   resultDiv.innerHTML = `
-    <b>Base Salary: ${baseSalary.toLocaleString('us-US')} VND</b><br>
+    <b>Base Salary: ${Math.round(baseSalary).toLocaleString('us-US')} VND</b><br>
     <hr>
-    Allowances: <br>
-    - Lunch: ${lunchAllowance.toLocaleString('us-US')} VND<br>
-    - Fuel: ${fuelAllowance.toLocaleString('us-US')} VND<br>
-    - Phone: ${phoneAllowance.toLocaleString('us-US')} VND<br>
-    - Travel: ${travelAllowance.toLocaleString('us-US')} VND<br>
-    - Uniform: ${uniformAllowance.toLocaleString('us-US')} VND<br>
-    Bonuses: <br>
-    - Productivity: ${productivityBonus.toLocaleString('us-US')} VND<br>
-    - Incentive: ${incentiveBonus.toLocaleString('us-US')} VND<br>
-    - KPI: ${kpiBonus.toLocaleString('us-US')} VND<br>
+    ${allowanceHTML ? 'Allowances:<br>' + allowanceHTML + '<hr>' : ''}
+    ${bonusHTML ? 'Bonuses:<br>' + bonusHTML + '<hr>' : ''}
+    <b>Gross Salary: ${Math.round(grossSalary).toLocaleString('us-US')} VND</b><br>
     <hr>
-    <b>Gross Salary: ${grossSalary.toLocaleString('us-US')} VND</b><br>
+    Employee Insurance: ${Math.round(totalInsuranceEmployee).toLocaleString('us-US')} VND<br>
     <hr>
-    Employee Insurance: ${totalInsuranceEmployee.toLocaleString('us-US')} VND<br>
+    (Taxable Income: ${Math.round(taxableIncome).toLocaleString('us-US')} VND)<br>
+    Employee Personal Income Tax: ${Math.round(incomeTax).toLocaleString('us-US')} VND<br>
     <hr>
-    (Taxable Income: ${taxableIncome.toLocaleString('us-US')} VND)<br>
-    Employee Personal Income Tax: ${incomeTax.toLocaleString('us-US')} VND<br>
+    <b>Employee Net Salary: ${Math.round(net).toLocaleString('us-US')} VND</b><br>
     <hr>
-    <b>Employee Net Salary: ${net.toLocaleString('us-US')} VND</b><br>
+    Employer Insurance: ${Math.round(totalInsuranceEmployer).toLocaleString('us-US')} VND<br>
+    Employer Union Fee: ${Math.round(employerUnion).toLocaleString('us-US')} VND<br>
     <hr>
-    Employer Insurance: ${totalInsuranceEmployer.toLocaleString('us-US')} VND<br>
-    Employer Union Fee: ${employerUnion.toLocaleString('us-US')} VND<br>
-    <hr>
-    <b>Total Employer Cost: ${employerCost.toLocaleString('us-US')} VND</b><br>
+    <b>Total Employer Cost: ${Math.round(employerCost).toLocaleString('us-US')} VND</b><br>
   `;
 }
-
