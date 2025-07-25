@@ -21,7 +21,7 @@
     <div class="checkbox-group">
       <div id="allowance-container">
         <label class="checkbox-item">
-          <input type="checkbox" id="allowance" /> Allowance
+          <input type="checkbox" id="allowance-checkbox" /> Allowance
         </label>
         <div id="allowance-inputs" style="display: none;">
           
@@ -29,50 +29,71 @@
             <input type="checkbox" id="lunch-checkbox" /> Lunch
           </label>
           <div id="lunch-input" style="display: none;">
-            <input type="text" id="lunch" placeholder="Please enter your allowance for lunch" min="0" />
+            <input type="text" id="allowance-lunch" placeholder="Please enter your allowance for lunch" min="0" />
           </div>
           
           <label class="checkbox-item">
             <input type="checkbox" id="fuel-checkbox" /> Fuel
           </label>
           <div id="fuel-input" style="display: none;">
-            <input type="text" id="fuel" placeholder="Please enter your allowance for fuel" min="0" />
+            <input type="text" id="allowance-fuel" placeholder="Please enter your allowance for fuel" min="0" />
           </div>
 
           <label class="checkbox-item">
             <input type="checkbox" id="phone-checkbox" /> Phone
           </label>
           <div id="phone-input" style="display: none;">
-            <input type="text" id="phone" placeholder="Please enter your allowance for phone" min="0" />
+            <input type="text" id="allowance-phone" placeholder="Please enter your allowance for phone" min="0" />
           </div>
 
           <label class="checkbox-item">
             <input type="checkbox" id="travel-checkbox" /> Traveling
           </label>
           <div id="travel-input" style="display: none;">
-            <input type="text" id="travel" placeholder="Please enter your allowance for traveling" min="0" />
+            <input type="text" id="allowance-travel" placeholder="Please enter your allowance for traveling" min="0" />
           </div>
 
           <label class="checkbox-item">
             <input type="checkbox" id="uniform-checkbox" /> Uniform
           </label>
           <div id="uniform-input" style="display: none;">
-            <input type="text" id="uniform" placeholder="Please enter your allowance for uniform" min="0" />
+            <input type="text" id="allowance-uniform" placeholder="Please enter your allowance for uniform" min="0" />
           </div>
-
+          
         </div>
       </div>
       <div id="bonus-container">
         <label class="checkbox-item">
           <input type="checkbox" id="bonus-checkbox" /> Bonus
         </label>
-        <div id="bonus-input" style="display: none;">
-          <input type="text" id="bonus" placeholder="Please enter your total bonus" min="0" />
+        <div id="bonus-inputs" style="display: none;">
+          
+          <label class="checkbox-item">
+            <input type="checkbox" id="productivity-checkbox" /> Productivity
+          </label>
+          <div id="productivity-input" style="display: none;">
+            <input type="text" id="bonus-productivity" placeholder="Please enter your bonus for productivity" min="0" />
+          </div>
+          
+          <label class="checkbox-item">
+            <input type="checkbox" id="incentive-checkbox" /> Incentive
+          </label>
+          <div id="incentive-input" style="display: none;">
+            <input type="text" id="bonus-incentive" placeholder="Please enter your bonus for incentive" min="0" />
+          </div>
+          
+          <label class="checkbox-item">
+            <input type="checkbox" id="kpi-checkbox" /> KPI
+          </label>
+          <div id="kpi-input" style="display: none;">
+            <input type="text" id="bonus-kpi" placeholder="Please enter your bonus for kpi" min="0" />
+          </div>
+
         </div>
       </div>
     </div>
 
-    <button type="button" id="calculate-btn">Calculate</button>
+    <button type="submit" id="calculate-btn">Calculate</button>
   </form>
 
   <div class="result" id="result"></div>

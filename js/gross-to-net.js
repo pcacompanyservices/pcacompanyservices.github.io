@@ -1,83 +1,78 @@
-import { calculateNet } from './cal-gross-to-net.js';
+import { calculateFromGrossToNet } from './cal-gross-to-net.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+  const salaryForm = document.getElementById('salary-form');
   const calculateBtn = document.getElementById('calculate-btn');
 
-  const salaryForm = document.getElementById('salary-form');
-
-  const allowanceCheckbox = document.getElementById('allowance');
-  const lunchCheckbox = document.getElementById('lunch-checkbox');
-  const fuelCheckbox = document.getElementById('fuel-checkbox');
-  const phoneCheckbox = document.getElementById('phone-checkbox');
-  const travelCheckbox = document.getElementById('travel-checkbox');
-  const uniformCheckbox = document.getElementById('uniform-checkbox');
-  
+  // Allowance checkboxes and input containers
+  const allowanceCheckbox = document.getElementById('allowance-checkbox');
   const allowanceInputs = document.getElementById('allowance-inputs');
-  const lunchInput = document.getElementById('lunch-input');
-  const fuelInput = document.getElementById('fuel-input');
-  const phoneInput = document.getElementById('phone-input');
-  const travelInput = document.getElementById('travel-input');
-  const uniformInput = document.getElementById('uniform-input');
-  
-  const bonusCheckbox = document.getElementById('bonus-checkbox');
-  const bonusInputWrapper = document.getElementById('bonus-input');
+  const allowanceMap = {
+    'lunch-checkbox': 'lunch-input',
+    'fuel-checkbox': 'fuel-input',
+    'phone-checkbox': 'phone-input',
+    'travel-checkbox': 'travel-input',
+    'uniform-checkbox': 'uniform-input',
+  };
 
-  // Toggle visibility for allowance inputs
+  // Bonus checkboxes and input containers
+  const bonusCheckbox = document.getElementById('bonus-checkbox');
+  const bonusInputs = document.getElementById('bonus-inputs');
+  const bonusMap = {
+    'productivity-checkbox': 'productivity-input',
+    'incentive-checkbox': 'incentive-input',
+    'kpi-checkbox': 'kpi-input',
+  };
+
+  // Generic toggle visibility function
+  function toggleVisibility(checkboxId, targetId) {
+    const checkbox = document.getElementById(checkboxId);
+    const target = document.getElementById(targetId);
+    if (checkbox && target) {
+      checkbox.addEventListener('change', () => {
+        target.style.display = checkbox.checked ? 'block' : 'none';
+      });
+    }
+  }
+
+  // Apply toggle logic
   allowanceCheckbox.addEventListener('change', () => {
     allowanceInputs.style.display = allowanceCheckbox.checked ? 'block' : 'none';
   });
+  Object.entries(allowanceMap).forEach(([cb, div]) => toggleVisibility(cb, div));
 
-  lunchCheckbox.addEventListener('change', () => {
-    lunchInput.style.display = lunchCheckbox.checked ? 'block' : 'none';
-  });
-
-  fuelCheckbox.addEventListener('change', () => {
-    fuelInput.style.display = fuelCheckbox.checked ? 'block' : 'none';
-  });
-
-  phoneCheckbox.addEventListener('change', () => {
-    phoneInput.style.display = phoneCheckbox.checked ? 'block' : 'none';
-  });
-
-  travelCheckbox.addEventListener('change', () => {
-    travelInput.style.display = travelCheckbox.checked ? 'block' : 'none';
-  });
-
-  uniformCheckbox.addEventListener('change', () => {
-    uniformInput.style.display = uniformCheckbox.checked ? 'block' : 'none';
-  });
-
-  // Toggle visibility for bonus input
   bonusCheckbox.addEventListener('change', () => {
-    bonusInputWrapper.style.display = bonusCheckbox.checked ? 'block' : 'none';
+    bonusInputs.style.display = bonusCheckbox.checked ? 'block' : 'none';
   });
+  Object.entries(bonusMap).forEach(([cb, div]) => toggleVisibility(cb, div));
 
-  // Handle calculation trigger
-  calculateBtn.addEventListener('click', calculateNet);
+  // Handle calculation
+  calculateBtn.addEventListener('click', calculateFromGrossToNet);
   salaryForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    calculateNet();
+    calculateFromGrossToNet();
   });
 
   // Format number input fields
   function formatNumberInput(input) {
     const raw = input.value.replace(/[^\d]/g, '');
-    if (!raw) {
-      input.value = '';
-      return;
-    }
-    const numericValue = parseFloat(raw);
-    if (!isNaN(numericValue)) {
-      input.value = numericValue.toLocaleString('en-US');
-    }
+    input.value = raw ? parseFloat(raw).toLocaleString('en-US') : '';
   }
 
-  // Auto-format relevant inputs
   document.addEventListener('input', (e) => {
-    const target = e.target;
-    const idsToFormat = ['base-salary', 'lunch', 'phone', 'other-allowance', 'bonus'];
-    if (target.tagName === 'INPUT' && idsToFormat.includes(target.id)) {
-      formatNumberInput(target);
+    const idsToFormat = [
+      'base-salary',
+      'allowance-lunch',
+      'allowance-fuel',
+      'allowance-phone',
+      'allowance-travel',
+      'allowance-uniform',
+      'bonus-productivity',
+      'bonus-incentive',
+      'bonus-kpi'
+    ];
+    if (e.target.tagName === 'INPUT' && idsToFormat.includes(e.target.id)) {
+      formatNumberInput(e.target);
     }
   });
 });

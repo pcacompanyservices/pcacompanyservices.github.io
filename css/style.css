@@ -78,3 +78,8 @@ button:hover {
 .simulation-button:hover {
   background-color: #e0e0e0;
 }
+
+#allowance-inputs,
+#bonus-inputs {
+  padding-left: 20px;
+}
