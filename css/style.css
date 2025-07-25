@@ -96,8 +96,8 @@ button:hover {
 
 #salary-structure-chart,
 #salary-breakdown-chart {
-  max-width: 280px;
-  max-height: 280px;
+  max-width: 250px;
+  max-height: 250px;
 }
 
 #structure-chart-label,
