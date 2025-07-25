@@ -1,4 +1,4 @@
-import { calculateNet } from './config.js';
+import { calculateNet } from './cal-gross-to-net.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // Form elements
