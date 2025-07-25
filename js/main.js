@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Apply formatting to designated input fields
   document.addEventListener('input', (e) => {
     const target = e.target;
-    const idsToFormat = ['base-salary', 'lunch', 'phone', 'other', 'bonus'];
+    const idsToFormat = ['base-salary', 'lunch', 'phone', 'other-allowance', 'bonus'];
     if (target.tagName === 'INPUT' && idsToFormat.includes(target.id)) {
       formatNumberInput(target);
     }
