@@ -85,7 +85,7 @@ button:hover {
 }
 
 /* Chart container styles */
-.chart-container {
+.pie-chart-container {
   display: flex;
   justify-content: center;
   align-items: center;
