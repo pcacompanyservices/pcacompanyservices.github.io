@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const salaryForm = document.getElementById('salary-form');
   const calculateBtn = document.getElementById('calculate-btn');
+  const downloadPdfBtn = document.getElementById('download-pdf-btn');
   const resultDiv = document.getElementById('result');
 
   const allowanceCheckbox = document.getElementById('allowance-checkbox');
@@ -113,6 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
       Employer Union Fee: ${data.employerUnionFee.toLocaleString('en-US')} VND<br><hr>
       <b>Total Employer Cost: ${data.totalEmployerCost.toLocaleString('en-US')} VND</b><br><hr>
     `;
+    downloadPdfBtn.style.display = 'block';
   }
 
   calculateBtn.addEventListener('click', handleCalculation);
