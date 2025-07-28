@@ -94,14 +94,14 @@ button:hover {
   flex-wrap: wrap;
 }
 
-#salary-structure-chart,
-#salary-breakdown-chart {
-  max-width: 250px;
-  max-height: 250px;
+#salary-breakdown-chart,
+#cost-breakdown-chart {
+  max-width: 200px;
+  max-height: 200px;
 }
 
-#structure-chart-label,
-#breakdown-chart-label {
+#salary-breakdown-chart-label,
+#cost-breakdown-chart-label {
   margin-top: 10px;
   font-weight: bold;
   font-family: 'EB Garamond', serif;

@@ -18,10 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const bonusCheckbox = document.getElementById('bonus-checkbox');
   const bonusInputs = document.getElementById('bonus-inputs');
 
-  const structureChart = document.getElementById('salary-structure-chart');
-  const breakdownChart = document.getElementById('salary-breakdown-chart');
-  const structureChartLabel = document.getElementById('structure-chart-label');
-  const breakdownChartLabel = document.getElementById('breakdown-chart-label');
+  const costBreakdownChart = document.getElementById('cost-breakdown-chart');
+  const salaryBreakdownChart = document.getElementById('salary-breakdown-chart');
+  const costBreakdownChartLabel = document.getElementById('cost-breakdown-chart-label');
+  const salaryBreakdownChartLabel = document.getElementById('salary-breakdown-chart-label');
 
   const allowanceMap = {
     'lunch-checkbox': 'lunch-input',
@@ -87,6 +87,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const data = calculateFromGrossToNet();
     renderPieChart(data);
 
+    // Calculate total allowance and bonus
+    const totalAllowance =
+      data.lunchAllowance + data.fuelAllowance + data.phoneAllowance +
+      data.travelAllowance + data.uniformAllowance;
+
+    const totalBonus =
+      data.productivityBonus + data.incentiveBonus + data.kpiBonus;
+
+    const totalAllowanceAndBonus = totalAllowance + totalBonus;
+
+    const percentBase = ((data.baseSalary / data.grossSalary) * 100).toFixed(2);
+    const percentAllowanceBonus = ((totalAllowanceAndBonus / data.grossSalary) * 100).toFixed(2);
+
     const allowanceHTML = [
       formatLine('Lunch', data.lunchAllowance),
       formatLine('Fuel', data.fuelAllowance),
@@ -102,9 +115,11 @@ document.addEventListener('DOMContentLoaded', () => {
     ].join('');
 
     resultDiv.innerHTML = `
-      <b>Base Salary: ${data.baseSalary.toLocaleString('en-US')} VND</b><br><hr>
-      ${allowanceHTML ? 'Allowances:<br>' + allowanceHTML + '<hr>' : ''}
-      ${bonusHTML ? 'Bonuses:<br>' + bonusHTML + '<hr>' : ''}
+    ${allowanceHTML ? 'Allowances:<br>' + allowanceHTML + '<hr>' : ''}
+    ${bonusHTML ? 'Bonuses:<br>' + bonusHTML + '<hr>' : ''}
+      ${totalAllowanceAndBonus > 0
+        ? `<b>Total Allowance and Bonus: ${totalAllowanceAndBonus.toLocaleString('en-US')} VND (${percentAllowanceBonus}%)</b><br>
+      <b>Base Salary: ${data.baseSalary.toLocaleString('en-US')} VND (${percentBase}%)</b><br><hr>` : ''}
       <b>Gross Salary: ${data.grossSalary.toLocaleString('en-US')} VND</b><br><hr>
       Employee Insurance: ${data.employeeInsurance.toLocaleString('en-US')} VND<br><hr>
       (Taxable Income: ${data.taxableIncome.toLocaleString('en-US')} VND)<br>
@@ -131,18 +146,19 @@ document.addEventListener('DOMContentLoaded', () => {
         window.salaryChart.destroy();
         window.salaryChart = null;
       }
-      structureChart.style.display = 'none';
-      structureChartLabel.style.display = 'none';
+      salaryBreakdownChart.style.display = 'none';
+      salaryBreakdownChartLabel.style.display = 'none';
     } else {
       if (window.salaryChart) window.salaryChart.destroy();
 
-      window.salaryChart = new Chart(structureChart.getContext('2d'), {
-        type: 'pie',
+      window.salaryChart = new Chart(salaryBreakdownChart.getContext('2d'), {
+        type: 'doughnut',
         data: {
           labels: ['Bonus & Allowance', 'Base Salary'],
           datasets: [{
             data: [bonusAndAllowance, data.baseSalary],
-            backgroundColor: ['#9aff9a', '#87cefa']
+            backgroundColor: ['#87cefa', '#9aff9a'],
+            spacing: 5,
           }]
         },
         options: {
@@ -164,35 +180,42 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
 
-      structureChart.style.display = 'block';
-      structureChartLabel.style.display = 'block';
+      salaryBreakdownChart.style.display = 'block';
+      salaryBreakdownChartLabel.style.display = 'block';
     }
 
-    if (window.breakdownChart) window.breakdownChart.destroy();
+    if (window.costBreakdownChart) window.costBreakdownChart.destroy();
 
     const breakdownData = [
       data.employeeInsurance,
       data.incomeTax,
-      data.netSalary,
       data.employerInsurance,
-      data.employerUnionFee
+      data.employerUnionFee,
+      data.netSalary
     ];
 
     const breakdownLabels = [
       'Employee Insurance',
       'Personal Income Tax',
-      'Employee Take-home (Net) Salary',
       'Employer Insurance',
-      'Employer Union Fee'
+      'Employer Union Fee',
+      'Employee Take-home (Net) Salary'
     ];
 
-    window.breakdownChart = new Chart(breakdownChart.getContext('2d'), {
-      type: 'pie',
+      window.costBreakdownChart = new Chart(costBreakdownChart.getContext('2d'), {
+      type: 'doughnut',
       data: {
         labels: breakdownLabels,
         datasets: [{
           data: breakdownData,
-          backgroundColor: ['#ffaaa5', '#ff8b94', '#9aff9a', '#fff4a5', '#ffb68b']
+          backgroundColor: [
+            '#ffaaa5',
+            '#ff8b94',
+            '#fff4a5',
+            '#ffb68b',
+            '#9aff9a'
+          ],
+          spacing: 5,
         }]
       },
       options: {
@@ -214,7 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    breakdownChart.style.display = 'block';
-    breakdownChartLabel.style.display = 'block';
+    costBreakdownChart.style.display = 'block';
+    costBreakdownChartLabel.style.display = 'block';
   }
 });
