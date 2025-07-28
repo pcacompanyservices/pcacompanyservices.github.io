@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   document.addEventListener('input', (e) => {
-    if (e.target.tagName === 'INPUT') {
+    if (e.target.tagName === 'INPUT' && e.target.classList.contains('number-input')) {
       formatNumberInput(e.target);
     }
   });
