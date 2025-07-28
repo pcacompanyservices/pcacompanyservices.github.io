@@ -212,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
           labels: ['Bonus & Allowance', 'Base Salary'],
           datasets: [{
             data: [bonusAndAllowance, data.baseSalary],
-            backgroundColor: ['#87cefa', '#9aff9a'],
+            backgroundColor: ['#999999', '#333333'],
             spacing: 5,
           }]
         },
@@ -265,11 +265,11 @@ document.addEventListener('DOMContentLoaded', () => {
         datasets: [{
           data: breakdownData,
           backgroundColor: [
-            '#ffaaa5',
-            '#ff8b94',
-            '#fff4a5',
-            '#ffb68b',
-            '#9aff9a'
+            '#C1272D',
+            '#A72126',
+            '#C1272D',
+            '#A72126',
+            '#666666'
           ],
           spacing: 5,
         }]
