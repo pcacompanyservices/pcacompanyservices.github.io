@@ -1,5 +1,9 @@
 import { calculateFromGrossToNet } from './cal-gross-to-net.js';
 
+function formatLine(label, value) {
+  return value ? `- ${label}: ${value.toLocaleString('en-US')} VND<br>` : '';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   // Load Chart.js if not present
   if (!window.Chart) {
@@ -8,20 +12,22 @@ document.addEventListener('DOMContentLoaded', () => {
     document.head.appendChild(script);
   }
 
-  const salaryForm = document.getElementById('salary-form');
-  const calculateBtn = document.getElementById('calculate-btn');
-  const downloadPdfBtn = document.getElementById('download-pdf-btn');
-  const resultDiv = document.getElementById('result');
+  const DOM = {
+    salaryForm: document.getElementById('salary-form'),
+    calculateBtn: document.getElementById('calculate-btn'),
+    downloadPdfBtn: document.getElementById('download-pdf-btn'),
+    resultDiv: document.getElementById('result'),
 
-  const allowanceCheckbox = document.getElementById('allowance-checkbox');
-  const allowanceInputs = document.getElementById('allowance-inputs');
-  const bonusCheckbox = document.getElementById('bonus-checkbox');
-  const bonusInputs = document.getElementById('bonus-inputs');
+    allowanceCheckbox: document.getElementById('allowance-checkbox'),
+    allowanceInputs: document.getElementById('allowance-inputs'),
+    bonusCheckbox: document.getElementById('bonus-checkbox'),
+    bonusInputs: document.getElementById('bonus-inputs'),
 
-  const costBreakdownChart = document.getElementById('cost-breakdown-chart');
-  const salaryBreakdownChart = document.getElementById('salary-breakdown-chart');
-  const costBreakdownChartLabel = document.getElementById('cost-breakdown-chart-label');
-  const salaryBreakdownChartLabel = document.getElementById('salary-breakdown-chart-label');
+    costBreakdownChart: document.getElementById('cost-breakdown-chart'),
+    salaryBreakdownChart: document.getElementById('salary-breakdown-chart'),
+    costBreakdownChartLabel: document.getElementById('cost-breakdown-chart-label'),
+    salaryBreakdownChartLabel: document.getElementById('salary-breakdown-chart-label'),
+  };
 
   const allowanceMap = {
     'lunch-checkbox': 'lunch-input',
@@ -60,8 +66,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  toggleVisibility(allowanceMap, allowanceCheckbox, allowanceInputs);
-  toggleVisibility(bonusMap, bonusCheckbox, bonusInputs);
+  toggleVisibility(allowanceMap, DOM.allowanceCheckbox, DOM.allowanceInputs);
+  toggleVisibility(bonusMap, DOM.bonusCheckbox, DOM.bonusInputs);
 
   function formatNumberInput(input) {
     const raw = input.value.replace(/[^\d]/g, '');
@@ -69,22 +75,61 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   document.addEventListener('input', (e) => {
-    const idsToFormat = [
-      'base-salary',
-      'allowance-lunch', 'allowance-fuel', 'allowance-phone', 'allowance-travel', 'allowance-uniform',
-      'bonus-productivity', 'bonus-incentive', 'bonus-kpi'
-    ];
-    if (e.target.tagName === 'INPUT' && idsToFormat.includes(e.target.id)) {
+    if (e.target.tagName === 'INPUT') {
       formatNumberInput(e.target);
     }
   });
 
-  function formatLine(label, value) {
-    return value ? `- ${label}: ${value.toLocaleString('en-US')} VND<br>` : '';
+  function destroyChart(chartName) {
+    if (window[chartName] && typeof window[chartName].destroy === 'function') {
+      window[chartName].destroy();
+      window[chartName] = null;
+    }
   }
 
   function handleCalculation() {
-    const data = calculateFromGrossToNet();
+    // Gather all input values and flags
+    const getVal = (id) => {
+      const el = document.getElementById(id);
+      return el ? el.value : '';
+    };
+    const getChecked = (id) => {
+      const el = document.getElementById(id);
+      return el ? el.checked : false;
+    };
+
+    const params = {
+      baseSalary: getVal('base-salary'),
+      isAllowanceEnabled: getChecked('allowance-checkbox'),
+      lunchAllowance: getVal('allowance-lunch'),
+      lunchEnabled: getChecked('lunch-checkbox'),
+      fuelAllowance: getVal('allowance-fuel'),
+      fuelEnabled: getChecked('fuel-checkbox'),
+      phoneAllowance: getVal('allowance-phone'),
+      phoneEnabled: getChecked('phone-checkbox'),
+      travelAllowance: getVal('allowance-travel'),
+      travelEnabled: getChecked('travel-checkbox'),
+      uniformAllowance: getVal('allowance-uniform'),
+      uniformEnabled: getChecked('uniform-checkbox'),
+      isBonusEnabled: getChecked('bonus-checkbox'),
+      productivityBonus: getVal('bonus-productivity'),
+      productivityEnabled: getChecked('productivity-checkbox'),
+      incentiveBonus: getVal('bonus-incentive'),
+      incentiveEnabled: getChecked('incentive-checkbox'),
+      kpiBonus: getVal('bonus-kpi'),
+      kpiEnabled: getChecked('kpi-checkbox'),
+      national: getVal('national'),
+    };
+
+    const data = calculateFromGrossToNet(params);
+
+    if (data && data.error) {
+      DOM.resultDiv.innerHTML = `<span style="color:red">${data.error}</span>`;
+      DOM.downloadPdfBtn.style.display = 'none';
+      renderPieChart({});
+      return;
+    }
+
     renderPieChart(data);
 
     // Calculate total allowance and bonus
@@ -114,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
       formatLine('KPI', data.kpiBonus)
     ].join('');
 
-    resultDiv.innerHTML = `
+    DOM.resultDiv.innerHTML = `
     ${allowanceHTML ? 'Allowances:<br>' + allowanceHTML + '<hr>' : ''}
     ${bonusHTML ? 'Bonuses:<br>' + bonusHTML + '<hr>' : ''}
       ${totalAllowanceAndBonus > 0
@@ -129,29 +174,39 @@ document.addEventListener('DOMContentLoaded', () => {
       Employer Union Fee: ${data.employerUnionFee.toLocaleString('en-US')} VND<br><hr>
       <b>Total Employer Cost: ${data.totalEmployerCost.toLocaleString('en-US')} VND</b><br><hr>
     `;
-    downloadPdfBtn.style.display = 'block';
+    DOM.downloadPdfBtn.style.display = 'block';
   }
 
-  calculateBtn.addEventListener('click', handleCalculation);
-  salaryForm.addEventListener('submit', (e) => {
+  DOM.calculateBtn.addEventListener('click', handleCalculation);
+  DOM.salaryForm.addEventListener('submit', (e) => {
     e.preventDefault();
     handleCalculation();
   });
 
   function renderPieChart(data) {
+    // If baseSalary is falsy or 0, skip rendering and hide all chart elements
+    if (!data.baseSalary) {
+      destroyChart('salaryChart');
+      destroyChart('costBreakdownChart');
+
+      DOM.salaryBreakdownChart.style.display = 'none';
+      DOM.salaryBreakdownChartLabel.style.display = 'none';
+      DOM.costBreakdownChart.style.display = 'none';
+      DOM.costBreakdownChartLabel.style.display = 'none';
+
+      return;
+    }
+
     const bonusAndAllowance = data.grossSalary - data.baseSalary;
 
     if (bonusAndAllowance === 0) {
-      if (window.salaryChart) {
-        window.salaryChart.destroy();
-        window.salaryChart = null;
-      }
-      salaryBreakdownChart.style.display = 'none';
-      salaryBreakdownChartLabel.style.display = 'none';
+      destroyChart('salaryChart');
+      DOM.salaryBreakdownChart.style.display = 'none';
+      DOM.salaryBreakdownChartLabel.style.display = 'none';
     } else {
-      if (window.salaryChart) window.salaryChart.destroy();
+      destroyChart('salaryChart');
 
-      window.salaryChart = new Chart(salaryBreakdownChart.getContext('2d'), {
+      window.salaryChart = new Chart(DOM.salaryBreakdownChart.getContext('2d'), {
         type: 'doughnut',
         data: {
           labels: ['Bonus & Allowance', 'Base Salary'],
@@ -180,18 +235,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
 
-      salaryBreakdownChart.style.display = 'block';
-      salaryBreakdownChartLabel.style.display = 'block';
+      DOM.salaryBreakdownChart.style.display = 'block';
+      DOM.salaryBreakdownChartLabel.style.display = 'block';
     }
 
-    if (window.costBreakdownChart) window.costBreakdownChart.destroy();
+    destroyChart('costBreakdownChart');
 
+    // Defensive: use 0 for missing values
     const breakdownData = [
-      data.employeeInsurance,
-      data.incomeTax,
-      data.employerInsurance,
-      data.employerUnionFee,
-      data.netSalary
+      data.employeeInsurance || 0,
+      data.incomeTax || 0,
+      data.employerInsurance || 0,
+      data.employerUnionFee || 0,
+      data.netSalary || 0
     ];
 
     const breakdownLabels = [
@@ -202,7 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'Employee Take-home (Net) Salary'
     ];
 
-      window.costBreakdownChart = new Chart(costBreakdownChart.getContext('2d'), {
+    window.costBreakdownChart = new Chart(DOM.costBreakdownChart.getContext('2d'), {
       type: 'doughnut',
       data: {
         labels: breakdownLabels,
@@ -228,7 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
               label: (ctx) => {
                 const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
                 const value = ctx.raw;
-                const percent = ((value / total) * 100).toFixed(2);
+                const percent = total > 0 ? ((value / total) * 100).toFixed(2) : '0.00';
                 return `${ctx.label}: ${value.toLocaleString('en-US')} VND (${percent}%)`;
               }
             }
@@ -237,7 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    costBreakdownChart.style.display = 'block';
-    costBreakdownChartLabel.style.display = 'block';
+    DOM.costBreakdownChart.style.display = 'block';
+    DOM.costBreakdownChartLabel.style.display = 'block';
   }
 });
