@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     div.className = 'simulation-list';
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'back-button';
+    btn.className = 'simulation-button return-button';
     btn.textContent = 'Return';
     btn.addEventListener('click', onClick);
     div.appendChild(btn);
