@@ -74,17 +74,15 @@ export function calculateFromGrossToNet(params) {
 
   const national = params.national;
 
+  // Total Allowances
+  const totalAllowances = lunchAllowance + fuelAllowance + phoneAllowance + travelAllowance + uniformAllowance;
+  // Total Bonuses
+  const totalBonuses = productivityBonus + incentiveBonus + kpiBonus;
+  // Total Allowance and Bonus
+  const totalBonusAndAllowance = totalAllowances + totalBonuses;
+
   // Gross Salary calculation
-  const grossSalary =
-    baseSalary +
-    lunchAllowance +
-    fuelAllowance +
-    phoneAllowance +
-    travelAllowance +
-    uniformAllowance +
-    productivityBonus +
-    incentiveBonus +
-    kpiBonus;
+  const grossSalary = baseSalary + totalBonusAndAllowance;
 
   // Employee Insurance contributions
   const employeeInsurance =
@@ -126,23 +124,37 @@ export function calculateFromGrossToNet(params) {
   const unionFeeAmount = Math.min(baseSalary, socialHealthCapSalaryForInsurance) * unionFee;
   // Total Employer Cost
   const totalEmployerCost = grossSalary + employerInsurance + unionFeeAmount;
+  // Gross Salary construction
+  const percentBaseSalary = (baseSalary / grossSalary) * 100;
+  const percentBonusAndAllowance = (totalBonusAndAllowance / grossSalary) * 100;
 
   return {
-    // Salary and Allowances
+    // Salary
+    grossSalary:      Math.round(grossSalary),
     baseSalary:       Math.round(baseSalary),
+
+    // Allowances
     lunchAllowance:   Math.round(lunchAllowance),
     fuelAllowance:    Math.round(fuelAllowance),
     phoneAllowance:   Math.round(phoneAllowance),
     travelAllowance:  Math.round(travelAllowance),
     uniformAllowance: Math.round(uniformAllowance),
+    totalAllowances:  Math.round(totalAllowances),
 
     // Bonuses
     productivityBonus: Math.round(productivityBonus),
     incentiveBonus:    Math.round(incentiveBonus),
     kpiBonus:          Math.round(kpiBonus),
+    totalBonuses:      Math.round(totalBonuses),
+
+    // Total Allowance and Bonus
+    totalBonusAndAllowance: Math.round(totalBonusAndAllowance),
+
+    // Gross Salary construction
+    percentBaseSalary:        Math.round(percentBaseSalary),
+    percentBonusAndAllowance: Math.round(percentBonusAndAllowance),
 
     // Calculated Salaries and Deductions
-    grossSalary:      Math.round(grossSalary),
     employeeInsurance:Math.round(employeeInsurance),
     taxableIncome:    Math.round(taxableIncome),
     incomeTax:        Math.round(incomeTax),
