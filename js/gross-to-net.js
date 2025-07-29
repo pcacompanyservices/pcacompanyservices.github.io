@@ -5,6 +5,42 @@ function formatLine(label, value) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  // --- Multi-step form navigation logic ---
+  const steps = [
+    document.getElementById('step-1'),
+    document.getElementById('step-2'),
+    document.getElementById('step-3'),
+    document.getElementById('step-4')
+  ];
+  const continueBtn = document.getElementById('continue-btn');
+  const returnBtn = document.getElementById('return-btn');
+  const calculateBtn = document.getElementById('calculate-btn');
+  let currentStep = 0;
+
+  function showStep(idx) {
+    steps.forEach((step, i) => {
+      if (step) step.style.display = i === idx ? '' : 'none';
+    });
+    // Navigation button logic
+    returnBtn.style.display = idx > 0 ? '' : 'none';
+    continueBtn.style.display = idx < steps.length - 1 ? '' : 'none';
+    calculateBtn.style.display = idx === steps.length - 1 ? '' : 'none';
+  }
+
+  continueBtn?.addEventListener('click', () => {
+    if (currentStep < steps.length - 1) {
+      currentStep++;
+      showStep(currentStep);
+    }
+  });
+  returnBtn?.addEventListener('click', () => {
+    if (currentStep > 0) {
+      currentStep--;
+      showStep(currentStep);
+    }
+  });
+  // On load, show first step
+  showStep(currentStep);
   // Load Chart.js if not present
   if (!window.Chart) {
     const script = document.createElement('script');
@@ -177,6 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
     DOM.downloadPdfBtn.style.display = 'block';
   }
 
+  // Only run calculation on submit (Calculate button)
   DOM.calculateBtn.addEventListener('click', handleCalculation);
   DOM.salaryForm.addEventListener('submit', (e) => {
     e.preventDefault();

@@ -8,93 +8,102 @@
   <script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
 </head>
 <body>
-  <h1>Calculate From Gross</h1>
+  <h1>Calculate From Gross</h1><hr>
+
   <form id="salary-form">
-    <label for="national">National Status:</label>
-    <select id="national">
-      <option value="local">Local</option>
-      <option value="expat">Expat</option>
-    </select>
+    <!-- Step 1: National Status -->
 
-    <label for="base-salary">Base Salary:</label>
-    <input type="text" class="number-input" id="base-salary" placeholder="Min 5,000,000 VND" />
+    <div class="form-step" id="step-1">
+      <h2>National Status</h2>
+      <select id="national">
+        <option value="local">Local</option>
+        <option value="expat">Expat</option>
+      </select>
+    </div>
 
-    <div class="checkbox-group">
+    <!-- Step 2: Base Salary -->
+    <div class="form-step" id="step-2" style="display:none;">
+      <h2>Base Salary</h2>
+      <input type="text" class="number-input" id="base-salary" placeholder="Min 5,000,000 VND" />
+    </div>
+
+    <!-- Step 3: Allowance -->
+    <div class="form-step" id="step-3" style="display:none;">
+      <h2>Allowance</h2>
       <div id="allowance-container">
         <label class="checkbox-item">
           <input type="checkbox" id="allowance-checkbox" /> Allowance
         </label>
         <div id="allowance-inputs" style="display: none;">
-          
           <label class="checkbox-item">
             <input type="checkbox" id="lunch-checkbox" /> Lunch
           </label>
           <div id="lunch-input" style="display: none;">
             <input type="text" class="number-input" id="allowance-lunch" placeholder="Please enter your allowance for lunch" min="0" />
           </div>
-          
           <label class="checkbox-item">
             <input type="checkbox" id="fuel-checkbox" /> Fuel
           </label>
           <div id="fuel-input" style="display: none;">
             <input type="text" class="number-input" id="allowance-fuel" placeholder="Please enter your allowance for fuel" min="0" />
           </div>
-
           <label class="checkbox-item">
             <input type="checkbox" id="phone-checkbox" /> Phone
           </label>
           <div id="phone-input" style="display: none;">
             <input type="text" class="number-input" id="allowance-phone" placeholder="Please enter your allowance for phone" min="0" />
           </div>
-
           <label class="checkbox-item">
             <input type="checkbox" id="travel-checkbox" /> Traveling
           </label>
           <div id="travel-input" style="display: none;">
             <input type="text" class="number-input" id="allowance-travel" placeholder="Please enter your allowance for traveling" min="0" />
           </div>
-
           <label class="checkbox-item">
             <input type="checkbox" id="uniform-checkbox" /> Uniform
           </label>
           <div id="uniform-input" style="display: none;">
             <input type="text" class="number-input" id="allowance-uniform" placeholder="Please enter your allowance for uniform" min="0" />
           </div>
-          
         </div>
       </div>
+    </div>
+
+    <!-- Step 4: Bonus -->
+    <div class="form-step" id="step-4" style="display:none;">
+      <h2>Bonus</h2>
       <div id="bonus-container">
         <label class="checkbox-item">
           <input type="checkbox" id="bonus-checkbox" /> Bonus
         </label>
         <div id="bonus-inputs" style="display: none;">
-          
           <label class="checkbox-item">
             <input type="checkbox" id="productivity-checkbox" /> Productivity
           </label>
           <div id="productivity-input" style="display: none;">
             <input type="text" class="number-input" id="bonus-productivity" placeholder="Please enter your bonus for productivity" min="0" />
           </div>
-          
           <label class="checkbox-item">
             <input type="checkbox" id="incentive-checkbox" /> Incentive
           </label>
           <div id="incentive-input" style="display: none;">
             <input type="text" class="number-input" id="bonus-incentive" placeholder="Please enter your bonus for incentive" min="0" />
           </div>
-          
           <label class="checkbox-item">
             <input type="checkbox" id="kpi-checkbox" /> KPI
           </label>
           <div id="kpi-input" style="display: none;">
             <input type="text" class="number-input" id="bonus-kpi" placeholder="Please enter your bonus for kpi" min="0" />
           </div>
-
         </div>
       </div>
     </div>
 
-    <button type="submit" id="calculate-btn" class="simulation-button">Calculate</button>
+    <div class="form-navigation">
+      <button type="button" id="continue-btn" class="simulation-button">Continue</button>
+      <button type="submit" id="calculate-btn" class="simulation-button" style="display:none;">Calculate</button>
+      <button type="button" id="return-btn" class="simulation-button return-button" style="display:none;">Return</button>
+    </div>
   </form>
 
   <div class="result" id="result" aria-live="polite"></div>

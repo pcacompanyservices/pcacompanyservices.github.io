@@ -1,18 +1,11 @@
-.back-button {
-  background: #999;
+.return-button {
+  background: #999 !important;
+  border: none !important;
   color: #fff;
-  border: none;
-  border-radius: 6px;
-  font-size: 16px;
-  padding: 10px 24px;
-  margin: 18px auto 0;
-  display: block;
-  width: 180px;
-  cursor: pointer;
-  transition: background 0.2s;
+  margin: 18px 0 0 0;
 }
-.back-button:hover {
-  background: #666;
+.return-button:hover {
+  background: #666 !important;
 }
 .simulation-button {
   position: relative;
