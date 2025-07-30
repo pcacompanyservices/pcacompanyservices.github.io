@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
     main.appendChild(createButton({
       value: 'from-gross',
       text: 'Calculate from Gross Salary',
-      info: 'Coming soon.',
+      info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.',
       enabled: true,
       onClick: () => { window.location.href = 'gross-to-net.html'; },
       extraClass: 'employer-choice'
