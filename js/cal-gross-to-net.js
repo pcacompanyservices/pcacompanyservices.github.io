@@ -24,7 +24,7 @@ const uniformCap                          = 5000000 / 12;
 
 // Tax brackets
 const taxRate = [
-  { max: 5000000,   rate: 0.05, reduce:      0 },
+  { max: 5000000,   rate: 0.05, reduce:       0 },
   { max: 10000000,  rate: 0.10, reduce:  250000 },
   { max: 18000000,  rate: 0.15, reduce:  750000 },
   { max: 32000000,  rate: 0.20, reduce: 1650000 },

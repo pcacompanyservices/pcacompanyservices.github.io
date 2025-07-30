@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Title
   const h1 = document.createElement('h1');
-  h1.textContent = 'Calculate from Gross Salary';
+  h1.textContent = 'Calculate from Employee\'s Gross Salary';
   root.appendChild(h1);
   root.appendChild(document.createElement('hr'));
 
