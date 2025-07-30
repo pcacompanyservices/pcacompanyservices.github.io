@@ -1,3 +1,15 @@
+/* Deactivated/unavailable simulation button style */
+.simulation-button.deactivated {
+  background-color: #e0e0e0 !important;
+  color: #aaa !important;
+  border: 1px solid #ccc !important;
+  cursor: not-allowed !important;
+  opacity: 0.6;
+  box-shadow: none;
+  pointer-events: none;
+  transition: background-color 0.2s, color 0.2s, opacity 0.2s;
+}
+
 /* PCA Logo styling */
 .logo {
   display: block;
