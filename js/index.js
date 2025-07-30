@@ -1,4 +1,4 @@
-
+import { html } from '../util/html-parser.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   const main = document.getElementById('simulation-root');
@@ -17,7 +17,10 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.type = 'button';
     btn.value = value;
     btn.className = `simulation-button${extraClass ? ' ' + extraClass : ''}`;
-    btn.innerHTML = `${text}<span class="info-box">${info}</span>`;
+    btn.innerHTML = html`
+      ${text}
+      <span class="info-box">${info}</span>
+    `;
 
     if (!enabled) {
       btn.disabled = true;
@@ -49,49 +52,32 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderInitialButtons() {
     clearSimulationLists();
 
-    // Employee button
-    const employeeDiv = document.createElement('div');
-    employeeDiv.className = 'simulation-list';
-    const employeeBtn = document.createElement('button');
-    employeeBtn.type = 'button';
-    employeeBtn.value = 'employee';
-    employeeBtn.className = 'simulation-button';
-    employeeBtn.id = 'employee-btn';
-    employeeBtn.innerHTML = `I'm an employee<span class="info-box">Calculate your net salary, insurance, and tax from your gross salary.</span>`;
-    employeeBtn.addEventListener('click', employeeHandler);
-    employeeDiv.appendChild(employeeBtn);
-    main.appendChild(employeeDiv);
+    main.appendChild(createButton({
+      value: 'employee',
+      text: `I'm an employee`,
+      info: 'Coming soon.',
+      enabled: true,
+      onClick: employeeHandler,
+      extraClass: '',
+    }));
 
-    // Freelancer button
-    const freelancerDiv = document.createElement('div');
-    freelancerDiv.className = 'simulation-list';
-    const freelancerBtn = document.createElement('button');
-    freelancerBtn.type = 'button';
-    freelancerBtn.value = 'freelancer';
-    freelancerBtn.className = 'simulation-button';
-    freelancerBtn.id = 'freelancer-btn';
-    freelancerBtn.innerHTML = `
-      I'm a freelancer
-      <span class="info-box">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.
-      </span>
-    `;
-    // No event handler yet
-    freelancerDiv.appendChild(freelancerBtn);
-    main.appendChild(freelancerDiv);
+    main.appendChild(createButton({
+      value: 'freelancer',
+      text: `I'm a freelancer`,
+      info: 'Coming soon.',
+      enabled: true,
+      // No onClick for freelancer yet
+      extraClass: '',
+    }));
 
-    // Employer button
-    const employerDiv = document.createElement('div');
-    employerDiv.className = 'simulation-list';
-    const employerBtn = document.createElement('button');
-    employerBtn.type = 'button';
-    employerBtn.value = 'employer';
-    employerBtn.className = 'simulation-button';
-    employerBtn.id = 'employer-btn';
-    employerBtn.innerHTML = `I'm an employer<span class="info-box">Simulate total employer cost and payroll breakdown.</span>`;
-    employerBtn.addEventListener('click', employerHandler);
-    employerDiv.appendChild(employerBtn);
-    main.appendChild(employerDiv);
+    main.appendChild(createButton({
+      value: 'employer',
+      text: `I'm an employer`,
+      info: 'You are hiring an employee.',
+      enabled: true,
+      onClick: employerHandler,
+      extraClass: '',
+    }));
   }
 
   // Handler for employee button
@@ -99,15 +85,15 @@ document.addEventListener('DOMContentLoaded', () => {
     clearSimulationLists();
     main.appendChild(createButton({
       value: 'gross-to-net',
-      text: 'Calculate from your gross salary',
-      info: 'Calculate your net salary, insurance, and tax from your gross salary.',
+      text: 'Calculate from your Gross Salary',
+      info: 'Coming soon.',
       enabled: false,
       extraClass: 'employee-choice'
     }));
     main.appendChild(createButton({
       value: 'net-to-gross',
-      text: 'Calculate from your net salary',
-      info: 'Coming soon: Calculate your gross salary from your net salary.',
+      text: 'Calculate from your Net Salary',
+      info: 'Coming soon.',
       enabled: false,
       extraClass: 'employee-choice'
     }));
@@ -119,16 +105,16 @@ document.addEventListener('DOMContentLoaded', () => {
     clearSimulationLists();
     main.appendChild(createButton({
       value: 'from-gross',
-      text: 'Calculate total cost from gross salary',
-      info: 'Coming soon: Simulate total employer cost from gross salary.',
+      text: 'Calculate from Gross Salary',
+      info: 'Coming soon.',
       enabled: true,
       onClick: () => { window.location.href = 'gross-to-net.html'; },
       extraClass: 'employer-choice'
     }));
     main.appendChild(createButton({
       value: 'from-net',
-      text: 'Calculate total cost from net salary',
-      info: 'Coming soon: Simulate total employer cost from net salary.',
+      text: 'Calculate from Net Salary',
+      info: 'Coming soon.',
       enabled: false,
       extraClass: 'employer-choice'
     }));

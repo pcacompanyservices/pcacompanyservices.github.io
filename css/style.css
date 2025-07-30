@@ -1,3 +1,10 @@
+/* PCA Logo styling */
+.logo {
+  display: block;
+  margin: 0 auto 20px;
+  max-width: 180px;
+  cursor: pointer;
+}
 .return-button {
   background: #999 !important;
   border: none !important;
@@ -13,12 +20,14 @@
 }
 
 .info-box {
-  display: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: absolute;
   left: 50%;
   top: 100%;
   transform: translateX(-50%);
-  min-width: 220px;
+  min-width: 50px;
   max-width: 320px;
   background: #fffbe6;
   color: #333;
@@ -31,11 +40,16 @@
   margin-top: 8px;
   pointer-events: none;
   text-align: left;
+  /* Reduced opacity for subtle effect */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  background-clip: padding-box;
 }
 
 .simulation-button:hover .info-box,
 .simulation-button:focus .info-box {
-  display: block;
+  opacity: 0.95;
+  visibility: visible;
+  pointer-events: auto;
 }
 /* Global reset for consistent box sizing */
 * {
