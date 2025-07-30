@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <option value="local">Local</option>
       <option value="expat">Expat</option>
     </select>
+    <button type="button" id="continue-step1" class="simulation-button unavailable" disabled>Continue</button>
   `;
   salaryForm.appendChild(step1);
 
@@ -44,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
   step2.innerHTML = html`
     <h2>Base Salary</h2>
     <input type="text" class="number-input" id="base-salary" placeholder="Min 5,000,000 VND" />
+    <button type="button" id="continue-step2" class="simulation-button unavailable" disabled>Continue</button>
   `;
   salaryForm.appendChild(step2);
 
@@ -56,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     <h2>Allowance</h2>
     <div id="allowance-container">
       <label class="checkbox-item">
-        <input type="checkbox" id="allowance-checkbox" /> Allowance
+        <input type="checkbox" id="allowance-checkbox" /> There are Allowance(s) in the Contract
       </label>
       <div id="allowance-inputs" style="display: none;">
         <label class="checkbox-item">
@@ -91,6 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       </div>
     </div>
+    <button type="button" id="continue-step3" class="simulation-button unavailable" disabled>Continue</button>
   `;
   salaryForm.appendChild(step3);
 
@@ -103,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
     <h2>Bonus</h2>
     <div id="bonus-container">
       <label class="checkbox-item">
-        <input type="checkbox" id="bonus-checkbox" /> Bonus
+        <input type="checkbox" id="bonus-checkbox" /> There are Bonus(es) in the Contract
       </label>
       <div id="bonus-inputs" style="display: none;">
         <label class="checkbox-item">
@@ -129,11 +132,10 @@ document.addEventListener('DOMContentLoaded', () => {
   `;
   salaryForm.appendChild(step4);
 
-  // Navigation buttons
+  // Navigation buttons (only Calculate and Return remain)
   const navDiv = document.createElement('div');
   navDiv.className = 'form-navigation';
   navDiv.innerHTML = html`
-    <button type="button" id="continue-btn" class="simulation-button">Continue</button>
     <button type="submit" id="calculate-btn" class="simulation-button" style="display:none;">Calculate</button>
     <button type="button" id="return-btn" class="simulation-button return-button" style="display:none;">Return</button>
   `;
@@ -168,7 +170,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Multi-step form navigation logic ---
   const steps = [step1, step2, step3, step4];
-  const continueBtn = document.getElementById('continue-btn');
+  const continueBtns = [
+    document.getElementById('continue-step1'),
+    document.getElementById('continue-step2'),
+    document.getElementById('continue-step3'),
+  ];
   const returnBtn = document.getElementById('return-btn');
   const calculateBtn = document.getElementById('calculate-btn');
   let currentStep = 0;
@@ -179,22 +185,72 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     // Navigation button logic
     returnBtn.style.display = idx > 0 ? '' : 'none';
-    continueBtn.style.display = idx < steps.length - 1 ? '' : 'none';
     calculateBtn.style.display = idx === steps.length - 1 ? '' : 'none';
   }
 
-  continueBtn?.addEventListener('click', () => {
-    if (currentStep < steps.length - 1) {
+  // Step-specific validation and continue logic
+  // Step 1: National Status
+  const nationalSelect = document.getElementById('national');
+  continueBtns[0].addEventListener('click', () => {
+    if (currentStep === 0 && nationalSelect.value) {
       currentStep++;
       showStep(currentStep);
     }
   });
+  function updateStep1Btn() {
+    if (nationalSelect.value) {
+      continueBtns[0].classList.remove('unavailable');
+      continueBtns[0].disabled = false;
+    } else {
+      continueBtns[0].classList.add('unavailable');
+      continueBtns[0].disabled = true;
+    }
+  }
+  nationalSelect.addEventListener('change', updateStep1Btn);
+  updateStep1Btn();
+
+  // Step 2: Base Salary
+  const baseSalaryInput = document.getElementById('base-salary');
+  continueBtns[1].addEventListener('click', () => {
+    if (currentStep === 1 && baseSalaryInput.value && parseInt(baseSalaryInput.value.replace(/\D/g, '')) >= 5000000) {
+      currentStep++;
+      showStep(currentStep);
+    }
+  });
+  function updateStep2Btn() {
+    const val = baseSalaryInput.value.replace(/\D/g, '');
+    if (val && parseInt(val) >= 5000000) {
+      continueBtns[1].classList.remove('unavailable');
+      continueBtns[1].disabled = false;
+    } else {
+      continueBtns[1].classList.add('unavailable');
+      continueBtns[1].disabled = true;
+    }
+  }
+  baseSalaryInput.addEventListener('input', updateStep2Btn);
+  updateStep2Btn();
+
+  // Step 3: Allowance (always enabled, can skip)
+  continueBtns[2].addEventListener('click', () => {
+    if (currentStep === 2) {
+      currentStep++;
+      showStep(currentStep);
+    }
+  });
+  // Always enabled for step 3
+  continueBtns[2].classList.remove('unavailable');
+  continueBtns[2].disabled = false;
+
+  // No continue button for step 4
+
+  // Return button logic
   returnBtn?.addEventListener('click', () => {
     if (currentStep > 0) {
       currentStep--;
       showStep(currentStep);
     }
   });
+
   // On load, show first step
   showStep(currentStep);
   // Load Chart.js if not present
@@ -355,11 +411,40 @@ document.addEventListener('DOMContentLoaded', () => {
     DOM.downloadPdfBtn.style.display = 'block';
   }
 
-  // Only run calculation on submit (Calculate button)
-  DOM.calculateBtn.addEventListener('click', handleCalculation);
-  DOM.salaryForm.addEventListener('submit', (e) => {
+
+  // Only run calculation on Calculate button
+  DOM.calculateBtn.addEventListener('click', (e) => {
     e.preventDefault();
     handleCalculation();
+  });
+
+  // Prevent form submit from reloading the page
+  salaryForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    handleCalculation();
+  });
+
+  // Per-step Enter key handling
+  steps.forEach((step, idx) => {
+    step.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        // On last step, trigger calculate
+        if (idx === steps.length - 1) {
+          handleCalculation();
+        } else if (continueBtns[idx]) {
+          // For step 3 (Allowance), always allow Enter to proceed
+          if (idx === 2) {
+            continueBtns[idx].click();
+          } else if (idx === 1) {
+            // For step 2, only allow if valid
+            if (!continueBtns[idx].disabled) continueBtns[idx].click();
+          } else if (!continueBtns[idx].disabled) {
+            continueBtns[idx].click();
+          }
+        }
+      }
+    });
   });
 
   function renderPieChart(data) {

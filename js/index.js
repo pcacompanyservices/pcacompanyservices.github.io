@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
       info: 'Coming soon.',
       enabled: true,
       onClick: employeeHandler,
-      extraClass: 'deactivated' // off
+      extraClass: 'unavailable' // off
     }));
 
     main.appendChild(createButton({
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
       text: `I'm a freelancer`,
       info: 'Coming soon.',
       enabled: true,
-      extraClass: 'deactivated' // off
+      extraClass: 'unavailable' // off
     }));
 
     main.appendChild(createButton({
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
       text: 'Calculate from Net Salary',
       info: 'Coming soon.',
       enabled: false,
-      extraClass: 'employer-choice deactivated' // off
+      extraClass: 'employer-choice unavailable' // off
     }));
     main.appendChild(createBackButton(renderInitialButtons));
   }
