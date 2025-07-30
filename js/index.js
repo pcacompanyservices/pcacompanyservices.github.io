@@ -62,6 +62,24 @@ document.addEventListener('DOMContentLoaded', () => {
     employeeDiv.appendChild(employeeBtn);
     main.appendChild(employeeDiv);
 
+    // Freelancer button
+    const freelancerDiv = document.createElement('div');
+    freelancerDiv.className = 'simulation-list';
+    const freelancerBtn = document.createElement('button');
+    freelancerBtn.type = 'button';
+    freelancerBtn.value = 'freelancer';
+    freelancerBtn.className = 'simulation-button';
+    freelancerBtn.id = 'freelancer-btn';
+    freelancerBtn.innerHTML = `
+      I'm a freelancer
+      <span class="info-box">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.
+      </span>
+    `;
+    // No event handler yet
+    freelancerDiv.appendChild(freelancerBtn);
+    main.appendChild(freelancerDiv);
+
     // Employer button
     const employerDiv = document.createElement('div');
     employerDiv.className = 'simulation-list';
@@ -83,8 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
       value: 'gross-to-net',
       text: 'Calculate from your gross salary',
       info: 'Calculate your net salary, insurance, and tax from your gross salary.',
-      enabled: true,
-      onClick: () => { window.location.href = 'gross-to-net.html'; },
+      enabled: false,
       extraClass: 'employee-choice'
     }));
     main.appendChild(createButton({
@@ -104,7 +121,8 @@ document.addEventListener('DOMContentLoaded', () => {
       value: 'from-gross',
       text: 'Calculate total cost from gross salary',
       info: 'Coming soon: Simulate total employer cost from gross salary.',
-      enabled: false,
+      enabled: true,
+      onClick: () => { window.location.href = 'gross-to-net.html'; },
       extraClass: 'employer-choice'
     }));
     main.appendChild(createButton({

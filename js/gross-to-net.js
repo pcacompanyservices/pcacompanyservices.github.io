@@ -1,17 +1,173 @@
 import { calculateFromGrossToNet } from './cal-gross-to-net.js';
+import { html } from '../util/html-parser.js';
 
 function formatLine(label, value) {
   return value ? `- ${label}: ${value.toLocaleString('en-US')} VND<br>` : '';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+
+  // --- Dynamic UI creation ---
+  const root = document.getElementById('gross-to-net-root');
+  root.innerHTML = '';
+
+  // Title
+  const h1 = document.createElement('h1');
+  h1.textContent = 'Calculate From Gross';
+  root.appendChild(h1);
+  root.appendChild(document.createElement('hr'));
+
+  // Form
+  const salaryForm = document.createElement('form');
+  salaryForm.id = 'salary-form';
+  root.appendChild(salaryForm);
+
+  // Step 1: National Status
+  const step1 = document.createElement('div');
+  step1.className = 'form-step';
+  step1.id = 'step-1';
+  step1.innerHTML = html`
+    <h2>National Status</h2>
+    <select id="national">
+      <option value="" disabled selected>Select your national status</option>
+      <option value="local">Local</option>
+      <option value="expat">Expat</option>
+    </select>
+  `;
+  salaryForm.appendChild(step1);
+
+  // Step 2: Base Salary
+  const step2 = document.createElement('div');
+  step2.className = 'form-step';
+  step2.id = 'step-2';
+  step2.style.display = 'none';
+  step2.innerHTML = html`
+    <h2>Base Salary</h2>
+    <input type="text" class="number-input" id="base-salary" placeholder="Min 5,000,000 VND" />
+  `;
+  salaryForm.appendChild(step2);
+
+  // Step 3: Allowance
+  const step3 = document.createElement('div');
+  step3.className = 'form-step';
+  step3.id = 'step-3';
+  step3.style.display = 'none';
+  step3.innerHTML = html`
+    <h2>Allowance</h2>
+    <div id="allowance-container">
+      <label class="checkbox-item">
+        <input type="checkbox" id="allowance-checkbox" /> Allowance
+      </label>
+      <div id="allowance-inputs" style="display: none;">
+        <label class="checkbox-item">
+          <input type="checkbox" id="lunch-checkbox" /> Lunch
+        </label>
+        <div id="lunch-input" style="display: none;">
+          <input type="text" class="number-input" id="allowance-lunch" placeholder="Please enter your allowance for lunch" min="0" />
+        </div>
+        <label class="checkbox-item">
+          <input type="checkbox" id="fuel-checkbox" /> Fuel
+        </label>
+        <div id="fuel-input" style="display: none;">
+          <input type="text" class="number-input" id="allowance-fuel" placeholder="Please enter your allowance for fuel" min="0" />
+        </div>
+        <label class="checkbox-item">
+          <input type="checkbox" id="phone-checkbox" /> Phone
+        </label>
+        <div id="phone-input" style="display: none;">
+          <input type="text" class="number-input" id="allowance-phone" placeholder="Please enter your allowance for phone" min="0" />
+        </div>
+        <label class="checkbox-item">
+          <input type="checkbox" id="travel-checkbox" /> Traveling
+        </label>
+        <div id="travel-input" style="display: none;">
+          <input type="text" class="number-input" id="allowance-travel" placeholder="Please enter your allowance for traveling" min="0" />
+        </div>
+        <label class="checkbox-item">
+          <input type="checkbox" id="uniform-checkbox" /> Uniform
+        </label>
+        <div id="uniform-input" style="display: none;">
+          <input type="text" class="number-input" id="allowance-uniform" placeholder="Please enter your allowance for uniform" min="0" />
+        </div>
+      </div>
+    </div>
+  `;
+  salaryForm.appendChild(step3);
+
+  // Step 4: Bonus
+  const step4 = document.createElement('div');
+  step4.className = 'form-step';
+  step4.id = 'step-4';
+  step4.style.display = 'none';
+  step4.innerHTML = html`
+    <h2>Bonus</h2>
+    <div id="bonus-container">
+      <label class="checkbox-item">
+        <input type="checkbox" id="bonus-checkbox" /> Bonus
+      </label>
+      <div id="bonus-inputs" style="display: none;">
+        <label class="checkbox-item">
+          <input type="checkbox" id="productivity-checkbox" /> Productivity
+        </label>
+        <div id="productivity-input" style="display: none;">
+          <input type="text" class="number-input" id="bonus-productivity" placeholder="Please enter your bonus for productivity" min="0" />
+        </div>
+        <label class="checkbox-item">
+          <input type="checkbox" id="incentive-checkbox" /> Incentive
+        </label>
+        <div id="incentive-input" style="display: none;">
+          <input type="text" class="number-input" id="bonus-incentive" placeholder="Please enter your bonus for incentive" min="0" />
+        </div>
+        <label class="checkbox-item">
+          <input type="checkbox" id="kpi-checkbox" /> KPI
+        </label>
+        <div id="kpi-input" style="display: none;">
+          <input type="text" class="number-input" id="bonus-kpi" placeholder="Please enter your bonus for kpi" min="0" />
+        </div>
+      </div>
+    </div>
+  `;
+  salaryForm.appendChild(step4);
+
+  // Navigation buttons
+  const navDiv = document.createElement('div');
+  navDiv.className = 'form-navigation';
+  navDiv.innerHTML = html`
+    <button type="button" id="continue-btn" class="simulation-button">Continue</button>
+    <button type="submit" id="calculate-btn" class="simulation-button" style="display:none;">Calculate</button>
+    <button type="button" id="return-btn" class="simulation-button return-button" style="display:none;">Return</button>
+  `;
+  salaryForm.appendChild(navDiv);
+
+  // Result and charts
+  const resultDiv = document.createElement('div');
+  resultDiv.className = 'result';
+  resultDiv.id = 'result';
+  resultDiv.setAttribute('aria-live', 'polite');
+  root.appendChild(resultDiv);
+
+  const pieChartContainer = document.createElement('div');
+  pieChartContainer.className = 'pie-chart-container';
+  pieChartContainer.innerHTML = html`
+    <div>
+      <canvas id="salary-breakdown-chart" style="display: none;"></canvas>
+      <div id="salary-breakdown-chart-label" style="display: none;">Salary Breakdown</div>
+    </div>
+    <div>
+      <canvas id="cost-breakdown-chart" style="display: none;"></canvas>
+      <div id="cost-breakdown-chart-label" style="display: none;">Cost Breakdown</div>
+    </div>
+  `;
+  root.appendChild(pieChartContainer);
+
+  const downloadBtn = document.createElement('button');
+  downloadBtn.id = 'download-pdf-btn';
+  downloadBtn.style.display = 'none';
+  downloadBtn.textContent = 'Download PDF';
+  root.appendChild(downloadBtn);
+
   // --- Multi-step form navigation logic ---
-  const steps = [
-    document.getElementById('step-1'),
-    document.getElementById('step-2'),
-    document.getElementById('step-3'),
-    document.getElementById('step-4')
-  ];
+  const steps = [step1, step2, step3, step4];
   const continueBtn = document.getElementById('continue-btn');
   const returnBtn = document.getElementById('return-btn');
   const calculateBtn = document.getElementById('calculate-btn');
@@ -49,16 +205,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const DOM = {
-    salaryForm: document.getElementById('salary-form'),
-    calculateBtn: document.getElementById('calculate-btn'),
-    downloadPdfBtn: document.getElementById('download-pdf-btn'),
-    resultDiv: document.getElementById('result'),
-
+    salaryForm,
+    calculateBtn,
+    downloadPdfBtn: downloadBtn,
+    resultDiv,
     allowanceCheckbox: document.getElementById('allowance-checkbox'),
     allowanceInputs: document.getElementById('allowance-inputs'),
     bonusCheckbox: document.getElementById('bonus-checkbox'),
     bonusInputs: document.getElementById('bonus-inputs'),
-
     costBreakdownChart: document.getElementById('cost-breakdown-chart'),
     salaryBreakdownChart: document.getElementById('salary-breakdown-chart'),
     costBreakdownChartLabel: document.getElementById('cost-breakdown-chart-label'),
@@ -168,19 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renderPieChart(data);
 
-    // Calculate total allowance and bonus
-    const totalAllowance =
-      data.lunchAllowance + data.fuelAllowance + data.phoneAllowance +
-      data.travelAllowance + data.uniformAllowance;
-
-    const totalBonus =
-      data.productivityBonus + data.incentiveBonus + data.kpiBonus;
-
-    const totalAllowanceAndBonus = totalAllowance + totalBonus;
-
-    const percentBase = ((data.baseSalary / data.grossSalary) * 100).toFixed(2);
-    const percentAllowanceBonus = ((totalAllowanceAndBonus / data.grossSalary) * 100).toFixed(2);
-
+    // Use only values from cal-gross-to-net.js result
     const allowanceHTML = [
       formatLine('Lunch', data.lunchAllowance),
       formatLine('Fuel', data.fuelAllowance),
@@ -198,9 +340,9 @@ document.addEventListener('DOMContentLoaded', () => {
     DOM.resultDiv.innerHTML = `
     ${allowanceHTML ? 'Allowances:<br>' + allowanceHTML + '<hr>' : ''}
     ${bonusHTML ? 'Bonuses:<br>' + bonusHTML + '<hr>' : ''}
-      ${totalAllowanceAndBonus > 0
-        ? `<b>Total Allowance and Bonus: ${totalAllowanceAndBonus.toLocaleString('en-US')} VND (${percentAllowanceBonus}%)</b><br>
-      <b>Base Salary: ${data.baseSalary.toLocaleString('en-US')} VND (${percentBase}%)</b><br><hr>` : ''}
+      ${data.totalBonusAndAllowance > 0
+        ? `<b>Total Allowance and Bonus: ${data.totalBonusAndAllowance.toLocaleString('en-US')} VND (${data.percentBonusAndAllowance}%)</b><br>
+      <b>Base Salary: ${data.baseSalary.toLocaleString('en-US')} VND (${data.percentBaseSalary}%)</b><br><hr>` : ''}
       <b>Gross Salary: ${data.grossSalary.toLocaleString('en-US')} VND</b><br><hr>
       Employee Insurance: ${data.employeeInsurance.toLocaleString('en-US')} VND<br><hr>
       (Taxable Income: ${data.taxableIncome.toLocaleString('en-US')} VND)<br>

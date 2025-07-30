@@ -75,11 +75,11 @@ export function calculateFromGrossToNet(params) {
   const national = params.national;
 
   // Total Allowances
-  const totalAllowances = lunchAllowance + fuelAllowance + phoneAllowance + travelAllowance + uniformAllowance;
+  const totalAllowance = lunchAllowance + fuelAllowance + phoneAllowance + travelAllowance + uniformAllowance;
   // Total Bonuses
-  const totalBonuses = productivityBonus + incentiveBonus + kpiBonus;
+  const totalBonus = productivityBonus + incentiveBonus + kpiBonus;
   // Total Allowance and Bonus
-  const totalBonusAndAllowance = totalAllowances + totalBonuses;
+  const totalBonusAndAllowance = totalAllowance + totalBonus;
 
   // Gross Salary calculation
   const grossSalary = baseSalary + totalBonusAndAllowance;
@@ -139,13 +139,13 @@ export function calculateFromGrossToNet(params) {
     phoneAllowance:   Math.round(phoneAllowance),
     travelAllowance:  Math.round(travelAllowance),
     uniformAllowance: Math.round(uniformAllowance),
-    totalAllowances:  Math.round(totalAllowances),
+    totalAllowance:   Math.round(totalAllowance),
 
     // Bonuses
     productivityBonus: Math.round(productivityBonus),
     incentiveBonus:    Math.round(incentiveBonus),
     kpiBonus:          Math.round(kpiBonus),
-    totalBonuses:      Math.round(totalBonuses),
+    totalBonus:        Math.round(totalBonus),
 
     // Total Allowance and Bonus
     totalBonusAndAllowance: Math.round(totalBonusAndAllowance),
