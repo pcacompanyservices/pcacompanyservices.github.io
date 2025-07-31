@@ -55,25 +55,40 @@ h2 {
 /* Result Boxes & Stacks     */
 /* ========================= */
 
-.result-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 0.12rem;
-  margin-bottom: 0.3rem;
+
+.result-table-container {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.result-table {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.result-table-vertical tr {
+  width: 100%;
+}
+.result-table-vertical td {
+  vertical-align: top;
 }
 
 .result-box {
   background: #fff;
   border: 1px solid #aaa;
   border-radius: 2px;
-  padding: 0.5rem 0.6rem 0.4rem 0.6rem;
+  padding: 0.18rem 0.3rem 0.15rem 0.3rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
   min-width: unset;
   max-width: unset;
-  margin: 0 auto;
+  margin: 0;
   font-size: 18px;
 }
 
@@ -81,18 +96,18 @@ h2 {
   font-size: 20px;
   font-weight: 600;
   text-align: center;
-  margin-bottom: 0.13em;
+  margin-bottom: 0.05em;
   letter-spacing: 0.5px;
 }
 
 .result-list {
   width: 100%;
   max-width: 340px;
-  margin: 0 auto 0.12em auto;
+  margin: 0 auto 0.04em auto;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  padding: 0 1px;
+  padding: 0;
 }
 
 .result-item {
@@ -100,8 +115,8 @@ h2 {
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5em;
-  padding: 0.08em 0;
+  gap: 0.2em;
+  padding: 0.02em 0;
   font-size: 1em;
   width: 100%;
 }
@@ -109,7 +124,7 @@ h2 {
 .result-total {
   font-weight: 600;
   text-align: center;
-  margin-top: 0.08em;
+  margin-top: 0.02em;
   font-size: 20px;
 }
 
@@ -117,14 +132,14 @@ h2 {
   font-size: 20px;
   font-weight: 600;
   text-align: center;
-  margin: 0.13em 0 0.05em 0;
+  margin: 0.04em 0 0.02em 0;
 }
 
 .result-divider {
   border: none;
-  border-top: 1px solid #aaa;
+  border-top: 1px solid #ccc;
   width: 60%;
-  margin: 0.3em auto 0.2em auto;
+  margin: 0.08em auto 0.05em auto;
 }
 
 .result {
@@ -139,8 +154,7 @@ h2 {
 
 label,
 input,
-select,
-button {
+select {
   display: block;
   width: 100%;
   margin: 6px 0 0;
@@ -148,6 +162,18 @@ button {
   font-size: 16px;
   font-family: 'EB Garamond', serif;
 }
+button,
+  .simulation-button,
+  .return-button {
+    display: block;
+    max-width: 340px;
+    width: 96%;
+    margin: 14px auto 0 auto;
+    padding: 12px 0;
+    font-size: 18px;
+    font-family: 'EB Garamond', serif;
+    text-align: center;
+  }
 
 input,
 select {
@@ -224,7 +250,11 @@ button:hover {
   background: #999 !important;
   border: none !important;
   color: #fff;
-  margin: 18px 0 0 0;
+  margin: 14px auto 0 auto !important;
+  display: block;
+  max-width: 340px;
+  width: 96%;
+  text-align: center;
 }
 
 .return-button:hover {
@@ -281,22 +311,19 @@ button:hover {
   top: 100%;
   transform: translateX(-50%);
   min-width: 50px;
-  max-width: 320px;
-  background: #fffbe6;
-  color: #111;
-  border: 1px solid #e0c97f;
-  border-radius: 8px;
-  padding: 12px 16px;
-  font-size: 15px;
-  font-family: 'EB Garamond', serif;
-  z-index: 10;
-  margin-top: 8px;
-  pointer-events: none;
-  text-align: left;
-  /* Reduced opacity for subtle effect */
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-  background-clip: padding-box;
 }
+.result-table-vertical td {
+  vertical-align: top;
+}
+.result-table-bordered {
+  border: 1px solid #666;
+}
+.result-table-bordered td,
+.result-table-bordered th {
+  border: 1px solid #666;
+  padding: 2px 6px;
+}
+
 
 .simulation-button:hover .info-box,
 .simulation-button:focus .info-box {
@@ -427,7 +454,7 @@ button:hover {
 
 body {
   font-family: 'EB Garamond', serif;
-  max-width: 580px;
+  max-width: 60vw;
   margin: 50px auto;
   padding: 0 10px;
 }
@@ -542,9 +569,9 @@ button:hover {
 #salary-breakdown-chart,
 #cost-breakdown-chart {
   width: 100%;
-  max-width: 250px;
+  max-width: 200px;
   height: auto;
-  max-height: 250px;
+  max-height: 200px;
   border-radius: 8px;
 }
 

@@ -423,39 +423,33 @@ document.addEventListener('DOMContentLoaded', () => {
       { label: 'KPI', value: data.kpiBonus }
     ].filter(item => item.value && item.value > 0);
 
-    let allowanceBox = '';
-    let bonusBox = '';
-    let noAllowanceBonusBox = '';
+    let bonusCell = '';
+    let allowanceCell = '';
+    let noAllowanceBonusCell = '';
 
     if (allowanceItems.length > 0) {
-      allowanceBox = `
-        <div class="result-box">
-          <div class="result-title">Allowance</div>
-          <div class="result-list">
-            ${allowanceItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
-          </div>
-          <hr class="result-divider" />
-          <div class="result-total"><span>${data.totalAllowance.toLocaleString('en-US')} VND</span></div>
+      allowanceCell = `
+        <div class="result-title">Allowance</div>
+        <div class="result-list">
+          ${allowanceItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
         </div>
+        <hr class="result-divider" />
+        <div class="result-total"><span>${data.totalAllowance.toLocaleString('en-US')} VND</span></div>
       `;
     }
     if (bonusItems.length > 0) {
-      bonusBox = `
-        <div class="result-box">
-          <div class="result-title">Bonus</div>
-          <div class="result-list">
-            ${bonusItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
-          </div>
-          <hr class="result-divider" />
-          <div class="result-total"><span>${data.totalBonus.toLocaleString('en-US')} VND</span></div>
+      bonusCell = `
+        <div class="result-title">Bonus</div>
+        <div class="result-list">
+          ${bonusItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
         </div>
+        <hr class="result-divider" />
+        <div class="result-total"><span>${data.totalBonus.toLocaleString('en-US')} VND</span></div>
       `;
     }
     if (allowanceItems.length === 0 && bonusItems.length === 0) {
-      noAllowanceBonusBox = `
-        <div class="result-box">
-          <div class="result-center-value" style="font-size:1em; color:#888;">(There is no allowances or bonuses in the contract)</div>
-        </div>
+      noAllowanceBonusCell = `
+        <div class="result-center-value" style="font-size:1em; color:#888;">(There is no allowances or bonuses in the contract)</div>
       `;
     }
 
@@ -468,61 +462,61 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       employeeTypeLabel = 'Employee';
     }
-    const employeeTypeBox = html`
-      <div class="result-box">
-        <div class="result-title">${employeeTypeLabel}</div>
-      </div>
-    `;
+    const employeeTypeCell = html`<div class="result-title">${employeeTypeLabel}</div>`;
 
     // Base Salary box
-    const baseSalaryBox = html`
-      <div class="result-box">
-        <div class="result-title">Base Salary</div>
-        <div class="result-center-value">${data.baseSalary ? data.baseSalary.toLocaleString('en-US') + ' VND' : '-'}</div>
-      </div>
+    const baseSalaryCell = html`
+      <div class="result-title">Base Salary</div>
+      <div class="result-center-value">${data.baseSalary ? data.baseSalary.toLocaleString('en-US') + ' VND' : '-'}</div>
     `;
 
     // Gross Salary box
-    const grossSalaryBox = html`
-      <div class="result-box">
-        <div class="result-title">Gross Salary</div>
-        <div class="result-center-value">${data.grossSalary ? data.grossSalary.toLocaleString('en-US') + ' VND' : '-'}</div>
-      </div>
+    const grossSalaryCell = html`
+      <div class="result-title">Gross Salary</div>
+      <div class="result-center-value">${data.grossSalary ? data.grossSalary.toLocaleString('en-US') + ' VND' : '-'}</div>
     `;
 
     // Employer and Employee details in their own result-boxes
-    const employerBox = html`
-      <div class="result-box">
-        <div class="result-title">Employer Cost</div>
-        <div class="result-list">
-          <div class="result-item">Social Insurance: <span>+${data.employerInsurance.toLocaleString('en-US')} VND</span></div>
-          <div class="result-item">Union Fee: <span>+${data.employerUnionFee.toLocaleString('en-US')} VND</span></div>
-        </div>
-        <hr class="result-divider" />
-        <div class="result-total"><span>${data.totalEmployerCost.toLocaleString('en-US')} VND</span></div>
+    const employerCell = html`
+      <div class="result-title">Employer Cost</div>
+      <div class="result-list">
+        <div class="result-item">Social Insurance: <span>+${data.employerInsurance.toLocaleString('en-US')} VND</span></div>
+        <div class="result-item">Union Fee: <span>+${data.employerUnionFee.toLocaleString('en-US')} VND</span></div>
       </div>
+      <hr class="result-divider" />
+      <div class="result-total"><span>${data.totalEmployerCost.toLocaleString('en-US')} VND</span></div>
     `;
-    const employeeBox = html`
-      <div class="result-box">
-        <div class="result-title">Employee Take-home</div>
-        <div style="text-align:center;color:#888;font-size:15px;margin-top:0.2em;">(Taxable Income: ${data.taxableIncome.toLocaleString('en-US')} VND)</div>
-        <div class="result-list">
-          <div class="result-item">Social Insurance: <span>-${data.employeeInsurance.toLocaleString('en-US')} VND</span></div>
-          <div class="result-item">Personal Income Tax: <span>-${data.incomeTax.toLocaleString('en-US')} VND</span></div>
-        </div>
-        <hr class="result-divider" />
-        <div class="result-total"><span>${data.netSalary.toLocaleString('en-US')} VND</span></div>
+    const employeeCell = html`
+      <div class="result-title">Employee Take-home</div>
+      <div style="text-align:center;color:#888;font-size:15px;margin-top:0.2em;">(Taxable Income: ${data.taxableIncome.toLocaleString('en-US')} VND)</div>
+      <div class="result-list">
+        <div class="result-item">Social Insurance: <span>-${data.employeeInsurance.toLocaleString('en-US')} VND</span></div>
+        <div class="result-item">Personal Income Tax: <span>-${data.incomeTax.toLocaleString('en-US')} VND</span></div>
       </div>
+      <hr class="result-divider" />
+      <div class="result-total"><span>${data.netSalary.toLocaleString('en-US')} VND</span></div>
     `;
 
     DOM.resultDiv.innerHTML = html`
-      <div class="result-stack">
-        ${employeeTypeBox}
-        ${baseSalaryBox}
-        ${allowanceBox || bonusBox ? allowanceBox + bonusBox : noAllowanceBonusBox}
-        ${grossSalaryBox}
-        ${employerBox}
-        ${employeeBox}
+      <div class="result-table-container">
+        <table class="result-table result-table-vertical result-table-bordered">
+          <tr><td colspan="2">${employeeTypeCell}</td></tr>
+          <tr><td colspan="2">${baseSalaryCell}</td></tr>
+          <tr>
+            <td colspan="2" style="padding:0;">
+              <div style="display:flex;flex-direction:column;gap:1px;width:100%;">
+                ${allowanceCell}
+                ${bonusCell}
+                ${!allowanceCell && !bonusCell ? noAllowanceBonusCell : ''}
+              </div>
+            </td>
+          </tr>
+          <tr><td colspan="2">${grossSalaryCell}</td></tr>
+          <tr>
+            <td style="padding:0;vertical-align:top;">${employerCell}</td>
+            <td style="padding:0;vertical-align:top;">${employeeCell}</td>
+          </tr>
+        </table>
       </div>
     `;
     DOM.downloadPdfBtn.style.display = 'block';
