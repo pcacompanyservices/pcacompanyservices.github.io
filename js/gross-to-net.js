@@ -172,6 +172,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     returnBtn.style.display = idx > 0 ? '' : 'none';
     calculateBtn.style.display = idx === steps.length - 1 ? '' : 'none';
+    // Auto-focus base salary input on step 2
+    if (idx === 1) {
+      const baseSalaryInput = document.getElementById('base-salary');
+      if (baseSalaryInput) {
+        baseSalaryInput.focus();
+        baseSalaryInput.select && baseSalaryInput.select();
+      }
+    }
   }
 
   // --- Step 1: National Status ---
@@ -286,6 +294,23 @@ document.addEventListener('DOMContentLoaded', () => {
           div.style.display = cb.checked && parentCheckbox.checked ? 'block' : 'none';
         }
       });
+      // Auto-focus first visible input when parentCheckbox is checked
+      if (parentCheckbox.checked) {
+        setTimeout(() => {
+          const firstInput = container.querySelector('input[type="checkbox"]:checked');
+          if (firstInput) {
+            // Find the corresponding input field for the checked box
+            const inputDiv = document.getElementById(map[firstInput.id]);
+            if (inputDiv) {
+              const textInput = inputDiv.querySelector('input[type="text"]');
+              if (textInput) {
+                textInput.focus();
+                textInput.select && textInput.select();
+              }
+            }
+          }
+        }, 0);
+      }
     });
     Object.entries(map).forEach(([cbId, inputId]) => {
       const cb = document.getElementById(cbId);
@@ -293,6 +318,16 @@ document.addEventListener('DOMContentLoaded', () => {
       if (cb && div) {
         cb.addEventListener('change', () => {
           div.style.display = cb.checked && parentCheckbox.checked ? 'block' : 'none';
+          // Auto-focus the input when this box is checked and parent is checked
+          if (cb.checked && parentCheckbox.checked) {
+            setTimeout(() => {
+              const textInput = div.querySelector('input[type="text"]');
+              if (textInput) {
+                textInput.focus();
+                textInput.select && textInput.select();
+              }
+            }, 0);
+          }
         });
       }
     });
@@ -372,35 +407,94 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renderPieChart(data);
 
-    // Use only values from cal-gross-to-net.js result
-    const allowanceHTML = [
-      formatLine('Lunch', data.lunchAllowance),
-      formatLine('Fuel', data.fuelAllowance),
-      formatLine('Phone', data.phoneAllowance),
-      formatLine('Traveling', data.travelAllowance),
-      formatLine('Uniform', data.uniformAllowance)
-    ].join('');
+    // --- Restructured result boxes ---
 
-    const bonusHTML = [
-      formatLine('Productivity', data.productivityBonus),
-      formatLine('Incentive', data.incentiveBonus),
-      formatLine('KPI', data.kpiBonus)
-    ].join('');
+    // Allowance and Bonus items
+    const allowanceItems = [
+      { label: 'Lunch', value: data.lunchAllowance },
+      { label: 'Fuel', value: data.fuelAllowance },
+      { label: 'Phone', value: data.phoneAllowance },
+      { label: 'Traveling', value: data.travelAllowance },
+      { label: 'Uniform', value: data.uniformAllowance }
+    ].filter(item => item.value && item.value > 0);
+    const bonusItems = [
+      { label: 'Productivity', value: data.productivityBonus },
+      { label: 'Incentive', value: data.incentiveBonus },
+      { label: 'KPI', value: data.kpiBonus }
+    ].filter(item => item.value && item.value > 0);
+
+    let allowanceBox = '';
+    let bonusBox = '';
+    let noAllowanceBonusBox = '';
+
+    if (allowanceItems.length > 0) {
+      allowanceBox = `
+        <div class="result-box">
+          <div class="result-title">Allowance</div>
+          <div class="result-list">
+            ${allowanceItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
+          </div>
+          <hr class="result-divider" />
+          <div class="result-total"><span>${data.totalAllowance.toLocaleString('en-US')} VND</span></div>
+        </div>
+      `;
+    }
+    if (bonusItems.length > 0) {
+      bonusBox = `
+        <div class="result-box">
+          <div class="result-title">Bonus</div>
+          <div class="result-list">
+            ${bonusItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
+          </div>
+          <hr class="result-divider" />
+          <div class="result-total"><span>${data.totalBonus.toLocaleString('en-US')} VND</span></div>
+        </div>
+      `;
+    }
+    if (allowanceItems.length === 0 && bonusItems.length === 0) {
+      noAllowanceBonusBox = `
+        <div class="result-box">
+          <div class="result-center-value" style="font-size:1em; color:#888;">(There is no allowances or bonuses in the contract)</div>
+        </div>
+      `;
+    }
+
+    // Base Salary box
+    const baseSalaryBox = html`
+      <div class="result-box">
+        <div class="result-title">Base Salary</div>
+        <div class="result-center-value">${data.baseSalary ? data.baseSalary.toLocaleString('en-US') + ' VND' : '-'}</div>
+      </div>
+    `;
+
+    // Gross Salary box
+    const grossSalaryBox = html`
+      <div class="result-box">
+        <div class="result-title">Gross Salary</div>
+        <div class="result-center-value">${data.grossSalary ? data.grossSalary.toLocaleString('en-US') + ' VND' : '-'}</div>
+      </div>
+    `;
+
+    // The rest of the details (unchanged for now)
+    const detailsBox = html`
+      <div class="result-details">
+        Employee Insurance: ${data.employeeInsurance.toLocaleString('en-US')} VND<br>
+        (Taxable Income: ${data.taxableIncome.toLocaleString('en-US')} VND)<br>
+        Employee Personal Income Tax: ${data.incomeTax.toLocaleString('en-US')} VND<br>
+        <b>Employee Net Salary: ${data.netSalary.toLocaleString('en-US')} VND</b><br>
+        Employer Insurance: ${data.employerInsurance.toLocaleString('en-US')} VND<br>
+        Employer Union Fee: ${data.employerUnionFee.toLocaleString('en-US')} VND<br>
+        <b>Total Employer Cost: ${data.totalEmployerCost.toLocaleString('en-US')} VND</b><br>
+      </div>
+    `;
 
     DOM.resultDiv.innerHTML = `
-      ${allowanceHTML ? 'Allowances:<br>' + allowanceHTML + '<hr>' : ''}
-      ${bonusHTML ? 'Bonuses:<br>' + bonusHTML + '<hr>' : ''}
-      ${data.totalBonusAndAllowance > 0
-        ? `<b>Total Allowance and Bonus: ${data.totalBonusAndAllowance.toLocaleString('en-US')} VND (${data.percentBonusAndAllowance}%)</b><br>
-      <b>Base Salary: ${data.baseSalary.toLocaleString('en-US')} VND (${data.percentBaseSalary}%)</b><br><hr>` : ''}
-      <b>Gross Salary: ${data.grossSalary.toLocaleString('en-US')} VND</b><br><hr>
-      Employee Insurance: ${data.employeeInsurance.toLocaleString('en-US')} VND<br><hr>
-      (Taxable Income: ${data.taxableIncome.toLocaleString('en-US')} VND)<br>
-      Employee Personal Income Tax: ${data.incomeTax.toLocaleString('en-US')} VND<br><hr>
-      <b>Employee Net Salary: ${data.netSalary.toLocaleString('en-US')} VND</b><br><hr>
-      Employer Insurance: ${data.employerInsurance.toLocaleString('en-US')} VND<br>
-      Employer Union Fee: ${data.employerUnionFee.toLocaleString('en-US')} VND<br><hr>
-      <b>Total Employer Cost: ${data.totalEmployerCost.toLocaleString('en-US')} VND</b><br><hr>
+      <div class="result-stack">
+        ${baseSalaryBox}
+        ${allowanceBox || bonusBox ? allowanceBox + bonusBox : noAllowanceBonusBox}
+        ${grossSalaryBox}
+      </div>
+      ${detailsBox}
     `;
     DOM.downloadPdfBtn.style.display = 'block';
     // Show reset button
