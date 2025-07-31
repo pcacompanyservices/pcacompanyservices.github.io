@@ -72,11 +72,20 @@ h2 {
 
 /* Progress Bar Styles */
 #progress-bar {
-  margin-bottom: 18px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto 18px auto;
   user-select: none;
+  width: 100%;
+  max-width: 420px;
+  box-sizing: border-box;
 }
 .progress-step {
-  flex: 1 1 0;
+  flex: 0 1 110px;
+  min-width: 80px;
+  max-width: 140px;
   text-align: center;
   font-size: 16px;
   font-weight: 500;
@@ -87,6 +96,7 @@ h2 {
   position: relative;
   transition: color 0.2s, background 0.2s;
   z-index: 1;
+  margin: 0 2px;
 }
 .progress-step.active {
   color: #c1272d;
@@ -108,6 +118,7 @@ h2 {
   position: relative;
   top: 0;
   transition: background 0.2s;
+  align-self: center;
 }
 .progress-bar-line.completed {
   background: #1a7f3c;
@@ -644,6 +655,14 @@ button:hover {
   flex-wrap: wrap;
   width: 100%;
   max-width: 600px;
+}
+
+/* Center chart container perfectly if only one chart is visible */
+.pie-chart-container > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 #salary-breakdown-chart,

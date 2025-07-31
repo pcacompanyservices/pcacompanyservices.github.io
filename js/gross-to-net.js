@@ -149,11 +149,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const pieChartContainer = document.createElement('div');
   pieChartContainer.className = 'pie-chart-container';
   pieChartContainer.innerHTML = html`
-    <div>
+    <div id="salary-chart-block">
       <canvas id="salary-breakdown-chart" style="display: none;"></canvas>
       <div id="salary-breakdown-chart-label" style="display: none;">Salary Breakdown</div>
     </div>
-    <div>
+    <div id="cost-chart-block">
       <canvas id="cost-breakdown-chart" style="display: none;"></canvas>
       <div id="cost-breakdown-chart-label" style="display: none;">Cost Breakdown</div>
     </div>
@@ -647,6 +647,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Chart rendering ---
   function renderPieChart(data) {
+    // Helper: show/hide chart blocks and center if only one is visible
+    function updateChartBlockVisibility(showSalary, showCost) {
+      const salaryBlock = document.getElementById('salary-chart-block');
+      const costBlock = document.getElementById('cost-chart-block');
+      if (salaryBlock) salaryBlock.style.display = showSalary ? 'flex' : 'none';
+      if (costBlock) costBlock.style.display = showCost ? 'flex' : 'none';
+      // Center the only visible chart
+      const pieChartContainer = document.querySelector('.pie-chart-container');
+      if (pieChartContainer) {
+        if ((showSalary && !showCost) || (!showSalary && showCost)) {
+          pieChartContainer.style.justifyContent = 'center';
+        } else {
+          pieChartContainer.style.justifyContent = 'center';
+        }
+      }
+    }
+
     if (!data.baseSalary) {
       destroyChart('salaryChart');
       destroyChart('costBreakdownChart');
@@ -654,6 +671,7 @@ document.addEventListener('DOMContentLoaded', () => {
       DOM.salaryBreakdownChartLabel.style.display = 'none';
       DOM.costBreakdownChart.style.display = 'none';
       DOM.costBreakdownChartLabel.style.display = 'none';
+      updateChartBlockVisibility(false, false);
       return;
     }
     const bonusAndAllowance = data.grossSalary - data.baseSalary;
@@ -661,6 +679,7 @@ document.addEventListener('DOMContentLoaded', () => {
       destroyChart('salaryChart');
       DOM.salaryBreakdownChart.style.display = 'none';
       DOM.salaryBreakdownChartLabel.style.display = 'none';
+      updateChartBlockVisibility(false, true);
     } else {
       destroyChart('salaryChart');
       window.salaryChart = new Chart(DOM.salaryBreakdownChart.getContext('2d'), {
@@ -693,6 +712,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       DOM.salaryBreakdownChart.style.display = 'block';
       DOM.salaryBreakdownChartLabel.style.display = 'block';
+      updateChartBlockVisibility(true, true);
     }
     destroyChart('costBreakdownChart');
     const breakdownData = [
