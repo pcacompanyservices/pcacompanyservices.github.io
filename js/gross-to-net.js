@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
   progressBar.style.marginRight = 'auto';
   progressBar.style.userSelect = 'none';
   progressBar.innerHTML = html`
-    <div class="progress-step" data-step="0">Status</div>
+    <div class="progress-step" data-step="0">National Status</div>
     <div class="progress-bar-line"></div>
     <div class="progress-step" data-step="1">Base Salary</div>
     <div class="progress-bar-line"></div>
