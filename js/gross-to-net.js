@@ -226,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (hr) {
         const hrClone = hr.cloneNode(true);
         hrClone.style.border = 'none';
-        hrClone.style.borderTop = '1px solid #bbb';
+        hrClone.style.borderTop = '1px solid #666';
         hrClone.style.height = '0';
         hrClone.style.margin = '6px 0 10px 0';
         exportContainer.appendChild(hrClone);
@@ -260,7 +260,13 @@ document.addEventListener('DOMContentLoaded', () => {
           const imgHeight = canvas.height * imgWidth / canvas.width;
           let y = margin;
           pdf.addImage(imgData, 'PNG', margin, y, imgWidth, imgHeight);
-          pdf.save('salary-simulation-result.pdf');
+          // Format date as dd/mm/yyyy
+          const now = new Date();
+          const day = String(now.getDate()).padStart(2, '0');
+          const month = String(now.getMonth() + 1).padStart(2, '0');
+          const year = now.getFullYear();
+          const filename = `[PCA Salary Simulation]_${day}-${month}-${year}.pdf`;
+          pdf.save(filename);
         });
       };
       // If libraries are loaded async, wait a tick
