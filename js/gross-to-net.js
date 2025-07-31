@@ -9,6 +9,7 @@ function formatLine(label, value) {
 
 
 document.addEventListener('DOMContentLoaded', () => {
+
   // --- Dynamic UI creation ---
   const root = document.getElementById('gross-to-net-root');
   root.innerHTML = '';
@@ -18,6 +19,29 @@ document.addEventListener('DOMContentLoaded', () => {
   h1.textContent = "Calculate from Employee's Gross Salary";
   root.appendChild(h1);
   root.appendChild(document.createElement('hr'));
+
+  // Progress Bar
+  const progressBar = document.createElement('div');
+  progressBar.id = 'progress-bar';
+  progressBar.style.display = 'flex';
+  progressBar.style.justifyContent = 'space-between';
+  progressBar.style.alignItems = 'center';
+  progressBar.style.margin = '18px 0 18px 0';
+  progressBar.style.width = '100%';
+  progressBar.style.maxWidth = '420px';
+  progressBar.style.marginLeft = 'auto';
+  progressBar.style.marginRight = 'auto';
+  progressBar.style.userSelect = 'none';
+  progressBar.innerHTML = html`
+    <div class="progress-step" data-step="0">Status</div>
+    <div class="progress-bar-line"></div>
+    <div class="progress-step" data-step="1">Base Salary</div>
+    <div class="progress-bar-line"></div>
+    <div class="progress-step" data-step="2">Allowance</div>
+    <div class="progress-bar-line"></div>
+    <div class="progress-step" data-step="3">Bonus</div>
+  `;
+  root.appendChild(progressBar);
 
   // Form
   const salaryForm = document.createElement('form');
@@ -174,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const calculateBtn = document.getElementById('calculate-btn');
   let currentStep = 0;
 
-  // Show the current step and update navigation buttons
+  // Show the current step and update navigation buttons and progress bar
   function showStep(idx) {
     steps.forEach((step, i) => {
       if (step) step.style.display = i === idx ? '' : 'none';
@@ -189,6 +213,28 @@ document.addEventListener('DOMContentLoaded', () => {
         baseSalaryInput.select && baseSalaryInput.select();
       }
     }
+    // Update progress bar
+    const stepsEls = document.querySelectorAll('#progress-bar .progress-step');
+    stepsEls.forEach((el, i) => {
+      if (i < idx) {
+        el.classList.add('completed');
+        el.classList.remove('active');
+      } else if (i === idx) {
+        el.classList.add('active');
+        el.classList.remove('completed');
+      } else {
+        el.classList.remove('active', 'completed');
+      }
+    });
+    // Update progress bar lines
+    const lines = document.querySelectorAll('#progress-bar .progress-bar-line');
+    lines.forEach((line, i) => {
+      if (i < idx) {
+        line.classList.add('completed');
+      } else {
+        line.classList.remove('completed');
+      }
+    });
   }
 
   // --- Step 1: National Status ---
@@ -408,11 +454,14 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+
     // Destroy the form and navigation UI after calculation
     if (salaryForm && salaryForm.parentNode) {
       salaryForm.parentNode.removeChild(salaryForm);
     }
-    // Optionally, also remove the navigation div if it exists outside the form (not needed here)
+    // Hide progress bar
+    const progressBar = document.getElementById('progress-bar');
+    if (progressBar) progressBar.style.display = 'none';
 
     renderPieChart(data);
 
@@ -552,6 +601,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!document.getElementById('salary-form')) {
         root.insertBefore(salaryForm, DOM.resultDiv);
       }
+      // Show progress bar again
+      const progressBar = document.getElementById('progress-bar');
+      if (progressBar) progressBar.style.display = 'flex';
       // Reset to the first step
       currentStep = 0;
       showStep(currentStep);

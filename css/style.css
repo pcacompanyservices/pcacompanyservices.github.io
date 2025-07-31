@@ -70,6 +70,49 @@ h2 {
 /* Result Boxes & Stacks     */
 /* ========================= */
 
+/* Progress Bar Styles */
+#progress-bar {
+  margin-bottom: 18px;
+  user-select: none;
+}
+.progress-step {
+  flex: 1 1 0;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 500;
+  color: #aaa;
+  background: none;
+  border-radius: 6px;
+  padding: 6px 0 4px 0;
+  position: relative;
+  transition: color 0.2s, background 0.2s;
+  z-index: 1;
+}
+.progress-step.active {
+  color: #c1272d;
+  background: #f8eaea;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(193,39,45,0.04);
+}
+.progress-step.completed {
+  color: #1a7f3c;
+  background: #eaf8ee;
+  font-weight: 600;
+}
+.progress-bar-line {
+  flex: 0 0 32px;
+  height: 3px;
+  background: #eee;
+  border-radius: 2px;
+  margin: 0 2px;
+  position: relative;
+  top: 0;
+  transition: background 0.2s;
+}
+.progress-bar-line.completed {
+  background: #1a7f3c;
+}
+
 
 .result-table-container {
   width: 100%;
