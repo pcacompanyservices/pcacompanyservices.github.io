@@ -129,6 +129,9 @@ export function calculateFromGrossToNet(params) {
   const percentBonusAndAllowance = (totalBonusAndAllowance / grossSalary) * 100;
 
   return {
+    // National status
+    national: national,
+    
     // Salary
     grossSalary:      Math.round(grossSalary),
     baseSalary:       Math.round(baseSalary),

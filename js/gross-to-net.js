@@ -459,6 +459,21 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     }
 
+    // Employee type box (local/expat)
+    let employeeTypeLabel = '';
+    if (data.national === 'local') {
+      employeeTypeLabel = 'Local Employee';
+    } else if (data.national === 'expat') {
+      employeeTypeLabel = 'Expat Employee';
+    } else {
+      employeeTypeLabel = 'Employee';
+    }
+    const employeeTypeBox = html`
+      <div class="result-box">
+        <div class="result-title">${employeeTypeLabel}</div>
+      </div>
+    `;
+
     // Base Salary box
     const baseSalaryBox = html`
       <div class="result-box">
@@ -502,6 +517,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     DOM.resultDiv.innerHTML = html`
       <div class="result-stack">
+        ${employeeTypeBox}
         ${baseSalaryBox}
         ${allowanceBox || bonusBox ? allowanceBox + bonusBox : noAllowanceBonusBox}
         ${grossSalaryBox}
