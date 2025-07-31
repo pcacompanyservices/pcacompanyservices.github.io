@@ -1,19 +1,21 @@
+
 import { calculateFromGrossToNet } from './cal-gross-to-net.js';
 import { html } from '../util/html-parser.js';
 
+// Utility to format a result line
 function formatLine(label, value) {
   return value ? `- ${label}: ${value.toLocaleString('en-US')} VND<br>` : '';
 }
 
-document.addEventListener('DOMContentLoaded', () => {
 
+document.addEventListener('DOMContentLoaded', () => {
   // --- Dynamic UI creation ---
   const root = document.getElementById('gross-to-net-root');
   root.innerHTML = '';
 
   // Title
   const h1 = document.createElement('h1');
-  h1.textContent = 'Calculate from Employee\'s Gross Salary';
+  h1.textContent = "Calculate from Employee's Gross Salary";
   root.appendChild(h1);
   root.appendChild(document.createElement('hr'));
 
@@ -22,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
   salaryForm.id = 'salary-form';
   root.appendChild(salaryForm);
 
-  // Step 1: National Status
+  // --- Step 1: National Status ---
   const step1 = document.createElement('div');
   step1.className = 'form-step';
   step1.id = 'step-1';
@@ -37,7 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
   `;
   salaryForm.appendChild(step1);
 
-  // Step 2: Base Salary
+
+  // --- Step 2: Base Salary ---
   const step2 = document.createElement('div');
   step2.className = 'form-step';
   step2.id = 'step-2';
@@ -49,7 +52,8 @@ document.addEventListener('DOMContentLoaded', () => {
   `;
   salaryForm.appendChild(step2);
 
-  // Step 3: Allowance
+
+  // --- Step 3: Allowance ---
   const step3 = document.createElement('div');
   step3.className = 'form-step';
   step3.id = 'step-3';
@@ -61,43 +65,24 @@ document.addEventListener('DOMContentLoaded', () => {
         <input type="checkbox" id="allowance-checkbox" /> There are Allowance(s) in the Contract
       </label>
       <div id="allowance-inputs" style="display: none;">
-        <label class="checkbox-item">
-          <input type="checkbox" id="lunch-checkbox" /> Lunch
-        </label>
-        <div id="lunch-input" style="display: none;">
-          <input type="text" class="number-input" id="allowance-lunch" placeholder="Please enter your allowance for lunch" min="0" />
-        </div>
-        <label class="checkbox-item">
-          <input type="checkbox" id="fuel-checkbox" /> Fuel
-        </label>
-        <div id="fuel-input" style="display: none;">
-          <input type="text" class="number-input" id="allowance-fuel" placeholder="Please enter your allowance for fuel" min="0" />
-        </div>
-        <label class="checkbox-item">
-          <input type="checkbox" id="phone-checkbox" /> Phone
-        </label>
-        <div id="phone-input" style="display: none;">
-          <input type="text" class="number-input" id="allowance-phone" placeholder="Please enter your allowance for phone" min="0" />
-        </div>
-        <label class="checkbox-item">
-          <input type="checkbox" id="travel-checkbox" /> Traveling
-        </label>
-        <div id="travel-input" style="display: none;">
-          <input type="text" class="number-input" id="allowance-travel" placeholder="Please enter your allowance for traveling" min="0" />
-        </div>
-        <label class="checkbox-item">
-          <input type="checkbox" id="uniform-checkbox" /> Uniform
-        </label>
-        <div id="uniform-input" style="display: none;">
-          <input type="text" class="number-input" id="allowance-uniform" placeholder="Please enter your allowance for uniform" min="0" />
-        </div>
+        <label class="checkbox-item"><input type="checkbox" id="lunch-checkbox" /> Lunch</label>
+        <div id="lunch-input" style="display: none;"><input type="text" class="number-input" id="allowance-lunch" placeholder="Please enter your allowance for lunch" min="0" /></div>
+        <label class="checkbox-item"><input type="checkbox" id="fuel-checkbox" /> Fuel</label>
+        <div id="fuel-input" style="display: none;"><input type="text" class="number-input" id="allowance-fuel" placeholder="Please enter your allowance for fuel" min="0" /></div>
+        <label class="checkbox-item"><input type="checkbox" id="phone-checkbox" /> Phone</label>
+        <div id="phone-input" style="display: none;"><input type="text" class="number-input" id="allowance-phone" placeholder="Please enter your allowance for phone" min="0" /></div>
+        <label class="checkbox-item"><input type="checkbox" id="travel-checkbox" /> Traveling</label>
+        <div id="travel-input" style="display: none;"><input type="text" class="number-input" id="allowance-travel" placeholder="Please enter your allowance for traveling" min="0" /></div>
+        <label class="checkbox-item"><input type="checkbox" id="uniform-checkbox" /> Uniform</label>
+        <div id="uniform-input" style="display: none;"><input type="text" class="number-input" id="allowance-uniform" placeholder="Please enter your allowance for uniform" min="0" /></div>
       </div>
     </div>
     <button type="button" id="continue-step3" class="simulation-button unavailable" disabled>Continue</button>
   `;
   salaryForm.appendChild(step3);
 
-  // Step 4: Bonus
+
+  // --- Step 4: Bonus ---
   const step4 = document.createElement('div');
   step4.className = 'form-step';
   step4.id = 'step-4';
@@ -109,30 +94,19 @@ document.addEventListener('DOMContentLoaded', () => {
         <input type="checkbox" id="bonus-checkbox" /> There are Bonus(es) in the Contract
       </label>
       <div id="bonus-inputs" style="display: none;">
-        <label class="checkbox-item">
-          <input type="checkbox" id="productivity-checkbox" /> Productivity
-        </label>
-        <div id="productivity-input" style="display: none;">
-          <input type="text" class="number-input" id="bonus-productivity" placeholder="Please enter your bonus for productivity" min="0" />
-        </div>
-        <label class="checkbox-item">
-          <input type="checkbox" id="incentive-checkbox" /> Incentive
-        </label>
-        <div id="incentive-input" style="display: none;">
-          <input type="text" class="number-input" id="bonus-incentive" placeholder="Please enter your bonus for incentive" min="0" />
-        </div>
-        <label class="checkbox-item">
-          <input type="checkbox" id="kpi-checkbox" /> KPI
-        </label>
-        <div id="kpi-input" style="display: none;">
-          <input type="text" class="number-input" id="bonus-kpi" placeholder="Please enter your bonus for kpi" min="0" />
-        </div>
+        <label class="checkbox-item"><input type="checkbox" id="productivity-checkbox" /> Productivity</label>
+        <div id="productivity-input" style="display: none;"><input type="text" class="number-input" id="bonus-productivity" placeholder="Please enter your bonus for productivity" min="0" /></div>
+        <label class="checkbox-item"><input type="checkbox" id="incentive-checkbox" /> Incentive</label>
+        <div id="incentive-input" style="display: none;"><input type="text" class="number-input" id="bonus-incentive" placeholder="Please enter your bonus for incentive" min="0" /></div>
+        <label class="checkbox-item"><input type="checkbox" id="kpi-checkbox" /> KPI</label>
+        <div id="kpi-input" style="display: none;"><input type="text" class="number-input" id="bonus-kpi" placeholder="Please enter your bonus for kpi" min="0" /></div>
       </div>
     </div>
   `;
   salaryForm.appendChild(step4);
 
-  // Navigation buttons (only Calculate and Return remain)
+
+  // --- Navigation buttons (Calculate, Return) ---
   const navDiv = document.createElement('div');
   navDiv.className = 'form-navigation';
   navDiv.innerHTML = html`
@@ -141,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
   `;
   salaryForm.appendChild(navDiv);
 
-  // Result and charts
+  // --- Result and charts ---
   const resultDiv = document.createElement('div');
   resultDiv.className = 'result';
   resultDiv.id = 'result';
@@ -168,6 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
   downloadBtn.textContent = 'Download PDF';
   root.appendChild(downloadBtn);
 
+
   // --- Multi-step form navigation logic ---
   const steps = [step1, step2, step3, step4];
   const continueBtns = [
@@ -179,17 +154,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const calculateBtn = document.getElementById('calculate-btn');
   let currentStep = 0;
 
+  // Show the current step and update navigation buttons
   function showStep(idx) {
     steps.forEach((step, i) => {
       if (step) step.style.display = i === idx ? '' : 'none';
     });
-    // Navigation button logic
     returnBtn.style.display = idx > 0 ? '' : 'none';
     calculateBtn.style.display = idx === steps.length - 1 ? '' : 'none';
   }
 
-  // Step-specific validation and continue logic
-  // Step 1: National Status
+  // --- Step 1: National Status ---
   const nationalSelect = document.getElementById('national');
   continueBtns[0].addEventListener('click', () => {
     if (currentStep === 0 && nationalSelect.value) {
@@ -209,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
   nationalSelect.addEventListener('change', updateStep1Btn);
   updateStep1Btn();
 
-  // Step 2: Base Salary
+  // --- Step 2: Base Salary ---
   const baseSalaryInput = document.getElementById('base-salary');
   continueBtns[1].addEventListener('click', () => {
     if (currentStep === 1 && baseSalaryInput.value && parseInt(baseSalaryInput.value.replace(/\D/g, '')) >= 5000000) {
@@ -230,20 +204,19 @@ document.addEventListener('DOMContentLoaded', () => {
   baseSalaryInput.addEventListener('input', updateStep2Btn);
   updateStep2Btn();
 
-  // Step 3: Allowance (always enabled, can skip)
+  // --- Step 3: Allowance (always enabled, can skip) ---
   continueBtns[2].addEventListener('click', () => {
     if (currentStep === 2) {
       currentStep++;
       showStep(currentStep);
     }
   });
-  // Always enabled for step 3
   continueBtns[2].classList.remove('unavailable');
   continueBtns[2].disabled = false;
 
-  // No continue button for step 4
+  // --- No continue button for step 4 ---
 
-  // Return button logic
+  // --- Return button logic ---
   returnBtn?.addEventListener('click', () => {
     if (currentStep > 0) {
       currentStep--;
@@ -251,15 +224,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // On load, show first step
+  // --- On load, show first step ---
   showStep(currentStep);
-  // Load Chart.js if not present
+
+  // --- Load Chart.js if not present ---
   if (!window.Chart) {
     const script = document.createElement('script');
     script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
     document.head.appendChild(script);
   }
 
+  // --- DOM references ---
   const DOM = {
     salaryForm,
     calculateBtn,
@@ -275,6 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
     salaryBreakdownChartLabel: document.getElementById('salary-breakdown-chart-label'),
   };
 
+  // --- Allowance and Bonus checkbox/input mapping ---
   const allowanceMap = {
     'lunch-checkbox': 'lunch-input',
     'fuel-checkbox': 'fuel-input',
@@ -282,13 +258,13 @@ document.addEventListener('DOMContentLoaded', () => {
     'travel-checkbox': 'travel-input',
     'uniform-checkbox': 'uniform-input',
   };
-
   const bonusMap = {
     'productivity-checkbox': 'productivity-input',
     'incentive-checkbox': 'incentive-input',
     'kpi-checkbox': 'kpi-input',
   };
 
+  // --- Show/hide allowance/bonus input fields ---
   function toggleVisibility(map, parentCheckbox, container) {
     parentCheckbox.addEventListener('change', () => {
       container.style.display = parentCheckbox.checked ? 'block' : 'none';
@@ -300,7 +276,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
     });
-
     Object.entries(map).forEach(([cbId, inputId]) => {
       const cb = document.getElementById(cbId);
       const div = document.getElementById(inputId);
@@ -311,27 +286,29 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-
   toggleVisibility(allowanceMap, DOM.allowanceCheckbox, DOM.allowanceInputs);
   toggleVisibility(bonusMap, DOM.bonusCheckbox, DOM.bonusInputs);
 
+  // --- Format number input fields ---
   function formatNumberInput(input) {
     const raw = input.value.replace(/[^\d]/g, '');
     input.value = raw ? parseFloat(raw).toLocaleString('en-US') : '';
   }
-
   document.addEventListener('input', (e) => {
     if (e.target.tagName === 'INPUT' && e.target.classList.contains('number-input')) {
       formatNumberInput(e.target);
     }
   });
 
+  // --- Chart.js destroy helper ---
   function destroyChart(chartName) {
     if (window[chartName] && typeof window[chartName].destroy === 'function') {
       window[chartName].destroy();
       window[chartName] = null;
     }
   }
+
+  // --- Calculation handler ---
 
   function handleCalculation() {
     // Gather all input values and flags
@@ -376,6 +353,12 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // Destroy the form and navigation UI after calculation
+    if (salaryForm && salaryForm.parentNode) {
+      salaryForm.parentNode.removeChild(salaryForm);
+    }
+    // Optionally, also remove the navigation div if it exists outside the form (not needed here)
+
     renderPieChart(data);
 
     // Use only values from cal-gross-to-net.js result
@@ -394,8 +377,8 @@ document.addEventListener('DOMContentLoaded', () => {
     ].join('');
 
     DOM.resultDiv.innerHTML = `
-    ${allowanceHTML ? 'Allowances:<br>' + allowanceHTML + '<hr>' : ''}
-    ${bonusHTML ? 'Bonuses:<br>' + bonusHTML + '<hr>' : ''}
+      ${allowanceHTML ? 'Allowances:<br>' + allowanceHTML + '<hr>' : ''}
+      ${bonusHTML ? 'Bonuses:<br>' + bonusHTML + '<hr>' : ''}
       ${data.totalBonusAndAllowance > 0
         ? `<b>Total Allowance and Bonus: ${data.totalBonusAndAllowance.toLocaleString('en-US')} VND (${data.percentBonusAndAllowance}%)</b><br>
       <b>Base Salary: ${data.baseSalary.toLocaleString('en-US')} VND (${data.percentBaseSalary}%)</b><br><hr>` : ''}
@@ -411,33 +394,28 @@ document.addEventListener('DOMContentLoaded', () => {
     DOM.downloadPdfBtn.style.display = 'block';
   }
 
-
-  // Only run calculation on Calculate button
+  // --- Calculation triggers ---
   DOM.calculateBtn.addEventListener('click', (e) => {
     e.preventDefault();
     handleCalculation();
   });
-
-  // Prevent form submit from reloading the page
   salaryForm.addEventListener('submit', (e) => {
     e.preventDefault();
     handleCalculation();
   });
 
-  // Per-step Enter key handling
+  // --- Per-step Enter key handling ---
   steps.forEach((step, idx) => {
     step.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        // On last step, trigger calculate
         if (idx === steps.length - 1) {
           handleCalculation();
         } else if (continueBtns[idx]) {
-          // For step 3 (Allowance), always allow Enter to proceed
+          // For step 3 (idx === 2), always proceed regardless of button state
           if (idx === 2) {
             continueBtns[idx].click();
           } else if (idx === 1) {
-            // For step 2, only allow if valid
             if (!continueBtns[idx].disabled) continueBtns[idx].click();
           } else if (!continueBtns[idx].disabled) {
             continueBtns[idx].click();
@@ -447,29 +425,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // --- Chart rendering ---
   function renderPieChart(data) {
-    // If baseSalary is falsy or 0, skip rendering and hide all chart elements
     if (!data.baseSalary) {
       destroyChart('salaryChart');
       destroyChart('costBreakdownChart');
-
       DOM.salaryBreakdownChart.style.display = 'none';
       DOM.salaryBreakdownChartLabel.style.display = 'none';
       DOM.costBreakdownChart.style.display = 'none';
       DOM.costBreakdownChartLabel.style.display = 'none';
-
       return;
     }
-
     const bonusAndAllowance = data.grossSalary - data.baseSalary;
-
     if (bonusAndAllowance === 0) {
       destroyChart('salaryChart');
       DOM.salaryBreakdownChart.style.display = 'none';
       DOM.salaryBreakdownChartLabel.style.display = 'none';
     } else {
       destroyChart('salaryChart');
-
       window.salaryChart = new Chart(DOM.salaryBreakdownChart.getContext('2d'), {
         type: 'doughnut',
         data: {
@@ -498,14 +471,10 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
       });
-
       DOM.salaryBreakdownChart.style.display = 'block';
       DOM.salaryBreakdownChartLabel.style.display = 'block';
     }
-
     destroyChart('costBreakdownChart');
-
-    // Defensive: use 0 for missing values
     const breakdownData = [
       data.employeeInsurance || 0,
       data.incomeTax || 0,
@@ -513,7 +482,6 @@ document.addEventListener('DOMContentLoaded', () => {
       data.employerUnionFee || 0,
       data.netSalary || 0
     ];
-
     const breakdownLabels = [
       'Employee Insurance',
       'Personal Income Tax',
@@ -521,7 +489,6 @@ document.addEventListener('DOMContentLoaded', () => {
       'Employer Union Fee',
       'Employee Take-home (Net) Salary'
     ];
-
     window.costBreakdownChart = new Chart(DOM.costBreakdownChart.getContext('2d'), {
       type: 'doughnut',
       data: {
@@ -556,7 +523,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     });
-
     DOM.costBreakdownChart.style.display = 'block';
     DOM.costBreakdownChartLabel.style.display = 'block';
   }
