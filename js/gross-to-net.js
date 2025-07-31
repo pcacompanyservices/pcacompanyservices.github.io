@@ -166,7 +166,111 @@ document.addEventListener('DOMContentLoaded', () => {
   downloadBtn.id = 'download-pdf-btn';
   downloadBtn.style.display = 'none';
   downloadBtn.textContent = 'Download PDF';
+
   root.appendChild(downloadBtn);
+
+  // --- PDF Export logic (A4, Garamond, instant download) ---
+  // Ensure jsPDF and html2canvas are loaded
+  function ensureJsPdfAndHtml2Canvas(cb) {
+    let loaded = 0;
+    function check() { loaded++; if (loaded === 2) cb(); }
+    // Check jsPDF
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+      s.onload = check;
+      document.head.appendChild(s);
+    } else loaded++;
+    // Check html2canvas
+    if (!window.html2canvas) {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      s.onload = check;
+      document.head.appendChild(s);
+    } else loaded++;
+    if ((window.jspdf && window.jspdf.jsPDF) && window.html2canvas) cb();
+  }
+
+  downloadBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    ensureJsPdfAndHtml2Canvas(async () => {
+      // Prepare export container
+      const resultTableContainer = document.querySelector('.result-table-container');
+      if (!resultTableContainer) return;
+      const exportContainer = document.createElement('div');
+      exportContainer.style.fontFamily = "'EB Garamond', Garamond, serif";
+      exportContainer.style.background = '#fff';
+      exportContainer.style.color = '#222';
+      exportContainer.style.width = '100%';
+      exportContainer.style.maxWidth = '650px';
+      exportContainer.style.margin = '0 auto';
+      exportContainer.style.position = 'fixed';
+      exportContainer.style.left = '-9999px';
+      exportContainer.style.top = '0';
+      exportContainer.style.zIndex = '-1';
+      exportContainer.style.padding = '32px 32px 32px 32px'; // Add more margin for all sides
+      // Clone logo, h1, hr, and result table
+      const logo = document.querySelector('.logo');
+      const h1 = root.querySelector('h1');
+      const hr = root.querySelector('hr');
+      if (logo) {
+        const logoClone = logo.cloneNode(true);
+        logoClone.style.margin = '0 auto 8px auto';
+        exportContainer.appendChild(logoClone);
+      }
+      if (h1) {
+        const h1Clone = h1.cloneNode(true);
+        h1Clone.style.margin = '0 0 6px 0';
+        exportContainer.appendChild(h1Clone);
+      }
+      if (hr) {
+        const hrClone = hr.cloneNode(true);
+        hrClone.style.border = 'none';
+        hrClone.style.borderTop = '1px solid #bbb';
+        hrClone.style.height = '0';
+        hrClone.style.margin = '6px 0 10px 0';
+        exportContainer.appendChild(hrClone);
+      }
+      exportContainer.appendChild(resultTableContainer.cloneNode(true));
+
+      // Wait for fonts to load
+      await document.fonts.ready;
+
+      // Append to body (off-screen, hidden)
+      document.body.appendChild(exportContainer);
+
+      // Use html2canvas to render the exportContainer
+      const runExport = () => {
+        window.html2canvas(exportContainer, {
+          backgroundColor: '#fff',
+          scale: 2,
+          useCORS: true
+        }).then(canvas => {
+          // Remove exportContainer after rendering
+          document.body.removeChild(exportContainer);
+          const imgData = canvas.toDataURL('image/png');
+          const jsPDF = window.jspdf.jsPDF;
+          // A4 size in pt: 595.28 x 841.89
+          const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
+          // Calculate width/height to fit A4
+          const pageWidth = 595.28;
+          const pageHeight = 841.89;
+          const margin = 40; // 40pt margin on all sides
+          const imgWidth = pageWidth - margin * 2;
+          const imgHeight = canvas.height * imgWidth / canvas.width;
+          let y = margin;
+          pdf.addImage(imgData, 'PNG', margin, y, imgWidth, imgHeight);
+          pdf.save('salary-simulation-result.pdf');
+        });
+      };
+      // If libraries are loaded async, wait a tick
+      if (window.jspdf && window.jspdf.jsPDF && window.html2canvas) {
+        runExport();
+      } else {
+        setTimeout(runExport, 300);
+      }
+    });
+  });
 
   // --- Reset button ---
   const resetBtn = document.createElement('button');
