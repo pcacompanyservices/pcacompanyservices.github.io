@@ -85,18 +85,18 @@ h2 {
 .progress-step {
   flex: 0 1 110px;
   min-width: 30px;
-  max-width: 140px;
+  max-width: 180px;
   text-align: center;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 500;
   color: #666;
   background: #f6f6f6;
   border-radius: 6px;
-  padding: 2px 0 1px 0;
+  padding: 3px;
   position: relative;
   transition: color 0.2s, background 0.2s;
   z-index: 1;
-  margin: 0 2px;
+  margin: 0 1px;
 }
 .progress-step.active {
   color: #c1272d;
@@ -114,7 +114,7 @@ h2 {
   height: 3px;
   background: #ddd;
   border-radius: 2px;
-  margin: 0 2px;
+  margin: 0 1px;
   position: relative;
   top: 0;
   transition: background 0.2s;
@@ -173,9 +173,11 @@ h2 {
   letter-spacing: 0.5px;
 }
 
-/* Light grey background for the national cell (first row) */
-.result-table tr:first-child td {
-  background: #f1f1f1;
+/* Light grey background for the national cell (first row), gross row, and last row */
+.result-table tr:first-child td,
+.result-table tr:nth-last-child(3) td, /* gross row: 3rd from end */
+.result-table tr:last-child td { /* last row: totals */
+  background: #f3f3f3;
 }
 
 /* Make all table headers in the result table bold and larger */
@@ -520,7 +522,7 @@ button:hover {
   top: 100%;
   transform: translateX(-50%);
   min-width: 50px;
-  max-width: 320px;
+  max-width: 300px;
   background: #fffbe6;
   color: #111;
   border: 1px solid #e0c97f;
