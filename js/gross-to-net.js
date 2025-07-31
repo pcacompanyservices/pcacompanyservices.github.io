@@ -475,26 +475,39 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `;
 
-    // The rest of the details (unchanged for now)
-    const detailsBox = html`
-      <div class="result-details">
-        Employee Insurance: ${data.employeeInsurance.toLocaleString('en-US')} VND<br>
-        (Taxable Income: ${data.taxableIncome.toLocaleString('en-US')} VND)<br>
-        Employee Personal Income Tax: ${data.incomeTax.toLocaleString('en-US')} VND<br>
-        <b>Employee Net Salary: ${data.netSalary.toLocaleString('en-US')} VND</b><br>
-        Employer Insurance: ${data.employerInsurance.toLocaleString('en-US')} VND<br>
-        Employer Union Fee: ${data.employerUnionFee.toLocaleString('en-US')} VND<br>
-        <b>Total Employer Cost: ${data.totalEmployerCost.toLocaleString('en-US')} VND</b><br>
+    // Employer and Employee details in their own result-boxes
+    const employerBox = html`
+      <div class="result-box">
+        <div class="result-title">Employer Cost</div>
+        <div class="result-list">
+          <div class="result-item">Social Insurance: <span>+${data.employerInsurance.toLocaleString('en-US')} VND</span></div>
+          <div class="result-item">Union Fee: <span>+${data.employerUnionFee.toLocaleString('en-US')} VND</span></div>
+        </div>
+        <hr class="result-divider" />
+        <div class="result-total"><span>${data.totalEmployerCost.toLocaleString('en-US')} VND</span></div>
+      </div>
+    `;
+    const employeeBox = html`
+      <div class="result-box">
+        <div class="result-title">Employee Take-home</div>
+        <div style="text-align:center;color:#888;font-size:15px;margin-top:0.2em;">(Taxable Income: ${data.taxableIncome.toLocaleString('en-US')} VND)</div>
+        <div class="result-list">
+          <div class="result-item">Social Insurance: <span>-${data.employeeInsurance.toLocaleString('en-US')} VND</span></div>
+          <div class="result-item">Personal Income Tax: <span>-${data.incomeTax.toLocaleString('en-US')} VND</span></div>
+        </div>
+        <hr class="result-divider" />
+        <div class="result-total"><span>${data.netSalary.toLocaleString('en-US')} VND</span></div>
       </div>
     `;
 
-    DOM.resultDiv.innerHTML = `
+    DOM.resultDiv.innerHTML = html`
       <div class="result-stack">
         ${baseSalaryBox}
         ${allowanceBox || bonusBox ? allowanceBox + bonusBox : noAllowanceBonusBox}
         ${grossSalaryBox}
+        ${employerBox}
+        ${employeeBox}
       </div>
-      ${detailsBox}
     `;
     DOM.downloadPdfBtn.style.display = 'block';
     // Show reset button
