@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
   resetBtn.className = 'simulation-button return-button';
   resetBtn.id = 'reset-btn';
   resetBtn.style.display = 'none';
-  resetBtn.textContent = 'Reset';
+  resetBtn.textContent = 'Modify Information';
   resetBtn.type = 'button';
   root.appendChild(resetBtn);
 
@@ -528,10 +528,25 @@ document.addEventListener('DOMContentLoaded', () => {
     DOM.downloadPdfBtn.style.display = 'block';
     // Show reset button
     resetBtn.style.display = 'block';
-  // --- Reset button logic ---
-  resetBtn.addEventListener('click', () => {
-    window.location.reload();
-  });
+    // --- Reset button logic ---
+    resetBtn.onclick = () => {
+      // Hide results
+      DOM.resultDiv.innerHTML = '';
+      DOM.downloadPdfBtn.style.display = 'none';
+      resetBtn.style.display = 'none';
+      // Hide charts
+      if (DOM.salaryBreakdownChart) DOM.salaryBreakdownChart.style.display = 'none';
+      if (DOM.salaryBreakdownChartLabel) DOM.salaryBreakdownChartLabel.style.display = 'none';
+      if (DOM.costBreakdownChart) DOM.costBreakdownChart.style.display = 'none';
+      if (DOM.costBreakdownChartLabel) DOM.costBreakdownChartLabel.style.display = 'none';
+      // Re-insert the form at the top (before resultDiv)
+      if (!document.getElementById('salary-form')) {
+        root.insertBefore(salaryForm, DOM.resultDiv);
+      }
+      // Reset to the first step
+      currentStep = 0;
+      showStep(currentStep);
+    };
   }
 
   // --- Calculation triggers ---
