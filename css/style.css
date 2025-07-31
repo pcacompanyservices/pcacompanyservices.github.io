@@ -1,3 +1,18 @@
+/* Short divider for allowance/bonus total */
+.result-divider {
+  border: none;
+  border-top: 1px solid #ccc;
+  width: 60%;
+  margin: 0.08em auto 0.05em auto;
+}
+/* Shorten and center the main form */
+#salary-form {
+  max-width: 420px;
+  width: 100%;
+  margin: 0 auto 24px auto;
+  padding: 0 8px;
+  box-sizing: border-box;
+}
 /* ========================= */
 /* Result Details Grid       */
 /* ========================= */
@@ -93,7 +108,7 @@ h2 {
 }
 
 .result-title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
   text-align: center;
   margin-bottom: 0.05em;
@@ -128,6 +143,14 @@ h2 {
   font-size: 20px;
 }
 
+/* Highlight employer cost and employee take-home total values */
+.employer-total-value {
+  color: #c1272d !important; /* deep red for employer cost */
+}
+.employee-total-value {
+  color: #1a7f3c !important; /* deep green for employee take-home */
+}
+
 .result-center-value {
   font-size: 20px;
   font-weight: 600;
@@ -135,12 +158,7 @@ h2 {
   margin: 0.04em 0 0.02em 0;
 }
 
-.result-divider {
-  border: none;
-  border-top: 1px solid #ccc;
-  width: 60%;
-  margin: 0.08em auto 0.05em auto;
-}
+
 
 .result {
   margin-top: 16px;
@@ -311,17 +329,21 @@ button:hover {
   top: 100%;
   transform: translateX(-50%);
   min-width: 50px;
+
 }
+
 .result-table-vertical td {
   vertical-align: top;
 }
+
 .result-table-bordered {
   border: 1px solid #666;
 }
+
 .result-table-bordered td,
 .result-table-bordered th {
   border: 1px solid #666;
-  padding: 2px 6px;
+  padding: 4px 4px;
 }
 
 

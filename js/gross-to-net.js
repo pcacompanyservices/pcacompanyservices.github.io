@@ -153,6 +153,15 @@ document.addEventListener('DOMContentLoaded', () => {
   resetBtn.type = 'button';
   root.appendChild(resetBtn);
 
+  // --- Hard Reset (Reload) button ---
+  const hardResetBtn = document.createElement('button');
+  hardResetBtn.className = 'simulation-button return-button';
+  hardResetBtn.id = 'hard-reset-btn';
+  hardResetBtn.style.display = 'none';
+  hardResetBtn.textContent = 'Reset';
+  hardResetBtn.type = 'button';
+  root.appendChild(hardResetBtn);
+
 
   // --- Multi-step form navigation logic ---
   const steps = [step1, step2, step3, step4];
@@ -423,33 +432,41 @@ document.addEventListener('DOMContentLoaded', () => {
       { label: 'KPI', value: data.kpiBonus }
     ].filter(item => item.value && item.value > 0);
 
-    let bonusCell = '';
-    let allowanceCell = '';
-    let noAllowanceBonusCell = '';
+    let allowanceRow = '';
+    let bonusRow = '';
+    let noAllowanceBonusRow = '';
 
     if (allowanceItems.length > 0) {
-      allowanceCell = `
-        <div class="result-title">Allowance</div>
-        <div class="result-list">
-          ${allowanceItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
-        </div>
-        <hr class="result-divider" />
-        <div class="result-total"><span>${data.totalAllowance.toLocaleString('en-US')} VND</span></div>
+      allowanceRow = `
+        <tr>
+          <td colspan="2">
+            <div class="result-title">Allowance</div>
+            <div class="result-list">
+              ${allowanceItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
+            </div>
+            <hr class="result-divider" />
+            <div class="result-total"><span>${data.totalAllowance.toLocaleString('en-US')} VND</span></div>
+          </td>
+        </tr>
       `;
     }
     if (bonusItems.length > 0) {
-      bonusCell = `
-        <div class="result-title">Bonus</div>
-        <div class="result-list">
-          ${bonusItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
-        </div>
-        <hr class="result-divider" />
-        <div class="result-total"><span>${data.totalBonus.toLocaleString('en-US')} VND</span></div>
+      bonusRow = `
+        <tr>
+          <td colspan="2">
+            <div class="result-title">Bonus</div>
+            <div class="result-list">
+              ${bonusItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
+            </div>
+            <hr class="result-divider" />
+            <div class="result-total"><span>${data.totalBonus.toLocaleString('en-US')} VND</span></div>
+          </td>
+        </tr>
       `;
     }
     if (allowanceItems.length === 0 && bonusItems.length === 0) {
-      noAllowanceBonusCell = `
-        <div class="result-center-value" style="font-size:1em; color:#888;">(There is no allowances or bonuses in the contract)</div>
+      noAllowanceBonusRow = `
+        <tr><td colspan="2"><div class="result-center-value" style="font-size:1em; color:#888;">(There is no Allowances or Bonuses in the Contract)</div></td></tr>
       `;
     }
 
@@ -462,7 +479,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       employeeTypeLabel = 'Employee';
     }
-    const employeeTypeCell = html`<div class="result-title">${employeeTypeLabel}</div>`;
+    const employeeTypeCell = html`<div class="result-title"><u>${employeeTypeLabel}</u></div>`;
 
     // Base Salary box
     const baseSalaryCell = html`
@@ -476,58 +493,56 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="result-center-value">${data.grossSalary ? data.grossSalary.toLocaleString('en-US') + ' VND' : '-'}</div>
     `;
 
-    // Employer and Employee details in their own result-boxes
-    const employerCell = html`
+
+    // Employer and Employee details: details row, then total value in a new row below
+    const employerDetailsCell = html`
       <div class="result-title">Employer Cost</div>
       <div class="result-list">
         <div class="result-item">Social Insurance: <span>+${data.employerInsurance.toLocaleString('en-US')} VND</span></div>
         <div class="result-item">Union Fee: <span>+${data.employerUnionFee.toLocaleString('en-US')} VND</span></div>
       </div>
-      <hr class="result-divider" />
-      <div class="result-total"><span>${data.totalEmployerCost.toLocaleString('en-US')} VND</span></div>
     `;
-    const employeeCell = html`
+    const employeeDetailsCell = html`
       <div class="result-title">Employee Take-home</div>
-      <div style="text-align:center;color:#888;font-size:15px;margin-top:0.2em;">(Taxable Income: ${data.taxableIncome.toLocaleString('en-US')} VND)</div>
       <div class="result-list">
         <div class="result-item">Social Insurance: <span>-${data.employeeInsurance.toLocaleString('en-US')} VND</span></div>
         <div class="result-item">Personal Income Tax: <span>-${data.incomeTax.toLocaleString('en-US')} VND</span></div>
       </div>
-      <hr class="result-divider" />
-      <div class="result-total"><span>${data.netSalary.toLocaleString('en-US')} VND</span></div>
     `;
+    const employerTotalCell = html`<div class="result-total"><span class="employer-total-value">${data.totalEmployerCost.toLocaleString('en-US')} VND</span></div>`;
+    const employeeTotalCell = html`<div class="result-total"><span class="employee-total-value">${data.netSalary.toLocaleString('en-US')} VND</span></div>`;
 
     DOM.resultDiv.innerHTML = html`
       <div class="result-table-container">
         <table class="result-table result-table-vertical result-table-bordered">
           <tr><td colspan="2">${employeeTypeCell}</td></tr>
           <tr><td colspan="2">${baseSalaryCell}</td></tr>
-          <tr>
-            <td colspan="2" style="padding:0;">
-              <div style="display:flex;flex-direction:column;gap:1px;width:100%;">
-                ${allowanceCell}
-                ${bonusCell}
-                ${!allowanceCell && !bonusCell ? noAllowanceBonusCell : ''}
-              </div>
-            </td>
-          </tr>
+          ${allowanceRow}
+          ${bonusRow}
+          ${!allowanceRow && !bonusRow ? noAllowanceBonusRow : ''}
           <tr><td colspan="2">${grossSalaryCell}</td></tr>
           <tr>
-            <td style="padding:0;vertical-align:top;">${employerCell}</td>
-            <td style="padding:0;vertical-align:top;">${employeeCell}</td>
+            <td style="padding:0;vertical-align:top;">${employerDetailsCell}</td>
+            <td style="padding:0;vertical-align:top;">${employeeDetailsCell}</td>
+          </tr>
+          <tr>
+            <td class="result-total">${employerTotalCell}</td>
+            <td class="result-total">${employeeTotalCell}</td>
           </tr>
         </table>
       </div>
     `;
     DOM.downloadPdfBtn.style.display = 'block';
-    // Show reset button
+    // Show reset and hard reset buttons
     resetBtn.style.display = 'block';
+    hardResetBtn.style.display = 'block';
     // --- Reset button logic ---
     resetBtn.onclick = () => {
       // Hide results
       DOM.resultDiv.innerHTML = '';
       DOM.downloadPdfBtn.style.display = 'none';
       resetBtn.style.display = 'none';
+      hardResetBtn.style.display = 'none';
       // Hide charts
       if (DOM.salaryBreakdownChart) DOM.salaryBreakdownChart.style.display = 'none';
       if (DOM.salaryBreakdownChartLabel) DOM.salaryBreakdownChartLabel.style.display = 'none';
@@ -540,6 +555,11 @@ document.addEventListener('DOMContentLoaded', () => {
       // Reset to the first step
       currentStep = 0;
       showStep(currentStep);
+    };
+
+    // --- Hard Reset button logic ---
+    hardResetBtn.onclick = () => {
+      window.location.reload();
     };
   }
 
