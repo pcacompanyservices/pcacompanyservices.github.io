@@ -1,7 +1,7 @@
 /* Short divider for allowance/bonus total */
 .result-divider {
   border: none;
-  border-top: 1px solid #ccc;
+  border-top: 1px solid #aaa;
   width: 55%;
   margin: 0.08em auto 0.05em auto;
 }
@@ -650,7 +650,7 @@ button:hover {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 40px;
+  gap: 80px;
   margin: 20px auto 0;
   flex-wrap: wrap;
   width: 100%;
