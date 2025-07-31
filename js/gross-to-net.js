@@ -136,11 +136,22 @@ document.addEventListener('DOMContentLoaded', () => {
   `;
   root.appendChild(pieChartContainer);
 
+
   const downloadBtn = document.createElement('button');
+  downloadBtn.className = 'simulation-button';
   downloadBtn.id = 'download-pdf-btn';
   downloadBtn.style.display = 'none';
   downloadBtn.textContent = 'Download PDF';
   root.appendChild(downloadBtn);
+
+  // --- Reset button ---
+  const resetBtn = document.createElement('button');
+  resetBtn.className = 'simulation-button return-button';
+  resetBtn.id = 'reset-btn';
+  resetBtn.style.display = 'none';
+  resetBtn.textContent = 'Reset';
+  resetBtn.type = 'button';
+  root.appendChild(resetBtn);
 
 
   // --- Multi-step form navigation logic ---
@@ -392,6 +403,12 @@ document.addEventListener('DOMContentLoaded', () => {
       <b>Total Employer Cost: ${data.totalEmployerCost.toLocaleString('en-US')} VND</b><br><hr>
     `;
     DOM.downloadPdfBtn.style.display = 'block';
+    // Show reset button
+    resetBtn.style.display = 'block';
+  // --- Reset button logic ---
+  resetBtn.addEventListener('click', () => {
+    window.location.reload();
+  });
   }
 
   // --- Calculation triggers ---
@@ -412,7 +429,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (idx === steps.length - 1) {
           handleCalculation();
         } else if (continueBtns[idx]) {
-          // For step 3 (idx === 2), always proceed regardless of button state
           if (idx === 2) {
             continueBtns[idx].click();
           } else if (idx === 1) {
