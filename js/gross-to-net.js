@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
       exportContainer.style.left = '-9999px';
       exportContainer.style.top = '0';
       exportContainer.style.zIndex = '-1';
-      exportContainer.style.padding = '32px 32px 32px 32px'; // Add more margin for all sides
+      exportContainer.style.padding = '30px'; // Add more margin for all sides
       // Clone logo, h1, hr, and result table
       const logo = document.querySelector('.logo');
       const h1 = root.querySelector('h1');

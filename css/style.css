@@ -173,6 +173,11 @@ h2 {
   letter-spacing: 0.5px;
 }
 
+/* Light grey background for the national cell (first row) */
+.result-table tr:first-child td {
+  background: #f1f1f1;
+}
+
 /* Make all table headers in the result table bold and larger */
 .result-table th {
   font-weight: 700;
