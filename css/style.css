@@ -2,7 +2,7 @@
 .result-divider {
   border: none;
   border-top: 1px solid #ccc;
-  width: 50%;
+  width: 55%;
   margin: 0.08em auto 0.05em auto;
 }
 /* Shorten and center the main form */
@@ -80,7 +80,7 @@ h2 {
 
 .result-table {
   width: 100%;
-  max-width: 620px;
+  max-width: 640px;
   margin: 0 auto;
   border-collapse: separate;
   border-spacing: 0;
