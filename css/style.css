@@ -134,7 +134,7 @@ h2 {
 
 .result-table {
   width: 100%;
-  max-width: 640px;
+  max-width: 600px;
   margin: 0 auto;
   border-collapse: separate;
   border-spacing: 0;
@@ -199,7 +199,7 @@ h2 {
   align-items: center;
   justify-content: space-between;
   gap: 0.01em;
-  padding: 0;
+  padding: 0 12px;
   font-size: 1em;
   width: 99%;
   margin: 0 auto;
