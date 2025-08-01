@@ -304,7 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
   footer.style.margin = '32px auto 0 auto';
   footer.style.fontSize = '14px';
   footer.style.color = '#888';
-  footer.textContent = 'This simulation assumes that there is deduction for dependant(s). For further information, please contact us.';
+  footer.textContent = 'This simulation assumes that there is no dependants. For further information, please contact us.';
   root.appendChild(footer);
 
 
