@@ -276,7 +276,7 @@ select,
 button {
   display: block;
   width: 100%;
-  margin: 6px 0 0;
+  margin: 0px auto 10px auto;
   padding: 8px;
   font-size: 16px;
   font-family: 'EB Garamond', serif;
@@ -297,9 +297,8 @@ button,
 .simulation-button,
 .return-button {
   display: block;
-  max-width: 340px;
-  width: 96%;
-  margin: 14px auto 0 auto;
+  max-width: 410px;
+  width: 100%;
   padding: 12px 0;
   font-size: 18px;
   font-family: 'EB Garamond', serif;
@@ -323,7 +322,6 @@ button:hover,
   background: #999 !important;
   border: none !important;
   color: #fff;
-  margin: 18px auto 0 auto !important;
   padding: 12px 0;
 }
 
@@ -413,12 +411,14 @@ button:hover,
   transform: translateX(-50%);
   min-width: 50px;
   max-width: 300px;
-  background: #fffbe6;
+  width: auto;
+  white-space: normal;
+  background: #fffcee;
   color: #111;
-  border: 1px solid #e0c97f;
+  border: 1px solid #e2cb7f;
   border-radius: 8px;
   padding: 12px 16px;
-  font-size: 15px;
+  font-size: 14px;
   font-family: 'EB Garamond', serif;
   z-index: 10;
   margin-top: 8px;
@@ -426,6 +426,8 @@ button:hover,
   text-align: left;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
   background-clip: padding-box;
+  box-sizing: border-box;
+  word-wrap: break-word;
 }
 
 .simulation-button:hover .info-box,
