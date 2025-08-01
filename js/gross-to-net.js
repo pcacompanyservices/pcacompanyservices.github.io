@@ -296,7 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
   hardResetBtn.type = 'button';
   root.appendChild(hardResetBtn);
 
-  // --- Footer placeholder ---
+  // --- Footer ---
   const footer = document.createElement('footer');
   footer.className = 'app-footer';
   footer.style.width = '100%';

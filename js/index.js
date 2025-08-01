@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
     main.appendChild(createButton({
       value: 'from-gross',
       text: 'Calculate from Gross Salary',
-      info: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.',
+      info: 'Calculate total cost and take-home salary from gross salary.',
       enabled: true,
       onClick: () => { window.location.href = 'gross-to-net.html'; },
       extraClass: 'employer-choice'
