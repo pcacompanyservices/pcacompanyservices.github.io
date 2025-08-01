@@ -1,11 +1,27 @@
-/* Short divider for allowance/bonus total */
-.result-divider {
-  border: none;
-  border-top: 1px solid #aaa;
-  width: 55%;
-  margin: 0.08em auto 0.05em auto;
+/* ========================= */
+/* Reset & Global Styles     */
+/* ========================= */
+
+* {
+  box-sizing: border-box;
 }
-/* Shorten and center the main form */
+
+body {
+  font-family: 'EB Garamond', serif;
+  max-width: 60vw;
+  margin: 50px auto;
+  padding: 0 10px;
+}
+
+h1,
+h2 {
+  text-align: center;
+}
+
+/* ========================= */
+/* Layout & Utility Classes  */
+/* ========================= */
+
 #salary-form {
   max-width: 420px;
   width: 100%;
@@ -13,6 +29,14 @@
   padding: 0 8px;
   box-sizing: border-box;
 }
+
+.result-divider {
+  border: none;
+  border-top: 1px solid #aaa;
+  width: 55%;
+  margin: 0.08em auto 0.05em auto;
+}
+
 /* ========================= */
 /* Result Details Grid       */
 /* ========================= */
@@ -24,6 +48,7 @@
   justify-content: space-between;
   margin: 1.1em 0 0.5em 0;
 }
+
 .result-details-col {
   flex: 1 1 0;
   display: flex;
@@ -32,98 +57,27 @@
   font-size: 16px;
   min-width: 0;
 }
+
 .result-details-col b {
   font-size: 17px;
   font-weight: 700;
   color: #222;
 }
+
 .result-details-label {
   color: #666;
   font-weight: 500;
 }
+
 .result-details-value {
   color: #222;
   font-weight: 600;
   margin-left: 0.2em;
 }
-/* ========================= */
-/* Layout & Utility Classes  */
-/* ========================= */
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'EB Garamond', serif;
-  max-width: 580px;
-  margin: 50px auto;
-  padding: 0 10px;
-}
-
-h1,
-h2 {
-  text-align: center;
-}
 
 /* ========================= */
-/* Result Boxes & Stacks     */
+/* Result Boxes & Tables     */
 /* ========================= */
-
-/* Progress Bar Styles */
-#progress-bar {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  margin: 0 auto 18px auto;
-  user-select: none;
-  width: 100%;
-  max-width: 420px;
-  box-sizing: border-box;
-}
-.progress-step {
-  flex: 0 1 110px;
-  min-width: 30px;
-  max-width: 180px;
-  text-align: center;
-  font-size: 12px;
-  font-weight: 500;
-  color: #666;
-  background: #f6f6f6;
-  border-radius: 6px;
-  padding: 3px;
-  position: relative;
-  transition: color 0.2s, background 0.2s;
-  z-index: 1;
-  margin: 0 1px;
-}
-.progress-step.active {
-  color: #c1272d;
-  background: #f8eaea;
-  font-weight: 700;
-  box-shadow: 0 2px 8px rgba(193,39,45,0.04);
-}
-.progress-step.completed {
-  color: #1a7f3c;
-  background: #eaf8ee;
-  font-weight: 600;
-}
-.progress-bar-line {
-  flex: 0 0 32px;
-  height: 3px;
-  background: #ddd;
-  border-radius: 2px;
-  margin: 0 1px;
-  position: relative;
-  top: 0;
-  transition: background 0.2s;
-  align-self: center;
-}
-.progress-bar-line.completed {
-  background: #1a7f3c;
-}
-
 
 .result-table-container {
   width: 100%;
@@ -143,11 +97,37 @@ h2 {
   overflow: hidden;
   border: 1px solid #666;
 }
+
 .result-table-vertical tr {
   width: 100%;
 }
+
 .result-table-vertical td {
   vertical-align: top;
+}
+
+.result-table-bordered {
+  border: 1px solid #666;
+}
+
+.result-table-bordered td,
+.result-table-bordered th {
+  border: 1px solid #666;
+  padding: 4px 4px;
+}
+
+/* Light grey background for the national cell (first row), gross row, and last row */
+.result-table tr:first-child td,
+.result-table tr:nth-last-child(3) td,
+.result-table tr:last-child td {
+  background: #f3f3f3;
+}
+
+/* Make all table headers in the result table bold and larger */
+.result-table th {
+  font-weight: 700;
+  font-size: 20px;
+  text-align: center;
 }
 
 .result-box {
@@ -173,21 +153,6 @@ h2 {
   letter-spacing: 0.5px;
 }
 
-/* Light grey background for the national cell (first row), gross row, and last row */
-.result-table tr:first-child td,
-.result-table tr:nth-last-child(3) td, /* gross row: 3rd from end */
-.result-table tr:last-child td { /* last row: totals */
-  background: #f3f3f3;
-}
-
-/* Make all table headers in the result table bold and larger */
-.result-table th {
-  font-weight: 700;
-  font-size: 20px;
-  text-align: center;
-}
-
-
 .result-list {
   width: 100%;
   max-width: 340px;
@@ -198,7 +163,6 @@ h2 {
   padding: 0;
   gap: 0.01em;
 }
-
 
 .result-item {
   display: flex;
@@ -219,10 +183,10 @@ h2 {
   font-size: 20px;
 }
 
-/* Highlight employer cost and employee take-home total values */
 .employer-total-value {
   color: #c1272d !important; /* deep red for employer cost */
 }
+
 .employee-total-value {
   color: #1a7f3c !important; /* deep green for employee take-home */
 }
@@ -234,12 +198,72 @@ h2 {
   margin: 0.04em 0 0.02em 0;
 }
 
-
-
 .result {
   margin-top: 16px;
   font-size: 18px;
   color: #333;
+}
+
+/* ========================= */
+/* Progress Bar Styles       */
+/* ========================= */
+
+#progress-bar {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto 18px auto;
+  user-select: none;
+  width: 100%;
+  max-width: 420px;
+  box-sizing: border-box;
+}
+
+.progress-step {
+  flex: 0 1 110px;
+  min-width: 30px;
+  max-width: 180px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: #666;
+  background: #f6f6f6;
+  border-radius: 6px;
+  padding: 3px;
+  position: relative;
+  transition: color 0.2s, background 0.2s;
+  z-index: 1;
+  margin: 0 1px;
+}
+
+.progress-step.active {
+  color: #c1272d;
+  background: #f8eaea;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(193, 39, 45, 0.04);
+}
+
+.progress-step.completed {
+  color: #1a7f3c;
+  background: #eaf8ee;
+  font-weight: 600;
+}
+
+.progress-bar-line {
+  flex: 0 0 32px;
+  height: 3px;
+  background: #ddd;
+  border-radius: 2px;
+  margin: 0 1px;
+  position: relative;
+  top: 0;
+  transition: background 0.2s;
+  align-self: center;
+}
+
+.progress-bar-line.completed {
+  background: #1a7f3c;
 }
 
 /* ========================= */
@@ -248,7 +272,8 @@ h2 {
 
 label,
 input,
-select {
+select,
+button {
   display: block;
   width: 100%;
   margin: 6px 0 0;
@@ -256,18 +281,6 @@ select {
   font-size: 16px;
   font-family: 'EB Garamond', serif;
 }
-button,
-  .simulation-button,
-  .return-button {
-    display: block;
-    max-width: 340px;
-    width: 96%;
-    margin: 14px auto 0 auto;
-    padding: 12px 0;
-    font-size: 18px;
-    font-family: 'EB Garamond', serif;
-    text-align: center;
-  }
 
 input,
 select {
@@ -277,41 +290,48 @@ select {
 }
 
 /* ========================= */
-/* Button Styles             */
+/* Buttons                   */
 /* ========================= */
 
-button {
-  margin-top: 10px;
-  background-color: #c1272d;
-  border: 1px solid #a72126;
+button,
+.simulation-button,
+.return-button {
+  display: block;
+  max-width: 340px;
+  width: 96%;
+  margin: 14px auto 0 auto;
+  padding: 12px 0;
+  font-size: 18px;
+  font-family: 'EB Garamond', serif;
+  text-align: center;
+  border-radius: 6px;
   cursor: pointer;
   color: white;
-  border-radius: 6px;
-}
-
-button:hover {
-  background-color: #a72126;
-}
-
-.simulation-button {
-  text-align: center;
-  background-color: #c1272d;
   border: 1px solid #a72126;
-  padding: 12px;
-  text-decoration: none;
-  color: white;
-  font-family: 'EB Garamond', serif;
-  font-size: 18px;
-  transition: background-color 0.2s ease;
-  border-radius: 6px;
+  background-color: #c1272d;
   position: relative;
   overflow: visible;
+  transition: background-color 0.2s ease;
 }
 
+button:hover,
 .simulation-button:hover {
   background-color: #a72126;
 }
 
+.return-button {
+  background: #999 !important;
+  border: none !important;
+  color: #fff;
+  margin: 18px auto 0 auto !important;
+  padding: 12px 0;
+}
+
+.return-button:hover {
+  background: #666 !important;
+}
+
+/* Unavailable simulation button style (lighter and not clickable) */
 .simulation-button.unavailable {
   background-color: #f8cece !important;
   color: #aaa !important;
@@ -329,6 +349,7 @@ button:hover {
   color: #aaa !important;
 }
 
+/* Deactivated/unavailable simulation button style */
 .simulation-button.deactivated {
   background-color: #e0e0e0 !important;
   color: #aaa !important;
@@ -338,21 +359,6 @@ button:hover {
   box-shadow: none;
   pointer-events: none;
   transition: background-color 0.2s, color 0.2s, opacity 0.2s;
-}
-
-.return-button {
-  background: #999 !important;
-  border: none !important;
-  color: #fff;
-  margin: 14px auto 0 auto !important;
-  display: block;
-  max-width: 340px;
-  width: 96%;
-  text-align: center;
-}
-
-.return-button:hover {
-  background: #666 !important;
 }
 
 /* ========================= */
@@ -399,124 +405,8 @@ button:hover {
 .info-box {
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  position: absolute;
-  left: 50%;
-  top: 100%;
-  transform: translateX(-50%);
-  min-width: 50px;
-
-}
-
-.result-table-vertical td {
-  vertical-align: top;
-}
-
-.result-table-bordered {
-  border: 1px solid #666;
-}
-
-.result-table-bordered td,
-.result-table-bordered th {
-  border: 1px solid #666;
-  padding: 4px 4px;
-}
-
-
-.simulation-button:hover .info-box,
-.simulation-button:focus .info-box {
-  opacity: 0.8;
-  visibility: visible;
-  pointer-events: auto;
-}
-
-/* ========================= */
-/* Chart Styles              */
-/* ========================= */
-
-.pie-chart-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
-  margin: 20px auto 0;
-  flex-wrap: wrap;
-  width: 100%;
-  max-width: 600px;
-}
-
-#salary-breakdown-chart,
-#cost-breakdown-chart {
-  width: 100%;
-  max-width: 250px;
-  height: auto;
-  max-height: 250px;
-  border-radius: 8px;
-}
-
-#salary-breakdown-chart-label,
-#cost-breakdown-chart-label {
-  margin-top: 10px;
-  font-weight: bold;
-  font-family: 'EB Garamond', serif;
-  font-size: 18px;
-  text-align: center;
-  color: #333;
-}
-/* Unavailable simulation button style (lighter and not clickable) */
-.simulation-button.unavailable {
-  background-color: #f8cece !important;
-  color: #aaa !important;
-  border: 1px solid #f3dede !important;
-  cursor: not-allowed !important;
-  opacity: 1;
-  box-shadow: none;
-  pointer-events: auto;
-  transition: background-color 0.2s, color 0.2s;
-}
-
-.simulation-button.unavailable:hover,
-.simulation-button.unavailable:focus {
-  background-color: #fff8f8 !important;
-  color: #aaa !important;
-}
-/* Deactivated/unavailable simulation button style */
-.simulation-button.deactivated {
-  background-color: #e0e0e0 !important;
-  color: #aaa !important;
-  border: 1px solid #ccc !important;
-  cursor: not-allowed !important;
-  opacity: 0.6;
-  box-shadow: none;
-  pointer-events: none;
-  transition: background-color 0.2s, color 0.2s, opacity 0.2s;
-}
-
-/* PCA Logo styling */
-.logo {
-  display: block;
-  margin: 0 auto 20px;
-  max-width: 180px;
-  cursor: pointer;
-}
-.return-button {
-  background: #999 !important;
-  border: none !important;
-  color: #fff;
-  margin: 18px 0 0 0;
-}
-.return-button:hover {
-  background: #666 !important;
-}
-.simulation-button {
-  position: relative;
-  overflow: visible;
-}
-
-.info-box {
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: absolute;
   left: 50%;
   top: 100%;
@@ -534,8 +424,7 @@ button:hover {
   margin-top: 8px;
   pointer-events: none;
   text-align: left;
-  /* Reduced opacity for subtle effect */
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
   background-clip: padding-box;
 }
 
@@ -545,113 +434,19 @@ button:hover {
   visibility: visible;
   pointer-events: auto;
 }
-/* Global reset for consistent box sizing */
-* {
-  box-sizing: border-box;
-}
 
-body {
-  font-family: 'EB Garamond', serif;
-  max-width: 60vw;
-  margin: 50px auto;
-  padding: 0 10px;
-}
-
-h1,
-h2 {
-  text-align: center;
-}
-
-/* Ensure all form elements align visually */
-label,
-input,
-select,
-button {
-  display: block;
-  width: 100%;
-  margin: 6px 0 0;
-  padding: 8px;
-  font-size: 16px;
-  font-family: 'EB Garamond', serif;
-}
-
-/* Button styling (optional aesthetics) */
-button {
-  margin-top: 10px;
-  background-color: #c1272d;
-  border: 1px solid #a72126;
-  cursor: pointer;
-  color: white;
-  border-radius: 6px;
-}
-
-
-input,
-select {
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  background: #fff;
-}
-
-button:hover {
-  background-color: #a72126;
-}
-
-.result {
-  margin-top: 16px;
-  font-size: 18px;
-  color: #333;
-}
-
-.checkbox-group {
-  display: flex;
-  margin-top: 4px;
-}
-
-.checkbox-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: inherit;
-  width: fit-content;
-  margin-left: 0;
-  margin-top: 6px;
-  line-height: 1.2;
-  color: #333;
-  flex-wrap: nowrap;
-  white-space: nowrap;
-}
-
-.simulation-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-top: 30px;
-}
-
-.simulation-button {
-  text-align: center;
-  background-color: #c1272d;
-  border: 1px solid #a72126;
-  padding: 12px;
-  text-decoration: none;
-  color: white;
-  font-family: 'EB Garamond', serif;
-  font-size: 18px;
-  transition: background-color 0.2s ease;
-  border-radius: 6px;
-}
-
-.simulation-button:hover {
-  background-color: #a72126;
-}
+/* ========================= */
+/* Allowance & Bonus Inputs  */
+/* ========================= */
 
 #allowance-inputs,
 #bonus-inputs {
   padding-left: 20px;
 }
 
-/* Chart container styles */
+/* ========================= */
+/* Chart Styles              */
+/* ========================= */
 
 .pie-chart-container {
   display: flex;
@@ -664,7 +459,6 @@ button:hover {
   max-width: 600px;
 }
 
-/* Center chart container perfectly if only one chart is visible */
 .pie-chart-container > div {
   display: flex;
   flex-direction: column;
