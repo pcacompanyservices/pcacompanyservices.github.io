@@ -296,6 +296,17 @@ document.addEventListener('DOMContentLoaded', () => {
   hardResetBtn.type = 'button';
   root.appendChild(hardResetBtn);
 
+  // --- Footer placeholder ---
+  const footer = document.createElement('footer');
+  footer.className = 'app-footer';
+  footer.style.width = '100%';
+  footer.style.textAlign = 'center';
+  footer.style.margin = '32px auto 0 auto';
+  footer.style.fontSize = '14px';
+  footer.style.color = '#888';
+  footer.textContent = 'This simulation assumes that there is deduction for dependant(s). For further information, please contact us.';
+  root.appendChild(footer);
+
 
   // --- Multi-step form navigation logic ---
   const steps = [step1, step2, step3, step4];
@@ -500,10 +511,16 @@ document.addEventListener('DOMContentLoaded', () => {
   toggleVisibility(allowanceMap, DOM.allowanceCheckbox, DOM.allowanceInputs);
   toggleVisibility(bonusMap, DOM.bonusCheckbox, DOM.bonusInputs);
 
-  // --- Format number input fields ---
+  // --- Format number input fields and restrict max value ---
   function formatNumberInput(input) {
-    const raw = input.value.replace(/[^\d]/g, '');
-    input.value = raw ? parseFloat(raw).toLocaleString('en-US') : '';
+    let raw = input.value.replace(/[^\d]/g, '');
+    if (raw) {
+      let num = parseInt(raw, 10);
+      if (num > 999999999) num = 999999999;
+      input.value = num ? num.toLocaleString('en-US') : '';
+    } else {
+      input.value = '';
+    }
   }
   document.addEventListener('input', (e) => {
     if (e.target.tagName === 'INPUT' && e.target.classList.contains('number-input')) {
