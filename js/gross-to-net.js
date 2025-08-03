@@ -1,5 +1,5 @@
 
-import { calculateFromGrossToNet } from './cal-gross-to-net.js';
+import { calculateFromGrossToNet } from '../be/cal.js';
 import { html } from '../util/html-parser.js';
 import { exportResultToPdf } from '../util/pdf-exporter.js';
 
