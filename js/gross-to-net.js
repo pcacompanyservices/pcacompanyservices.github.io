@@ -1,38 +1,38 @@
 
+
 import { calculateFromGrossToNet } from '../be/cal.js';
 import { html } from '../util/html-parser.js';
 import { exportResultToPdf } from '../util/pdf-exporter.js';
 
-// Utility to format a result line
+// --- Utility functions ---
 function formatLine(label, value) {
   return value ? `- ${label}: ${value.toLocaleString('en-US')} VND<br>` : '';
 }
 
+function getElement(id) {
+  return document.getElementById(id);
+}
 
-document.addEventListener('DOMContentLoaded', () => {
+function createAndAppend(parent, tag, props = {}, innerHTML = '') {
+  const el = document.createElement(tag);
+  Object.assign(el, props);
+  if (innerHTML) el.innerHTML = innerHTML;
+  parent.appendChild(el);
+  return el;
+}
 
-  // --- Dynamic UI creation ---
-  const root = document.getElementById('gross-to-net-root');
-  root.innerHTML = '';
+function safeText(text) {
+  return text ? String(text) : '';
+}
 
-  // Title
-  const h1 = document.createElement('h1');
-  h1.textContent = "Calculate from Employee's Gross Salary";
-  root.appendChild(h1);
-  root.appendChild(document.createElement('hr'));
+function formatCurrency(val) {
+  return val ? val.toLocaleString('en-US') + ' VND' : '-';
+}
 
-  // Progress Bar
-  const progressBar = document.createElement('div');
-  progressBar.id = 'progress-bar';
-  progressBar.style.display = 'flex';
-  progressBar.style.justifyContent = 'space-between';
-  progressBar.style.alignItems = 'center';
-  progressBar.style.margin = '18px 0 18px 0';
-  progressBar.style.width = '100%';
-  progressBar.style.maxWidth = '480px';
-  progressBar.style.marginLeft = 'auto';
-  progressBar.style.marginRight = 'auto';
-  progressBar.style.userSelect = 'none';
+// --- UI creation functions ---
+function createProgressBar(root) {
+  const progressBar = createAndAppend(root, 'div', { id: 'progress-bar' });
+  progressBar.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin:18px 0;width:100%;max-width:480px;margin-left:auto;margin-right:auto;user-select:none;';
   progressBar.innerHTML = html`
     <div class="progress-step" data-step="0">National Status</div>
     <div class="progress-bar-line"></div>
@@ -42,14 +42,22 @@ document.addEventListener('DOMContentLoaded', () => {
     <div class="progress-bar-line"></div>
     <div class="progress-step" data-step="3">Bonus</div>
   `;
-  root.appendChild(progressBar);
+  return progressBar;
+}
 
-  // Form
-  const salaryForm = document.createElement('form');
-  salaryForm.id = 'salary-form';
-  root.appendChild(salaryForm);
+function createTitleBlock(root) {
+  const h1 = createAndAppend(root, 'h1');
+  h1.textContent = "Calculate from Employee's Gross Salary";
+  root.appendChild(document.createElement('hr'));
+  return h1;
+}
 
-  // --- Step 1: National Status ---
+function createSalaryForm(root) {
+  const salaryForm = createAndAppend(root, 'form', { id: 'salary-form' });
+  return salaryForm;
+}
+
+function createStep1() {
   const step1 = document.createElement('div');
   step1.className = 'form-step';
   step1.id = 'step-1';
@@ -62,10 +70,10 @@ document.addEventListener('DOMContentLoaded', () => {
     </select>
     <button type="button" id="continue-step1" class="simulation-button unavailable" disabled>Continue</button>
   `;
-  salaryForm.appendChild(step1);
+  return step1;
+}
 
-
-  // --- Step 2: Base Salary ---
+function createStep2() {
   const step2 = document.createElement('div');
   step2.className = 'form-step';
   step2.id = 'step-2';
@@ -75,10 +83,10 @@ document.addEventListener('DOMContentLoaded', () => {
     <input type="text" class="number-input" id="base-salary" placeholder="Min 5,000,000 VND" />
     <button type="button" id="continue-step2" class="simulation-button unavailable" disabled>Continue</button>
   `;
-  salaryForm.appendChild(step2);
+  return step2;
+}
 
-
-  // --- Step 3: Allowance ---
+function createStep3() {
   const step3 = document.createElement('div');
   step3.className = 'form-step';
   step3.id = 'step-3';
@@ -104,10 +112,10 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
     <button type="button" id="continue-step3" class="simulation-button unavailable" disabled>Continue</button>
   `;
-  salaryForm.appendChild(step3);
+  return step3;
+}
 
-
-  // --- Step 4: Bonus ---
+function createStep4() {
   const step4 = document.createElement('div');
   step4.className = 'form-step';
   step4.id = 'step-4';
@@ -128,27 +136,22 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     </div>
   `;
-  salaryForm.appendChild(step4);
+  return step4;
+}
 
-
-  // --- Navigation buttons (Calculate, Return) ---
+function createNavButtons() {
   const navDiv = document.createElement('div');
   navDiv.className = 'form-navigation';
   navDiv.innerHTML = html`
     <button type="submit" id="calculate-btn" class="simulation-button" style="display:none;">Calculate</button>
     <button type="button" id="return-btn" class="simulation-button return-button" style="display:none;">Return</button>
   `;
-  salaryForm.appendChild(navDiv);
+  return navDiv;
+}
 
-  // --- Result and charts ---
-  const resultDiv = document.createElement('div');
-  resultDiv.className = 'result';
-  resultDiv.id = 'result';
-  resultDiv.setAttribute('aria-live', 'polite');
-  root.appendChild(resultDiv);
-
-  const pieChartContainer = document.createElement('div');
-  pieChartContainer.className = 'pie-chart-container';
+function createResultAndCharts(root) {
+  const resultDiv = createAndAppend(root, 'div', { className: 'result', id: 'result', 'aria-live': 'polite' });
+  const pieChartContainer = createAndAppend(root, 'div', { className: 'pie-chart-container' });
   pieChartContainer.innerHTML = html`
     <div id="salary-chart-block">
       <canvas id="salary-breakdown-chart" style="display: none;"></canvas>
@@ -159,135 +162,93 @@ document.addEventListener('DOMContentLoaded', () => {
       <div id="cost-breakdown-chart-label" style="display: none;">Cost Breakdown</div>
     </div>
   `;
-  root.appendChild(pieChartContainer);
+  return { resultDiv, pieChartContainer };
+}
 
-
-  const downloadBtn = document.createElement('button');
-  downloadBtn.className = 'simulation-button';
-  downloadBtn.id = 'download-pdf-btn';
-  downloadBtn.style.display = 'none';
-  downloadBtn.textContent = 'Download PDF';
-
-  root.appendChild(downloadBtn);
-
-  // --- PDF Export logic (A4, Garamond, instant download) ---
-  // Ensure jsPDF and html2canvas are loaded
-  function ensureJsPdfAndHtml2Canvas(cb) {
-    let loaded = 0;
-    function check() { loaded++; if (loaded === 2) cb(); }
-    // Check jsPDF
-    if (!window.jspdf || !window.jspdf.jsPDF) {
-      const s = document.createElement('script');
-      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-      s.onload = check;
-      document.head.appendChild(s);
-    } else loaded++;
-    // Check html2canvas
-    if (!window.html2canvas) {
-      const s = document.createElement('script');
-      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-      s.onload = check;
-      document.head.appendChild(s);
-    } else loaded++;
-    if ((window.jspdf && window.jspdf.jsPDF) && window.html2canvas) cb();
-  }
-
-  downloadBtn.addEventListener('click', async (e) => {
-    e.preventDefault();
-    ensureJsPdfAndHtml2Canvas(async () => {
-      const resultTableContainer = document.querySelector('.result-table-container');
-      if (!resultTableContainer) return;
-      const exportContainer = document.createElement('div');
-      exportContainer.style.fontFamily = "'EB Garamond', Garamond, serif";
-      exportContainer.style.background = '#fff';
-      exportContainer.style.color = '#222';
-      exportContainer.style.width = '100%';
-      exportContainer.style.maxWidth = '650px';
-      exportContainer.style.margin = '0 auto';
-      exportContainer.style.position = 'fixed';
-      exportContainer.style.left = '-9999px';
-      exportContainer.style.top = '0';
-      exportContainer.style.zIndex = '-1';
-      exportContainer.style.padding = '30px';
-      // Clone logo, h1, hr, and result table
-      const logo = document.querySelector('.logo');
-      const h1 = root.querySelector('h1');
-      const hr = root.querySelector('hr');
-      if (logo) {
-        const logoClone = logo.cloneNode(true);
-        logoClone.style.margin = '0 auto 8px auto';
-        exportContainer.appendChild(logoClone);
-      }
-      if (h1) {
-        const h1Clone = h1.cloneNode(true);
-        h1Clone.style.margin = '0 0 6px 0';
-        exportContainer.appendChild(h1Clone);
-      }
-      if (hr) {
-        const hrClone = hr.cloneNode(true);
-        hrClone.style.border = 'none';
-        hrClone.style.borderTop = '1px solid #666';
-        hrClone.style.height = '0';
-        hrClone.style.margin = '6px 0 10px 0';
-        exportContainer.appendChild(hrClone);
-      }
-      exportContainer.appendChild(resultTableContainer.cloneNode(true));
-      document.body.appendChild(exportContainer);
-      // Format date as dd/mm/yyyy
-      const now = new Date();
-      const day = String(now.getDate()).padStart(2, '0');
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const year = now.getFullYear();
-      const filename = `[PCA Salary Simulation]_${day}-${month}-${year}.pdf`;
-      await exportResultToPdf({
-        exportContainer,
-        filename,
-        onComplete: () => {
-          document.body.removeChild(exportContainer);
-        }
-      });
-    });
+function createDownloadButton(root) {
+  const downloadBtn = createAndAppend(root, 'button', {
+    className: 'simulation-button',
+    id: 'download-pdf-btn',
+    style: 'display:none;',
+    textContent: 'Download PDF'
   });
+  return downloadBtn;
+}
 
-  // --- Reset button ---
-  const resetBtn = document.createElement('button');
-  resetBtn.className = 'simulation-button return-button';
-  resetBtn.id = 'reset-btn';
-  resetBtn.style.display = 'none';
-  resetBtn.textContent = 'Modify Information';
-  resetBtn.type = 'button';
-  root.appendChild(resetBtn);
+function createResetButton(root) {
+  const resetBtn = createAndAppend(root, 'button', {
+    className: 'simulation-button return-button',
+    id: 'reset-btn',
+    style: 'display:none;',
+    textContent: 'Modify Information',
+    type: 'button'
+  });
+  return resetBtn;
+}
 
-  // --- Hard Reset (Reload) button ---
-  const hardResetBtn = document.createElement('button');
-  hardResetBtn.className = 'simulation-button return-button';
-  hardResetBtn.id = 'hard-reset-btn';
-  hardResetBtn.style.display = 'none';
-  hardResetBtn.textContent = 'Reset';
-  hardResetBtn.type = 'button';
-  root.appendChild(hardResetBtn);
+function createHardResetButton(root) {
+  const hardResetBtn = createAndAppend(root, 'button', {
+    className: 'simulation-button return-button',
+    id: 'hard-reset-btn',
+    style: 'display:none;',
+    textContent: 'Reset',
+    type: 'button'
+  });
+  return hardResetBtn;
+}
 
-  // --- Footer ---
-  const footer = document.createElement('footer');
-  footer.className = 'app-footer';
-  footer.style.width = '100%';
-  footer.style.textAlign = 'center';
-  footer.style.margin = '32px auto 0 auto';
-  footer.style.fontSize = '14px';
-  footer.style.color = '#888';
+function createFooter(root) {
+  const footer = createAndAppend(root, 'footer', {
+    className: 'app-footer',
+    style: 'width:100%;text-align:center;margin:32px auto 0 auto;font-size:14px;color:#888;'
+  });
   footer.textContent = 'This simulation assumes that there is no dependants. For further information, please contact us.';
-  root.appendChild(footer);
+  return footer;
+}
 
+
+document.addEventListener('DOMContentLoaded', () => {
+  // --- Dynamic UI creation ---
+  const root = getElement('gross-to-net-root');
+  root.innerHTML = '';
+
+  // Title and header
+  createTitleBlock(root);
+  // Progress bar
+  createProgressBar(root);
+  // Form
+  const salaryForm = createSalaryForm(root);
+  // Steps
+  const step1 = createStep1();
+  const step2 = createStep2();
+  const step3 = createStep3();
+  const step4 = createStep4();
+  salaryForm.appendChild(step1);
+  salaryForm.appendChild(step2);
+  salaryForm.appendChild(step3);
+  salaryForm.appendChild(step4);
+  // Navigation buttons
+  const navDiv = createNavButtons();
+  salaryForm.appendChild(navDiv);
+  // Results and charts
+  const { resultDiv, pieChartContainer } = createResultAndCharts(root);
+  // Download button
+  const downloadBtn = createDownloadButton(root);
+  // Reset and hard reset
+  const resetBtn = createResetButton(root);
+  const hardResetBtn = createHardResetButton(root);
+  // Footer
+  createFooter(root);
 
   // --- Multi-step form navigation logic ---
   const steps = [step1, step2, step3, step4];
   const continueBtns = [
-    document.getElementById('continue-step1'),
-    document.getElementById('continue-step2'),
-    document.getElementById('continue-step3'),
+    getElement('continue-step1'),
+    getElement('continue-step2'),
+    getElement('continue-step3'),
   ];
-  const returnBtn = document.getElementById('return-btn');
-  const calculateBtn = document.getElementById('calculate-btn');
+  const returnBtn = getElement('return-btn');
+  const calculateBtn = getElement('calculate-btn');
   let currentStep = 0;
 
   // Show the current step and update navigation buttons and progress bar
@@ -330,7 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- Step 1: National Status ---
-  const nationalSelect = document.getElementById('national');
+  const nationalSelect = getElement('national');
   continueBtns[0].addEventListener('click', () => {
     if (currentStep === 0 && nationalSelect.value) {
       currentStep++;
@@ -350,7 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateStep1Btn();
 
   // --- Step 2: Base Salary ---
-  const baseSalaryInput = document.getElementById('base-salary');
+  const baseSalaryInput = getElement('base-salary');
   continueBtns[1].addEventListener('click', () => {
     if (currentStep === 1 && baseSalaryInput.value && parseInt(baseSalaryInput.value.replace(/\D/g, '')) >= 5000000) {
       currentStep++;
@@ -406,14 +367,14 @@ document.addEventListener('DOMContentLoaded', () => {
     calculateBtn,
     downloadPdfBtn: downloadBtn,
     resultDiv,
-    allowanceCheckbox: document.getElementById('allowance-checkbox'),
-    allowanceInputs: document.getElementById('allowance-inputs'),
-    bonusCheckbox: document.getElementById('bonus-checkbox'),
-    bonusInputs: document.getElementById('bonus-inputs'),
-    costBreakdownChart: document.getElementById('cost-breakdown-chart'),
-    salaryBreakdownChart: document.getElementById('salary-breakdown-chart'),
-    costBreakdownChartLabel: document.getElementById('cost-breakdown-chart-label'),
-    salaryBreakdownChartLabel: document.getElementById('salary-breakdown-chart-label'),
+    allowanceCheckbox: getElement('allowance-checkbox'),
+    allowanceInputs: getElement('allowance-inputs'),
+    bonusCheckbox: getElement('bonus-checkbox'),
+    bonusInputs: getElement('bonus-inputs'),
+    costBreakdownChart: getElement('cost-breakdown-chart'),
+    salaryBreakdownChart: getElement('salary-breakdown-chart'),
+    costBreakdownChartLabel: getElement('cost-breakdown-chart-label'),
+    salaryBreakdownChartLabel: getElement('salary-breakdown-chart-label'),
   };
 
   // --- Allowance and Bonus checkbox/input mapping ---
@@ -435,8 +396,8 @@ document.addEventListener('DOMContentLoaded', () => {
     parentCheckbox.addEventListener('change', () => {
       container.style.display = parentCheckbox.checked ? 'block' : 'none';
       Object.entries(map).forEach(([cbId, inputId]) => {
-        const cb = document.getElementById(cbId);
-        const div = document.getElementById(inputId);
+        const cb = getElement(cbId);
+        const div = getElement(inputId);
         if (cb && div) {
           div.style.display = cb.checked && parentCheckbox.checked ? 'block' : 'none';
         }
@@ -447,7 +408,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const firstInput = container.querySelector('input[type="checkbox"]:checked');
           if (firstInput) {
             // Find the corresponding input field for the checked box
-            const inputDiv = document.getElementById(map[firstInput.id]);
+            const inputDiv = getElement(map[firstInput.id]);
             if (inputDiv) {
               const textInput = inputDiv.querySelector('input[type="text"]');
               if (textInput) {
@@ -460,8 +421,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
     Object.entries(map).forEach(([cbId, inputId]) => {
-      const cb = document.getElementById(cbId);
-      const div = document.getElementById(inputId);
+      const cb = getElement(cbId);
+      const div = getElement(inputId);
       if (cb && div) {
         cb.addEventListener('change', () => {
           div.style.display = cb.checked && parentCheckbox.checked ? 'block' : 'none';
@@ -512,11 +473,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function handleCalculation() {
     // Gather all input values and flags
     const getVal = (id) => {
-      const el = document.getElementById(id);
+      const el = getElement(id);
       return el ? el.value : '';
     };
     const getChecked = (id) => {
-      const el = document.getElementById(id);
+      const el = getElement(id);
       return el ? el.checked : false;
     };
 
@@ -864,4 +825,86 @@ document.addEventListener('DOMContentLoaded', () => {
     DOM.costBreakdownChart.style.display = 'block';
     DOM.costBreakdownChartLabel.style.display = 'block';
   }
+  // --- PDF Export logic (A4, Garamond, instant download) ---
+  // Ensure jsPDF and html2canvas are loaded
+  function ensureJsPdfAndHtml2Canvas(cb) {
+    let loaded = 0;
+    function check() { loaded++; if (loaded === 2) cb(); }
+    // Check jsPDF
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+      s.onload = check;
+      document.head.appendChild(s);
+    } else loaded++;
+    // Check html2canvas
+    if (!window.html2canvas) {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      s.onload = check;
+      document.head.appendChild(s);
+    } else loaded++;
+    if ((window.jspdf && window.jspdf.jsPDF) && window.html2canvas) cb();
+  }
+
+  function setupDownloadButton() {
+    downloadBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      ensureJsPdfAndHtml2Canvas(async () => {
+        const resultTableContainer = document.querySelector('.result-table-container');
+        if (!resultTableContainer) return;
+        const exportContainer = document.createElement('div');
+        exportContainer.style.fontFamily = "'EB Garamond', Garamond, serif";
+        exportContainer.style.background = '#fff';
+        exportContainer.style.color = '#222';
+        exportContainer.style.width = '100%';
+        exportContainer.style.maxWidth = '650px';
+        exportContainer.style.margin = '0 auto';
+        exportContainer.style.position = 'fixed';
+        exportContainer.style.left = '-9999px';
+        exportContainer.style.top = '0';
+        exportContainer.style.zIndex = '-1';
+        exportContainer.style.padding = '30px';
+        // Clone logo, h1, hr, and result table
+        const logo = document.querySelector('.logo');
+        const h1 = root.querySelector('h1');
+        const hr = root.querySelector('hr');
+        if (logo) {
+          const logoClone = logo.cloneNode(true);
+          logoClone.style.margin = '0 auto 8px auto';
+          exportContainer.appendChild(logoClone);
+        }
+        if (h1) {
+          const h1Clone = h1.cloneNode(true);
+          h1Clone.style.margin = '0 0 6px 0';
+          exportContainer.appendChild(h1Clone);
+        }
+        if (hr) {
+          const hrClone = hr.cloneNode(true);
+          hrClone.style.border = 'none';
+          hrClone.style.borderTop = '1px solid #666';
+          hrClone.style.height = '0';
+          hrClone.style.margin = '6px 0 10px 0';
+          exportContainer.appendChild(hrClone);
+        }
+        exportContainer.appendChild(resultTableContainer.cloneNode(true));
+        document.body.appendChild(exportContainer);
+        // Format date as dd/mm/yyyy
+        const now = new Date();
+        const day = String(now.getDate()).padStart(2, '0');
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const year = now.getFullYear();
+        const filename = `[PCA Salary Simulation]_${day}-${month}-${year}.pdf`;
+        await exportResultToPdf({
+          exportContainer,
+          filename,
+          onComplete: () => {
+            document.body.removeChild(exportContainer);
+          }
+        });
+      });
+    });
+  }
+
+  setupDownloadButton();
 });
