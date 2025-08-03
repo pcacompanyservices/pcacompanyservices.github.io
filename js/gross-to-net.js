@@ -1,6 +1,7 @@
 
 import { calculateFromGrossToNet } from './cal-gross-to-net.js';
 import { html } from '../util/html-parser.js';
+import { exportResultToPdf } from '../util/pdf-exporter.js';
 
 // Utility to format a result line
 function formatLine(label, value) {
@@ -194,7 +195,6 @@ document.addEventListener('DOMContentLoaded', () => {
   downloadBtn.addEventListener('click', async (e) => {
     e.preventDefault();
     ensureJsPdfAndHtml2Canvas(async () => {
-      // Prepare export container
       const resultTableContainer = document.querySelector('.result-table-container');
       if (!resultTableContainer) return;
       const exportContainer = document.createElement('div');
@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
       exportContainer.style.left = '-9999px';
       exportContainer.style.top = '0';
       exportContainer.style.zIndex = '-1';
-      exportContainer.style.padding = '30px'; // Add more margin for all sides
+      exportContainer.style.padding = '30px';
       // Clone logo, h1, hr, and result table
       const logo = document.querySelector('.logo');
       const h1 = root.querySelector('h1');
@@ -232,49 +232,20 @@ document.addEventListener('DOMContentLoaded', () => {
         exportContainer.appendChild(hrClone);
       }
       exportContainer.appendChild(resultTableContainer.cloneNode(true));
-
-      // Wait for fonts to load
-      await document.fonts.ready;
-
-      // Append to body (off-screen, hidden)
       document.body.appendChild(exportContainer);
-
-      // Use html2canvas to render the exportContainer
-      const runExport = () => {
-        window.html2canvas(exportContainer, {
-          backgroundColor: '#fff',
-          scale: 2,
-          useCORS: true
-        }).then(canvas => {
-          // Remove exportContainer after rendering
+      // Format date as dd/mm/yyyy
+      const now = new Date();
+      const day = String(now.getDate()).padStart(2, '0');
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const year = now.getFullYear();
+      const filename = `[PCA Salary Simulation]_${day}-${month}-${year}.pdf`;
+      await exportResultToPdf({
+        exportContainer,
+        filename,
+        onComplete: () => {
           document.body.removeChild(exportContainer);
-          const imgData = canvas.toDataURL('image/png');
-          const jsPDF = window.jspdf.jsPDF;
-          // A4 size in pt: 595.28 x 841.89
-          const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
-          // Calculate width/height to fit A4
-          const pageWidth = 595.28;
-          const pageHeight = 841.89;
-          const margin = 40; // 40pt margin on all sides
-          const imgWidth = pageWidth - margin * 2;
-          const imgHeight = canvas.height * imgWidth / canvas.width;
-          let y = margin;
-          pdf.addImage(imgData, 'PNG', margin, y, imgWidth, imgHeight);
-          // Format date as dd/mm/yyyy
-          const now = new Date();
-          const day = String(now.getDate()).padStart(2, '0');
-          const month = String(now.getMonth() + 1).padStart(2, '0');
-          const year = now.getFullYear();
-          const filename = `[PCA Salary Simulation]_${day}-${month}-${year}.pdf`;
-          pdf.save(filename);
-        });
-      };
-      // If libraries are loaded async, wait a tick
-      if (window.jspdf && window.jspdf.jsPDF && window.html2canvas) {
-        runExport();
-      } else {
-        setTimeout(runExport, 300);
-      }
+        }
+      });
     });
   });
 
