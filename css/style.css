@@ -1,4 +1,71 @@
 /* ========================= */
+/* Step Title with Icon      */
+/* ========================= */
+.step-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 100%;
+  margin-bottom: 10px;
+}
+.step-title-row h2 {
+  margin: 0 0 0 23px;
+  padding: 0;
+  text-align: center;
+  font-size: 1.5em;
+  font-weight: 700;
+}
+.question-icon {
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+  cursor: pointer;
+  position: relative;
+}
+.question-icon img {
+  width: 70%;
+  height: 70%;
+  display: block;
+}
+
+.question-icon:hover .info-box,
+.question-icon:focus .info-box {
+  opacity: 0.95;
+  visibility: visible;
+  pointer-events: auto;
+}
+/* ========================= */
+/* PDF Export Container      */
+/* ========================= */
+.pdf-export-container {
+  font-family: 'EB Garamond', Garamond, serif;
+  background: #fff;
+  color: #222;
+  width: 100%;
+  max-width: 650px;
+  margin: 0 auto;
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  z-index: -1;
+  padding: 30px;
+}
+
+/* PDF Export: logo, h1, hr tweaks */
+.pdf-export-container .logo {
+  margin: 0 auto 8px auto !important;
+}
+.pdf-export-container h1 {
+  margin: 0 0 6px 0 !important;
+}
+.pdf-export-container hr {
+  border: none !important;
+  border-top: 1px solid #666 !important;
+  height: 0 !important;
+  margin: 6px 0 10px 0 !important;
+}
+/* ========================= */
 /* Reset & Global Styles     */
 /* ========================= */
 

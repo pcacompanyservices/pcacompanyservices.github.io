@@ -62,7 +62,13 @@ function createStep1() {
   step1.className = 'form-step';
   step1.id = 'step-1';
   step1.innerHTML = html`
-    <h2>National Status</h2>
+    <div class="step-title-row">
+      <h2>National Status</h2>
+      <span class="question-icon" tabindex="0">
+        <img src="asset/question_icon.png" alt="info" />
+        <span class="info-box">Placeholder info for National Status</span>
+      </span>
+    </div>
     <select id="national">
       <option value="" disabled selected>Select your national status</option>
       <option value="local">Local</option>
@@ -79,7 +85,13 @@ function createStep2() {
   step2.id = 'step-2';
   step2.style.display = 'none';
   step2.innerHTML = html`
-    <h2>Base Salary</h2>
+    <div class="step-title-row">
+      <h2>Base Salary</h2>
+      <span class="question-icon" tabindex="0">
+        <img src="asset/question_icon.png" alt="info" />
+        <span class="info-box">Placeholder info for Base Salary</span>
+      </span>
+    </div>
     <input type="text" class="number-input" id="base-salary" placeholder="Min 5,000,000 VND" />
     <button type="button" id="continue-step2" class="simulation-button unavailable" disabled>Continue</button>
   `;
@@ -92,7 +104,13 @@ function createStep3() {
   step3.id = 'step-3';
   step3.style.display = 'none';
   step3.innerHTML = html`
-    <h2>Allowance</h2>
+    <div class="step-title-row">
+      <h2>Allowance</h2>
+      <span class="question-icon" tabindex="0">
+        <img src="asset/question_icon.png" alt="info" />
+        <span class="info-box">Placeholder info for Allowance</span>
+      </span>
+    </div>
     <div id="allowance-container">
       <label class="checkbox-item">
         <input type="checkbox" id="allowance-checkbox" /> There are Allowance(s) in the Contract
@@ -121,7 +139,13 @@ function createStep4() {
   step4.id = 'step-4';
   step4.style.display = 'none';
   step4.innerHTML = html`
-    <h2>Bonus</h2>
+    <div class="step-title-row">
+      <h2>Bonus</h2>
+      <span class="question-icon" tabindex="0">
+        <img src="asset/question_icon.png" alt="info" />
+        <span class="info-box">Placeholder info for Bonus</span>
+      </span>
+    </div>
     <div id="bonus-container">
       <label class="checkbox-item">
         <input type="checkbox" id="bonus-checkbox" /> There are Bonus(es) in the Contract
@@ -854,37 +878,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const resultTableContainer = document.querySelector('.result-table-container');
         if (!resultTableContainer) return;
         const exportContainer = document.createElement('div');
-        exportContainer.style.fontFamily = "'EB Garamond', Garamond, serif";
-        exportContainer.style.background = '#fff';
-        exportContainer.style.color = '#222';
-        exportContainer.style.width = '100%';
-        exportContainer.style.maxWidth = '650px';
-        exportContainer.style.margin = '0 auto';
-        exportContainer.style.position = 'fixed';
-        exportContainer.style.left = '-9999px';
-        exportContainer.style.top = '0';
-        exportContainer.style.zIndex = '-1';
-        exportContainer.style.padding = '30px';
+        exportContainer.className = 'pdf-export-container';
         // Clone logo, h1, hr, and result table
         const logo = document.querySelector('.logo');
         const h1 = root.querySelector('h1');
         const hr = root.querySelector('hr');
         if (logo) {
           const logoClone = logo.cloneNode(true);
-          logoClone.style.margin = '0 auto 8px auto';
           exportContainer.appendChild(logoClone);
         }
         if (h1) {
           const h1Clone = h1.cloneNode(true);
-          h1Clone.style.margin = '0 0 6px 0';
           exportContainer.appendChild(h1Clone);
         }
         if (hr) {
           const hrClone = hr.cloneNode(true);
-          hrClone.style.border = 'none';
-          hrClone.style.borderTop = '1px solid #666';
-          hrClone.style.height = '0';
-          hrClone.style.margin = '6px 0 10px 0';
           exportContainer.appendChild(hrClone);
         }
         exportContainer.appendChild(resultTableContainer.cloneNode(true));
