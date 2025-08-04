@@ -567,3 +567,11 @@ button:hover,
   text-align: center;
   color: #333;
 }
+
+.app-footer {
+  width: 100%;
+  text-align: center;
+  margin: 30px auto 0 auto;
+  font-size: 0.8rem;
+  color:#888;
+}

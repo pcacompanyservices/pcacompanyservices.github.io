@@ -66,7 +66,7 @@ function createStep1() {
       <h2>National Status</h2>
       <span class="question-icon" tabindex="0">
         <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">Placeholder info for National Status</span>
+        <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
       </span>
     </div>
     <select id="national">
@@ -89,7 +89,7 @@ function createStep2() {
       <h2>Base Salary</h2>
       <span class="question-icon" tabindex="0">
         <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">Placeholder info for Base Salary</span>
+        <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
       </span>
     </div>
     <input type="text" class="number-input" id="base-salary" placeholder="Min 5,000,000 VND" />
@@ -108,7 +108,7 @@ function createStep3() {
       <h2>Allowance</h2>
       <span class="question-icon" tabindex="0">
         <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">Placeholder info for Allowance</span>
+        <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
       </span>
     </div>
     <div id="allowance-container">
@@ -119,35 +119,35 @@ function createStep3() {
         <label class="checkbox-item"><input type="checkbox" id="lunch-checkbox" /> Lunch
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Placeholder info for Lunch Allowance</span>
+            <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
           </span>
         </label>
         <div id="lunch-input" style="display: none;"><input type="text" class="number-input" id="allowance-lunch" placeholder="Please enter your allowance for lunch" min="0" /></div>
         <label class="checkbox-item"><input type="checkbox" id="fuel-checkbox" /> Fuel
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Placeholder info for Fuel Allowance</span>
+            <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
           </span>
         </label>
         <div id="fuel-input" style="display: none;"><input type="text" class="number-input" id="allowance-fuel" placeholder="Please enter your allowance for fuel" min="0" /></div>
         <label class="checkbox-item"><input type="checkbox" id="phone-checkbox" /> Phone
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Placeholder info for Phone Allowance</span>
+            <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
           </span>
         </label>
         <div id="phone-input" style="display: none;"><input type="text" class="number-input" id="allowance-phone" placeholder="Please enter your allowance for phone" min="0" /></div>
         <label class="checkbox-item"><input type="checkbox" id="travel-checkbox" /> Traveling
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Placeholder info for Traveling Allowance</span>
+            <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
           </span>
         </label>
         <div id="travel-input" style="display: none;"><input type="text" class="number-input" id="allowance-travel" placeholder="Please enter your allowance for traveling" min="0" /></div>
         <label class="checkbox-item"><input type="checkbox" id="uniform-checkbox" /> Uniform
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Placeholder info for Uniform Allowance</span>
+            <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
           </span>
         </label>
         <div id="uniform-input" style="display: none;"><input type="text" class="number-input" id="allowance-uniform" placeholder="Please enter your allowance for uniform" min="0" /></div>
@@ -168,7 +168,7 @@ function createStep4() {
       <h2>Bonus</h2>
       <span class="question-icon" tabindex="0">
         <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">Placeholder info for Bonus</span>
+        <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
       </span>
     </div>
     <div id="bonus-container">
@@ -179,21 +179,21 @@ function createStep4() {
         <label class="checkbox-item"><input type="checkbox" id="productivity-checkbox" /> Productivity
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Placeholder info for Productivity Bonus</span>
+            <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
           </span>
         </label>
         <div id="productivity-input" style="display: none;"><input type="text" class="number-input" id="bonus-productivity" placeholder="Please enter your bonus for productivity" min="0" /></div>
         <label class="checkbox-item"><input type="checkbox" id="incentive-checkbox" /> Incentive
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Placeholder info for Incentive Bonus</span>
+            <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
           </span>
         </label>
         <div id="incentive-input" style="display: none;"><input type="text" class="number-input" id="bonus-incentive" placeholder="Please enter your bonus for incentive" min="0" /></div>
         <label class="checkbox-item"><input type="checkbox" id="kpi-checkbox" /> KPI
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Placeholder info for KPI Bonus</span>
+            <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
           </span>
         </label>
         <div id="kpi-input" style="display: none;"><input type="text" class="number-input" id="bonus-kpi" placeholder="Please enter your bonus for kpi" min="0" /></div>
@@ -264,9 +264,8 @@ function createHardResetButton(root) {
 function createFooter(root) {
   const footer = createAndAppend(root, 'footer', {
     className: 'app-footer',
-    style: 'width:100%;text-align:center;margin:32px auto 0 auto;font-size:14px;color:#888;'
   });
-  footer.textContent = 'This simulation assumes that there is no dependants. For further information, please contact us.';
+  footer.textContent = 'This simulation assumes that there is no deductions for personal dependants. For further information, please contact us.';
   return footer;
 }
 
