@@ -265,7 +265,7 @@ function createFooter(root) {
   const footer = createAndAppend(root, 'footer', {
     className: 'app-footer',
   });
-  footer.textContent = 'This simulation assumes that there is no deductions for personal dependants. For further information, please contact us.';
+  footer.textContent = 'The simulation assumes that there is no deductions for personal dependants. For further information, please contact us.';
   return footer;
 }
 

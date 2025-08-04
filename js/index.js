@@ -105,17 +105,18 @@ document.addEventListener('DOMContentLoaded', () => {
     main.appendChild(createButton({
       value: 'from-gross',
       text: 'Calculate from Gross Salary',
-      info: 'Calculate total cost and take-home salary from gross salary.',
+      info: 'Calculate total cost from gross salary.',
       enabled: true,
-      onClick: () => { window.location.href = 'gross-to-net.html'; },
+      onClick: () => { window.location.href = 'employer-gross-to-net.html'; },
       extraClass: 'employer-choice'
     }));
     main.appendChild(createButton({
       value: 'from-net',
       text: 'Calculate from Net Salary',
-      info: 'Coming soon.',
-      enabled: false,
-      extraClass: 'employer-choice unavailable' // off
+      info: 'Calculate total cost from take-home salary.',
+      enabled: true,
+      onClick: () => { window.location.href = 'employer-net-to-gross.html'; },
+      extraClass: 'employer-choice'
     }));
     main.appendChild(createBackButton(renderInitialButtons));
   }

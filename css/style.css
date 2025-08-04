@@ -17,8 +17,8 @@
   font-weight: 700;
 }
 .question-icon {
-  width: 0.75rem;
-  height: 0.75rem;
+  width: 0.7rem;
+  height: 0.7rem;
   display: inline-block;
   cursor: pointer;
   position: relative;
@@ -44,7 +44,7 @@
   background: #fff;
   color: #222;
   width: 100%;
-  max-width: 80vw;
+  max-width: 65vw;
   margin: 0 auto;
   position: fixed;
   left: -9999px;
@@ -150,7 +150,7 @@ h2 {
 
 .result-table-container {
   width: 100%;
-  max-width: 90vw;
+  max-width: 55vw;
   margin: 0 auto;
   padding: 0;
 }
