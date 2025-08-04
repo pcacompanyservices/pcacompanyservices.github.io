@@ -65,7 +65,7 @@
   border-top: 1px solid #666 !important;
   height: 0 !important;
   margin: 0.375rem auto 0.625rem auto !important;
-  width: 70%;
+  width: 90%;
 }
 /* ========================= */
 /* Reset & Global Styles     */
@@ -385,7 +385,7 @@ select {
 
 
 input {
-  margin-bottom: 0;
+  margin-bottom: 0.3175rem;
 }
 
 
@@ -489,6 +489,7 @@ button:hover,
 .checkbox-item {
   display: flex;
   justify-content: left;
+  align-items: baseline;
   gap: 0.375rem;
   font-family: inherit;
   width: fit-content;

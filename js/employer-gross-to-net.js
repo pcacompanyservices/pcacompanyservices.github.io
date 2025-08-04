@@ -15,11 +15,11 @@ function createProgressBar(root) {
   progressBar.innerHTML = html`
     <div class="progress-step" data-step="0">Citizenship</div>
     <div class="progress-bar-line"></div>
-    <div class="progress-step" data-step="1">Base Salary</div>
+    <div class="progress-step" data-step="1">Gross Salary</div>
     <div class="progress-bar-line"></div>
-    <div class="progress-step" data-step="2">Allowance</div>
+    <div class="progress-step" data-step="2">Allowances</div>
     <div class="progress-bar-line"></div>
-    <div class="progress-step" data-step="3">Bonus</div>
+    <div class="progress-step" data-step="3">Bonuses</div>
   `;
   return progressBar;
 }
@@ -65,13 +65,13 @@ function createStep2() {
   step2.style.display = 'none';
   step2.innerHTML = html`
     <div class="step-title-row">
-      <h2>Base Salary</h2>
+      <h2>Gross Salary</h2>
       <span class="question-icon" tabindex="0">
         <img src="asset/question_icon.webp" alt="info" />
         <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
       </span>
     </div>
-    <input type="text" class="number-input" id="base-salary" placeholder="Min 5,000,000 VND" />
+    <input type="text" class="number-input" id="gross-salary" placeholder="Min 5,000,000 VND" />
     <button type="button" id="continue-step2" class="simulation-button unavailable" disabled>Continue</button>
   `;
   return step2;
@@ -84,7 +84,7 @@ function createStep3() {
   step3.style.display = 'none';
   step3.innerHTML = html`
     <div class="step-title-row">
-      <h2>Allowance</h2>
+      <h2>Allowances</h2>
       <span class="question-icon" tabindex="0">
         <img src="asset/question_icon.webp" alt="info" />
         <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
@@ -92,7 +92,7 @@ function createStep3() {
     </div>
     <div id="allowance-container">
       <label class="checkbox-item">
-        <input type="checkbox" id="allowance-checkbox" /> There are Allowance(s) in the Contract
+        <input type="checkbox" id="allowance-checkbox" /> There are Allowances in the Contract
       </label>
       <div id="allowance-inputs" style="display: none;">
         <label class="checkbox-item"><input type="checkbox" id="lunch-checkbox" /> Lunch
@@ -101,35 +101,42 @@ function createStep3() {
             <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
           </span>
         </label>
-        <div id="lunch-input" style="display: none;"><input type="text" class="number-input" id="allowance-lunch" placeholder="Please enter your allowance for lunch" min="0" /></div>
+        <div id="lunch-input" style="display: none;"><input type="text" class="number-input" id="allowance-lunch" placeholder="Please enter your allowances for lunch" min="0" /></div>
         <label class="checkbox-item"><input type="checkbox" id="fuel-checkbox" /> Fuel
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
             <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
           </span>
         </label>
-        <div id="fuel-input" style="display: none;"><input type="text" class="number-input" id="allowance-fuel" placeholder="Please enter your allowance for fuel" min="0" /></div>
+        <div id="fuel-input" style="display: none;"><input type="text" class="number-input" id="allowance-fuel" placeholder="Please enter your allowances for fuel" min="0" /></div>
         <label class="checkbox-item"><input type="checkbox" id="phone-checkbox" /> Phone
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
             <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
           </span>
         </label>
-        <div id="phone-input" style="display: none;"><input type="text" class="number-input" id="allowance-phone" placeholder="Please enter your allowance for phone" min="0" /></div>
+        <div id="phone-input" style="display: none;"><input type="text" class="number-input" id="allowance-phone" placeholder="Please enter your allowances for phone" min="0" /></div>
         <label class="checkbox-item"><input type="checkbox" id="travel-checkbox" /> Traveling
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
             <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
           </span>
         </label>
-        <div id="travel-input" style="display: none;"><input type="text" class="number-input" id="allowance-travel" placeholder="Please enter your allowance for traveling" min="0" /></div>
+        <div id="travel-input" style="display: none;"><input type="text" class="number-input" id="allowance-travel" placeholder="Please enter your allowances for traveling" min="0" /></div>
         <label class="checkbox-item"><input type="checkbox" id="uniform-checkbox" /> Uniform
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
             <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
           </span>
         </label>
-        <div id="uniform-input" style="display: none;"><input type="text" class="number-input" id="allowance-uniform" placeholder="Please enter your allowance for uniform" min="0" /></div>
+        <div id="uniform-input" style="display: none;"><input type="text" class="number-input" id="allowance-uniform" placeholder="Please enter your allowances for uniform" min="0" /></div>
+        <label class="checkbox-item"><input type="checkbox" id="other-allowance-checkbox" /> Other Allowances
+          <span class="question-icon" tabindex="0">
+            <img src="asset/question_icon.webp" alt="info" />
+            <span class="info-box">Enter any other allowances not listed above.</span>
+          </span>
+        </label>
+        <div id="other-allowance-input" style="display: none;"><input type="text" class="number-input" id="allowance-other" placeholder="Please enter your other allowances" min="0" /></div>
       </div>
     </div>
     <button type="button" id="continue-step3" class="simulation-button unavailable" disabled>Continue</button>
@@ -144,7 +151,7 @@ function createStep4() {
   step4.style.display = 'none';
   step4.innerHTML = html`
     <div class="step-title-row">
-      <h2>Bonus</h2>
+      <h2>Bonuses</h2>
       <span class="question-icon" tabindex="0">
         <img src="asset/question_icon.webp" alt="info" />
         <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
@@ -152,7 +159,7 @@ function createStep4() {
     </div>
     <div id="bonus-container">
       <label class="checkbox-item">
-        <input type="checkbox" id="bonus-checkbox" /> There are Bonus(es) in the Contract
+        <input type="checkbox" id="bonus-checkbox" /> There are Bonuses in the Contract
       </label>
       <div id="bonus-inputs" style="display: none;">
         <label class="checkbox-item"><input type="checkbox" id="productivity-checkbox" /> Productivity
@@ -161,21 +168,28 @@ function createStep4() {
             <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
           </span>
         </label>
-        <div id="productivity-input" style="display: none;"><input type="text" class="number-input" id="bonus-productivity" placeholder="Please enter your bonus for productivity" min="0" /></div>
+        <div id="productivity-input" style="display: none;"><input type="text" class="number-input" id="bonus-productivity" placeholder="Please enter your bonuses for productivity" min="0" /></div>
         <label class="checkbox-item"><input type="checkbox" id="incentive-checkbox" /> Incentive
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
             <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
           </span>
         </label>
-        <div id="incentive-input" style="display: none;"><input type="text" class="number-input" id="bonus-incentive" placeholder="Please enter your bonus for incentive" min="0" /></div>
+        <div id="incentive-input" style="display: none;"><input type="text" class="number-input" id="bonus-incentive" placeholder="Please enter your bonuses for incentive" min="0" /></div>
         <label class="checkbox-item"><input type="checkbox" id="kpi-checkbox" /> KPI
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
             <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
           </span>
         </label>
-        <div id="kpi-input" style="display: none;"><input type="text" class="number-input" id="bonus-kpi" placeholder="Please enter your bonus for kpi" min="0" /></div>
+        <div id="kpi-input" style="display: none;"><input type="text" class="number-input" id="bonus-kpi" placeholder="Please enter your bonuses for KPI" min="0" /></div>
+        <label class="checkbox-item"><input type="checkbox" id="other-bonus-checkbox" /> Other Bonuses
+          <span class="question-icon" tabindex="0">
+            <img src="asset/question_icon.webp" alt="info" />
+            <span class="info-box">Enter any other bonuses not listed above.</span>
+          </span>
+        </label>
+        <div id="other-bonus-input" style="display: none;"><input type="text" class="number-input" id="bonus-other" placeholder="Please enter your other bonuses" min="0" /></div>
       </div>
     </div>
   `;
@@ -300,14 +314,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     returnBtn.style.display = idx > 0 ? '' : 'none';
     calculateBtn.style.display = idx === steps.length - 1 ? '' : 'none';
-    // Auto-focus base salary input on step 2
-    if (idx === 1) {
-      const baseSalaryInput = document.getElementById('base-salary');
-      if (baseSalaryInput) {
-        baseSalaryInput.focus();
-        baseSalaryInput.select && baseSalaryInput.select();
-      }
+  // Auto-focus gross salary input on step 2
+  if (idx === 1) {
+    const grossSalaryInput = document.getElementById('gross-salary');
+    if (grossSalaryInput) {
+      grossSalaryInput.focus();
+      grossSalaryInput.select && grossSalaryInput.select();
     }
+  }
     // Update progress bar
     const stepsEls = document.querySelectorAll('#progress-bar .progress-step');
     stepsEls.forEach((el, i) => {
@@ -352,16 +366,16 @@ document.addEventListener('DOMContentLoaded', () => {
   citizenshipSelect.addEventListener('change', updateStep1Btn);
   updateStep1Btn();
 
-  // --- Step 2: Base Salary ---
-  const baseSalaryInput = getElement('base-salary');
+  // --- Step 2: Gross Salary ---
+  const grossSalaryInput = getElement('gross-salary');
   continueBtns[1].addEventListener('click', () => {
-    if (currentStep === 1 && baseSalaryInput.value && parseInt(baseSalaryInput.value.replace(/\D/g, '')) >= 5000000) {
+    if (currentStep === 1 && grossSalaryInput.value && parseInt(grossSalaryInput.value.replace(/\D/g, '')) >= 5000000) {
       currentStep++;
       showStep(currentStep);
     }
   });
   function updateStep2Btn() {
-    const val = baseSalaryInput.value.replace(/\D/g, '');
+    const val = grossSalaryInput.value.replace(/\D/g, '');
     if (val && parseInt(val) >= 5000000) {
       continueBtns[1].classList.remove('unavailable');
       continueBtns[1].disabled = false;
@@ -370,7 +384,7 @@ document.addEventListener('DOMContentLoaded', () => {
       continueBtns[1].disabled = true;
     }
   }
-  baseSalaryInput.addEventListener('input', updateStep2Btn);
+  grossSalaryInput.addEventListener('input', updateStep2Btn);
   updateStep2Btn();
 
   // --- Step 3: Allowance (always enabled, can skip) ---
@@ -426,11 +440,13 @@ document.addEventListener('DOMContentLoaded', () => {
     'phone-checkbox': 'phone-input',
     'travel-checkbox': 'travel-input',
     'uniform-checkbox': 'uniform-input',
+    'other-allowance-checkbox': 'other-allowance-input',
   };
   const bonusMap = {
     'productivity-checkbox': 'productivity-input',
     'incentive-checkbox': 'incentive-input',
     'kpi-checkbox': 'kpi-input',
+    'other-bonus-checkbox': 'other-bonus-input',
   };
 
   // --- Show/hide allowance/bonus input fields ---
@@ -530,7 +546,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const params = {
-      baseSalary: parseNumber(getVal('base-salary')),
+      method: 'gross-to-net',
+      grossSalary: parseNumber(getVal('gross-salary')),
       isAllowanceEnabled: getChecked('allowance-checkbox'),
       lunchAllowance: parseNumber(getVal('allowance-lunch')),
       lunchEnabled: getChecked('lunch-checkbox'),
@@ -542,6 +559,8 @@ document.addEventListener('DOMContentLoaded', () => {
       travelEnabled: getChecked('travel-checkbox'),
       uniformAllowance: parseNumber(getVal('allowance-uniform')),
       uniformEnabled: getChecked('uniform-checkbox'),
+      otherAllowance: parseNumber(getVal('allowance-other')),
+      otherAllowanceEnabled: getChecked('other-allowance-checkbox'),
       isBonusEnabled: getChecked('bonus-checkbox'),
       productivityBonus: parseNumber(getVal('bonus-productivity')),
       productivityEnabled: getChecked('productivity-checkbox'),
@@ -549,6 +568,8 @@ document.addEventListener('DOMContentLoaded', () => {
       incentiveEnabled: getChecked('incentive-checkbox'),
       kpiBonus: parseNumber(getVal('bonus-kpi')),
       kpiEnabled: getChecked('kpi-checkbox'),
+      otherBonus: parseNumber(getVal('bonus-other')),
+      otherBonusEnabled: getChecked('other-bonus-checkbox'),
       citizenship: getVal('citizenship'),
     };
 
@@ -580,12 +601,14 @@ document.addEventListener('DOMContentLoaded', () => {
       { label: 'Fuel', value: data.fuelAllowance },
       { label: 'Phone', value: data.phoneAllowance },
       { label: 'Traveling', value: data.travelAllowance },
-      { label: 'Uniform', value: data.uniformAllowance }
+      { label: 'Uniform', value: data.uniformAllowance },
+      { label: 'Other', value: data.otherAllowance }
     ].filter(item => item.value && item.value > 0);
     const bonusItems = [
       { label: 'Productivity', value: data.productivityBonus },
       { label: 'Incentive', value: data.incentiveBonus },
-      { label: 'KPI', value: data.kpiBonus }
+      { label: 'KPI', value: data.kpiBonus },
+      { label: 'Other', value: data.otherBonus }
     ].filter(item => item.value && item.value > 0);
 
     let allowanceRow = '';
@@ -596,7 +619,7 @@ document.addEventListener('DOMContentLoaded', () => {
       allowanceRow = `
         <tr>
           <td colspan="2">
-            <div class="result-title">Allowance</div>
+            <div class="result-title">Allowances</div>
             <div class="result-list">
               ${allowanceItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
             </div>
@@ -610,7 +633,7 @@ document.addEventListener('DOMContentLoaded', () => {
       bonusRow = `
         <tr>
           <td colspan="2">
-            <div class="result-title">Bonus</div>
+            <div class="result-title">Bonuses</div>
             <div class="result-list">
               ${bonusItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
             </div>
@@ -622,7 +645,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (allowanceItems.length === 0 && bonusItems.length === 0) {
       noAllowanceBonusRow = `
-        <tr><td colspan="2"><div class="result-center-value" style="font-size:1em; color:#888;">(There is no Allowances or Bonuses in the Contract)</div></td></tr>
+        <tr><td colspan="2"><div class="result-center-value" style="font-size:1em; color:#888;">(There are no Allowances or Bonuses in the Contract)</div></td></tr>
       `;
     }
 
@@ -637,16 +660,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const employeeTypeCell = html`<div class="result-title"><u>${employeeTypeLabel}</u></div>`;
 
-    // Base Salary box
-    const baseSalaryCell = html`
-      <div class="result-title">Base Salary</div>
-      <div class="result-center-value">${data.baseSalary ? data.baseSalary.toLocaleString('en-US') + ' VND' : '-'}</div>
-    `;
-
     // Gross Salary box
     const grossSalaryCell = html`
       <div class="result-title">Gross Salary</div>
       <div class="result-center-value">${data.grossSalary ? data.grossSalary.toLocaleString('en-US') + ' VND' : '-'}</div>
+    `;
+
+    // Adjusted Gross Salary box
+    const adjustedGrossSalaryCell = html`
+      <div class="result-title">Adjusted Gross Salary</div>
+      <div class="result-center-value">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('en-US') + ' VND' : '-'}</div>
     `;
 
 
@@ -669,14 +692,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const employeeTotalCell = html`<div class="result-total"><span class="employee-total-value">${data.netSalary.toLocaleString('en-US')} VND</span></div>`;
 
     DOM.resultDiv.innerHTML = html`
+      <h1 style="text-align:center;margin-bottom:16px;font-size:30px">PAYSLIP</h1>
       <div class="result-table-container">
         <table class="result-table result-table-vertical result-table-bordered">
           <tr><td colspan="2">${employeeTypeCell}</td></tr>
-          <tr><td colspan="2">${baseSalaryCell}</td></tr>
+          <tr><td colspan="2">${grossSalaryCell}</td></tr>
           ${allowanceRow}
           ${bonusRow}
           ${!allowanceRow && !bonusRow ? noAllowanceBonusRow : ''}
-          <tr><td colspan="2">${grossSalaryCell}</td></tr>
+          <tr><td colspan="2">${adjustedGrossSalaryCell}</td></tr>
           <tr>
             <td style="padding:0;vertical-align:top;">${employerDetailsCell}</td>
             <td style="padding:0;vertical-align:top;">${employeeDetailsCell}</td>
@@ -687,6 +711,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </tr>
         </table>
       </div>
+      <div class="salary-visualization-heading" style="text-align:center;margin:24px 0 12px 0;font-size:1.125em;font-weight:bold;">Salary Visualization</div>
     `;
     DOM.downloadPdfBtn.style.display = 'block';
     // Show reset and hard reset buttons
@@ -771,7 +796,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    if (!data.baseSalary) {
+    if (!data.grossSalary) {
       destroyChart('salaryChart');
       destroyChart('costBreakdownChart');
       DOM.salaryBreakdownChart.style.display = 'none';
@@ -781,7 +806,7 @@ document.addEventListener('DOMContentLoaded', () => {
       updateChartBlockVisibility(false, false);
       return;
     }
-    const bonusAndAllowance = data.grossSalary - data.baseSalary;
+    const bonusAndAllowance = data.adjustedGrossSalary - data.grossSalary;
     if (bonusAndAllowance === 0) {
       destroyChart('salaryChart');
       DOM.salaryBreakdownChart.style.display = 'none';
@@ -792,9 +817,9 @@ document.addEventListener('DOMContentLoaded', () => {
       window.salaryChart = new Chart(DOM.salaryBreakdownChart.getContext('2d'), {
         type: 'doughnut',
         data: {
-          labels: ['Bonus & Allowance', 'Base Salary'],
+          labels: ['Bonus & Allowance', 'Gross Salary'],
           datasets: [{
-            data: [bonusAndAllowance, data.baseSalary],
+            data: [bonusAndAllowance, data.grossSalary],
             backgroundColor: ['#999999', '#666666'],
             spacing: 5,
           }]
@@ -903,18 +928,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!resultTableContainer) return;
         const exportContainer = document.createElement('div');
         exportContainer.className = 'pdf-export-container';
-        // Clone logo, h1, hr, and result table
+        // Clone logo, hr, and result table, but use PAYSLIP h2 instead of h1
         const logo = document.querySelector('.logo');
-        const h1 = root.querySelector('h1');
         const hr = root.querySelector('hr');
         if (logo) {
           const logoClone = logo.cloneNode(true);
           exportContainer.appendChild(logoClone);
         }
-        if (h1) {
-          const h1Clone = h1.cloneNode(true);
-          exportContainer.appendChild(h1Clone);
-        }
+        // Add PAYSLIP h2
+        const payslipH2 = document.createElement('h1');
+        payslipH2.textContent = 'PAYSLIP';
+        payslipH2.style.textAlign = 'center';
+        payslipH2.style.marginBottom = '16px';
+        exportContainer.appendChild(payslipH2);
         if (hr) {
           const hrClone = hr.cloneNode(true);
           exportContainer.appendChild(hrClone);

@@ -46,16 +46,27 @@ function getRoundedValue(value, enabled) {
 
 
 /**
- * Calculate payroll from gross to net.
+
+/**
+ * Calculate payroll (gross-to-net or net-to-gross).
  * @param {Object} params - All input values and flags
+ * @param {string} params.method - 'gross-to-net' or 'net-to-gross'
  * @returns {Object} Calculation result or error
  */
 export function calculateFromGrossToNet(params) {
+  // Default to 'gross-to-net' if not provided
+  const method = params.method || 'gross-to-net';
 
-  // Parse and validate base salary
-  const baseSalary = parseFloat((params.baseSalary + '').replace(/,/g, ''));
-  if (isNaN(baseSalary) || baseSalary < 5000000) {
-    return { error: 'Please enter a valid base salary (minimum 5,000,000 VND).' };
+
+  // Only support gross-to-net for now
+  if (method !== 'gross-to-net') {
+    return { error: 'Only gross-to-net calculation is currently supported.' };
+  }
+
+  // Parse and validate gross salary
+  const grossSalary = parseFloat((params.grossSalary + '').replace(/,/g, ''));
+  if (isNaN(grossSalary) || grossSalary < 5000000) {
+    return { error: 'Please enter a valid gross salary (minimum 5,000,000 VND).' };
   }
 
   // Allowances
@@ -65,42 +76,44 @@ export function calculateFromGrossToNet(params) {
   const phoneAllowance   = isAllowanceEnabled ? getRoundedValue(params.phoneAllowance,   !!params.phoneEnabled)   : 0;
   const travelAllowance  = isAllowanceEnabled ? getRoundedValue(params.travelAllowance,  !!params.travelEnabled)  : 0;
   const uniformAllowance = isAllowanceEnabled ? getRoundedValue(params.uniformAllowance, !!params.uniformEnabled) : 0;
+  const otherAllowance   = isAllowanceEnabled ? getRoundedValue(params.otherAllowance,   !!params.otherAllowanceEnabled) : 0;
 
   // Bonuses
   const isBonusEnabled = !!params.isBonusEnabled;
   const productivityBonus = isBonusEnabled ? getRoundedValue(params.productivityBonus, !!params.productivityEnabled) : 0;
   const incentiveBonus    = isBonusEnabled ? getRoundedValue(params.incentiveBonus,    !!params.incentiveEnabled)    : 0;
   const kpiBonus          = isBonusEnabled ? getRoundedValue(params.kpiBonus,          !!params.kpiEnabled)          : 0;
+  const otherBonus        = isBonusEnabled ? getRoundedValue(params.otherBonus,        !!params.otherBonusEnabled)   : 0;
 
   const citizenship = params.citizenship;
 
   // Total Allowances
-  const totalAllowance = lunchAllowance + fuelAllowance + phoneAllowance + travelAllowance + uniformAllowance;
+  const totalAllowance = lunchAllowance + fuelAllowance + phoneAllowance + travelAllowance + uniformAllowance + otherAllowance;
   // Total Bonuses
-  const totalBonus = productivityBonus + incentiveBonus + kpiBonus;
+  const totalBonus = productivityBonus + incentiveBonus + kpiBonus + otherBonus;
   // Total Allowance and Bonus
   const totalBonusAndAllowance = totalAllowance + totalBonus;
 
-  // Gross Salary calculation
-  const grossSalary = baseSalary + totalBonusAndAllowance;
+  // Adjusted Gross Salary calculation
+  const adjustedGrossSalary = grossSalary + totalBonusAndAllowance;
 
   // Employee Insurance contributions
   const employeeInsurance =
-    Math.min(baseSalary, socialHealthCapSalaryForInsurance) * (insuranceRate.employee.social + insuranceRate.employee.health) +
+    Math.min(grossSalary, socialHealthCapSalaryForInsurance) * (insuranceRate.employee.social + insuranceRate.employee.health) +
     (citizenship === 'local'
-      ? Math.min(baseSalary, unemploymentCapSalaryForInsurance) * insuranceRate.employee.unemployment
+      ? Math.min(grossSalary, unemploymentCapSalaryForInsurance) * insuranceRate.employee.unemployment
       : 0);
 
   // Employer Insurance contributions
   const employerInsurance =
-    Math.min(baseSalary, socialHealthCapSalaryForInsurance) * (insuranceRate.employer.social + insuranceRate.employer.health) +
+    Math.min(grossSalary, socialHealthCapSalaryForInsurance) * (insuranceRate.employer.social + insuranceRate.employer.health) +
     (citizenship === 'local'
-      ? Math.min(baseSalary, unemploymentCapSalaryForInsurance) * insuranceRate.employer.unemployment
+      ? Math.min(grossSalary, unemploymentCapSalaryForInsurance) * insuranceRate.employer.unemployment
       : 0);
 
   // Taxable Income calculation
   const taxableIncome =
-    grossSalary -
+    adjustedGrossSalary -
     employeeInsurance -
     personalDeduction -
     phoneAllowance -
@@ -119,22 +132,22 @@ export function calculateFromGrossToNet(params) {
   }
 
   // Net Salary calculation
-  const netSalary = grossSalary - employeeInsurance - incomeTax;
+  const netSalary = adjustedGrossSalary - employeeInsurance - incomeTax;
   // Employer Union Fee
-  const unionFeeAmount = Math.min(baseSalary, socialHealthCapSalaryForInsurance) * unionFee;
+  const unionFeeAmount = Math.min(grossSalary, socialHealthCapSalaryForInsurance) * unionFee;
   // Total Employer Cost
-  const totalEmployerCost = grossSalary + employerInsurance + unionFeeAmount;
-  // Gross Salary construction
-  const percentBaseSalary = (baseSalary / grossSalary) * 100;
-  const percentBonusAndAllowance = (totalBonusAndAllowance / grossSalary) * 100;
+  const totalEmployerCost = adjustedGrossSalary + employerInsurance + unionFeeAmount;
+  // Adjusted Gross Salary construction
+  const percentGrossSalary = (grossSalary / adjustedGrossSalary) * 100;
+  const percentBonusAndAllowance = (totalBonusAndAllowance / adjustedGrossSalary) * 100;
 
   return {
     // Citizenship
     citizenship: citizenship,
     
     // Salary
+    adjustedGrossSalary: Math.round(adjustedGrossSalary),
     grossSalary:      Math.round(grossSalary),
-    baseSalary:       Math.round(baseSalary),
 
     // Allowances
     lunchAllowance:   Math.round(lunchAllowance),
@@ -142,19 +155,21 @@ export function calculateFromGrossToNet(params) {
     phoneAllowance:   Math.round(phoneAllowance),
     travelAllowance:  Math.round(travelAllowance),
     uniformAllowance: Math.round(uniformAllowance),
+    otherAllowance:   Math.round(otherAllowance),
     totalAllowance:   Math.round(totalAllowance),
 
     // Bonuses
     productivityBonus: Math.round(productivityBonus),
     incentiveBonus:    Math.round(incentiveBonus),
     kpiBonus:          Math.round(kpiBonus),
+    otherBonus:        Math.round(otherBonus),
     totalBonus:        Math.round(totalBonus),
 
     // Total Allowance and Bonus
     totalBonusAndAllowance: Math.round(totalBonusAndAllowance),
 
-    // Gross Salary construction
-    percentBaseSalary:        Math.round(percentBaseSalary),
+  // Adjusted Gross Salary construction
+    percentGrossSalary:        Math.round(percentGrossSalary),
     percentBonusAndAllowance: Math.round(percentBonusAndAllowance),
 
     // Calculated Salaries and Deductions
