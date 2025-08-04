@@ -72,7 +72,7 @@ export function calculateFromGrossToNet(params) {
   const incentiveBonus    = isBonusEnabled ? getRoundedValue(params.incentiveBonus,    !!params.incentiveEnabled)    : 0;
   const kpiBonus          = isBonusEnabled ? getRoundedValue(params.kpiBonus,          !!params.kpiEnabled)          : 0;
 
-  const national = params.national;
+  const citizenship = params.citizenship;
 
   // Total Allowances
   const totalAllowance = lunchAllowance + fuelAllowance + phoneAllowance + travelAllowance + uniformAllowance;
@@ -87,14 +87,14 @@ export function calculateFromGrossToNet(params) {
   // Employee Insurance contributions
   const employeeInsurance =
     Math.min(baseSalary, socialHealthCapSalaryForInsurance) * (insuranceRate.employee.social + insuranceRate.employee.health) +
-    (national === 'local'
+    (citizenship === 'local'
       ? Math.min(baseSalary, unemploymentCapSalaryForInsurance) * insuranceRate.employee.unemployment
       : 0);
 
   // Employer Insurance contributions
   const employerInsurance =
     Math.min(baseSalary, socialHealthCapSalaryForInsurance) * (insuranceRate.employer.social + insuranceRate.employer.health) +
-    (national === 'local'
+    (citizenship === 'local'
       ? Math.min(baseSalary, unemploymentCapSalaryForInsurance) * insuranceRate.employer.unemployment
       : 0);
 
@@ -129,8 +129,8 @@ export function calculateFromGrossToNet(params) {
   const percentBonusAndAllowance = (totalBonusAndAllowance / grossSalary) * 100;
 
   return {
-    // National status
-    national: national,
+    // Citizenship
+    citizenship: citizenship,
     
     // Salary
     grossSalary:      Math.round(grossSalary),

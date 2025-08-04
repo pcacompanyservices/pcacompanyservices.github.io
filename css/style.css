@@ -488,10 +488,11 @@ button:hover,
 
 .checkbox-item {
   display: flex;
-  align-items: center;
+  justify-content: left;
   gap: 0.375rem;
   font-family: inherit;
   width: fit-content;
+  margin-left: 0;
   margin-top: 0.3125rem;
   line-height: 1.2;
   color: #333;
@@ -550,7 +551,7 @@ button:hover,
 
 .simulation-button:hover .info-box,
 .simulation-button:focus .info-box {
-  opacity: 0.8;
+  opacity: 0.85;
   visibility: visible;
   pointer-events: auto;
 }

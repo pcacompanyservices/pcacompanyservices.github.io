@@ -513,7 +513,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- Calculation handler ---
 
   function handleCalculation() {
-    // Gather all input values and flags
+
+    // Helper to parse numbers (remove commas, parse to number)
+    const parseNumber = (val) => {
+      if (typeof val === 'number') return val;
+      if (!val) return 0;
+      return parseFloat((val + '').replace(/,/g, '')) || 0;
+    };
     const getVal = (id) => {
       const el = getElement(id);
       return el ? el.value : '';
@@ -524,24 +530,24 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const params = {
-      baseSalary: getVal('base-salary'),
+      baseSalary: parseNumber(getVal('base-salary')),
       isAllowanceEnabled: getChecked('allowance-checkbox'),
-      lunchAllowance: getVal('allowance-lunch'),
+      lunchAllowance: parseNumber(getVal('allowance-lunch')),
       lunchEnabled: getChecked('lunch-checkbox'),
-      fuelAllowance: getVal('allowance-fuel'),
+      fuelAllowance: parseNumber(getVal('allowance-fuel')),
       fuelEnabled: getChecked('fuel-checkbox'),
-      phoneAllowance: getVal('allowance-phone'),
+      phoneAllowance: parseNumber(getVal('allowance-phone')),
       phoneEnabled: getChecked('phone-checkbox'),
-      travelAllowance: getVal('allowance-travel'),
+      travelAllowance: parseNumber(getVal('allowance-travel')),
       travelEnabled: getChecked('travel-checkbox'),
-      uniformAllowance: getVal('allowance-uniform'),
+      uniformAllowance: parseNumber(getVal('allowance-uniform')),
       uniformEnabled: getChecked('uniform-checkbox'),
       isBonusEnabled: getChecked('bonus-checkbox'),
-      productivityBonus: getVal('bonus-productivity'),
+      productivityBonus: parseNumber(getVal('bonus-productivity')),
       productivityEnabled: getChecked('productivity-checkbox'),
-      incentiveBonus: getVal('bonus-incentive'),
+      incentiveBonus: parseNumber(getVal('bonus-incentive')),
       incentiveEnabled: getChecked('incentive-checkbox'),
-      kpiBonus: getVal('bonus-kpi'),
+      kpiBonus: parseNumber(getVal('bonus-kpi')),
       kpiEnabled: getChecked('kpi-checkbox'),
       citizenship: getVal('citizenship'),
     };
