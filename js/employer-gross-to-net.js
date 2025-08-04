@@ -3,38 +3,17 @@
 import { calculateFromGrossToNet } from '../be/cal.js';
 import { html } from '../util/html-parser.js';
 import { exportResultToPdf } from '../util/pdf-exporter.js';
+import { getElement, createAndAppend } from '../util/dom-utils.js';
+import { formatLine, safeText, formatCurrency } from '../util/format-utils.js';
 
-// --- Utility functions ---
-function formatLine(label, value) {
-  return value ? `- ${label}: ${value.toLocaleString('en-US')} VND<br>` : '';
-}
-
-function getElement(id) {
-  return document.getElementById(id);
-}
-
-function createAndAppend(parent, tag, props = {}, innerHTML = '') {
-  const el = document.createElement(tag);
-  Object.assign(el, props);
-  if (innerHTML) el.innerHTML = innerHTML;
-  parent.appendChild(el);
-  return el;
-}
-
-function safeText(text) {
-  return text ? String(text) : '';
-}
-
-function formatCurrency(val) {
-  return val ? val.toLocaleString('en-US') + ' VND' : '-';
-}
+// Utility functions moved to util/dom-utils.js and util/format-utils.js
 
 // --- UI creation functions ---
 function createProgressBar(root) {
   const progressBar = createAndAppend(root, 'div', { id: 'progress-bar' });
   progressBar.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin:18px 0;width:100%;max-width:480px;margin-left:auto;margin-right:auto;user-select:none;';
   progressBar.innerHTML = html`
-    <div class="progress-step" data-step="0">National Status</div>
+    <div class="progress-step" data-step="0">Citizenship</div>
     <div class="progress-bar-line"></div>
     <div class="progress-step" data-step="1">Base Salary</div>
     <div class="progress-bar-line"></div>
@@ -63,14 +42,14 @@ function createStep1() {
   step1.id = 'step-1';
   step1.innerHTML = html`
     <div class="step-title-row">
-      <h2>National Status</h2>
+      <h2>Citizenship</h2>
       <span class="question-icon" tabindex="0">
         <img src="asset/question_icon.webp" alt="info" />
         <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
       </span>
     </div>
-    <select id="national">
-      <option value="" disabled selected>Select your national status</option>
+    <select id="citizenship">
+      <option value="" disabled selected>Select your citizenship</option>
       <option value="local">Local</option>
       <option value="expat">Expat</option>
     </select>
@@ -354,15 +333,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- Step 1: National Status ---
-  const nationalSelect = getElement('national');
+  const citizenshipSelect = getElement('citizenship');
   continueBtns[0].addEventListener('click', () => {
-    if (currentStep === 0 && nationalSelect.value) {
+    if (currentStep === 0 && citizenshipSelect.value) {
       currentStep++;
       showStep(currentStep);
     }
   });
   function updateStep1Btn() {
-    if (nationalSelect.value) {
+    if (citizenshipSelect.value) {
       continueBtns[0].classList.remove('unavailable');
       continueBtns[0].disabled = false;
     } else {
@@ -370,7 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
       continueBtns[0].disabled = true;
     }
   }
-  nationalSelect.addEventListener('change', updateStep1Btn);
+  citizenshipSelect.addEventListener('change', updateStep1Btn);
   updateStep1Btn();
 
   // --- Step 2: Base Salary ---
@@ -564,7 +543,7 @@ document.addEventListener('DOMContentLoaded', () => {
       incentiveEnabled: getChecked('incentive-checkbox'),
       kpiBonus: getVal('bonus-kpi'),
       kpiEnabled: getChecked('kpi-checkbox'),
-      national: getVal('national'),
+      citizenship: getVal('citizenship'),
     };
 
     const data = calculateFromGrossToNet(params);
@@ -643,9 +622,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Employee type box (local/expat)
     let employeeTypeLabel = '';
-    if (data.national === 'local') {
+    if (data.citizenship === 'local') {
       employeeTypeLabel = 'Local Employee';
-    } else if (data.national === 'expat') {
+    } else if (data.citizenship === 'expat') {
       employeeTypeLabel = 'Expat Employee';
     } else {
       employeeTypeLabel = 'Employee';
