@@ -670,7 +670,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const adjustedGrossSalaryCell = html`
       <div class="result-title">Adjusted Gross Salary</div>
       <div class="result-center-value">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('en-US') + ' VND' : '-'}</div>
-      <div style="text-align:center;margin-top:4px;font-size:0.8em;">
+      <div style="text-align:center;margin-top:4px;font-size:0.85em;">
         (Total Employer Cost: <span style="color:#C1272D;">${data.totalEmployerCost ? data.totalEmployerCost.toLocaleString('en-US') + ' VND' : '-'}</span>)
       </div>
     `;
@@ -684,7 +684,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ].filter(item => item.value && item.value > 0);
 
     const insuranceContributionCell = `
-      <div class="result-title">Compulsory Insurance</div>
+      <div class="result-title">Compulsory Insurances</div>
       <div class="result-list">
         ${insuranceItems.map(item => `<div class="result-item">${item.label}: <span>-${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
         <hr class="result-divider-insurance" />
@@ -694,9 +694,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Personal Income Tax cell
     const personalIncomeTaxCell = html`
-      <div class="result-title">Personal Income Tax</div>
-      <div class="result-center-value">
-        <div><span>-${data.incomeTax.toLocaleString('en-US')} VND</span></div>
+      <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:100%;min-height:80px;">
+        <div class="result-title" style="text-align:center;">Personal Income Tax</div>
+        <div class="result-center-value" style="text-align:center;">
+          <span>-${data.incomeTax.toLocaleString('en-US')} VND</span>
+        </div>
       </div>
     `;
 
@@ -733,7 +735,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <tr><td colspan="2">${adjustedGrossSalaryCell}</td></tr>
           <tr>
             <td style="padding:0;vertical-align:top;">${insuranceContributionCell}</td>
-            <td style="padding:0;vertical-align:top;">${personalIncomeTaxCell}</td>
+            <td style="padding:0;vertical-align:middle;">${personalIncomeTaxCell}</td>
           </tr>
           ${employeeContributionRow}
           ${employeeTakeHomeRow}

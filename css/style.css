@@ -65,7 +65,7 @@
   border-top: 1px solid #666 !important;
   height: 0 !important;
   margin: 0.375rem auto 0.625rem auto !important;
-  width: 90%;
+  width: 100%;
 }
 /* ========================= */
 /* Reset & Global Styles     */
@@ -113,7 +113,7 @@ h2 {
 .result-divider-insurance {
   border: none;
   border-top: 1px solid #aaa;
-  width: 75%;
+  width: 90%;
   margin: 0.08em auto 0.05em auto;
 }
 

@@ -222,7 +222,7 @@ export function simulateSalary(params) {
     citizenship: citizenship,
     // Salary
     adjustedGrossSalary: Math.round(calculationResult.adjustedGrossSalary),
-    grossSalary:      Math.round(grossSalary),
+    grossSalary:         Math.round(grossSalary),
     // Allowances
     lunchAllowance:   Math.round(lunchAllowance),
     fuelAllowance:    Math.round(fuelAllowance),
