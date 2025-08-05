@@ -1,6 +1,6 @@
 
 
-import { calculateFromGrossToNet } from '../be/cal.js';
+import { simulateSalary } from '../be/cal.js';
 import { html } from '../util/html-parser.js';
 import { exportResultToPdf } from '../util/pdf-exporter.js';
 import { getElement, createAndAppend } from '../util/dom-utils.js';
@@ -573,7 +573,7 @@ document.addEventListener('DOMContentLoaded', () => {
       citizenship: getVal('citizenship'),
     };
 
-    const data = calculateFromGrossToNet(params);
+    const data = simulateSalary(params);
 
     if (data && data.error) {
       DOM.resultDiv.innerHTML = `<span style="color:red">${data.error}</span>`;

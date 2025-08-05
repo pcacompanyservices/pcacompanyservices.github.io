@@ -106,7 +106,7 @@ function calculateFromGross(grossSalary, totalBonusAndAllowance, lunchAllowance,
  * @param {string} params.method - 'gross-to-net' or 'net-to-gross'
  * @returns {Object} Calculation result or error
  */
-export function calculateFromGrossToNet(params) {
+export function simulateSalary(params) {
   // Default to 'gross-to-net' if not provided
   const method = params.method || 'gross-to-net';
 

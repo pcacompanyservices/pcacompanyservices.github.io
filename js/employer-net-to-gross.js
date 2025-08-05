@@ -1,6 +1,6 @@
 
 
-import { calculateFromGrossToNet } from '../be/cal.js';
+import { simulateSalary } from '../be/cal.js';
 import { html } from '../util/html-parser.js';
 import { exportResultToPdf } from '../util/pdf-exporter.js';
 import { getElement, createAndAppend } from '../util/dom-utils.js';
@@ -71,7 +71,7 @@ function createStep2() {
         <span class="info-box">Enter the employee's net (take-home) salary.</span>
       </span>
     </div>
-    <input type="text" class="number-input" id="net-salary" placeholder="Min 5,000,000 VND" />
+    <input type="text" class="number-input" id="net-salary" placeholder="Min 3,000,000 VND" />
     <button type="button" id="continue-step2" class="simulation-button unavailable" disabled>Continue</button>
   `;
   return step2;
@@ -369,14 +369,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- Step 2: Net Salary ---
   const netSalaryInput = getElement('net-salary');
   continueBtns[1].addEventListener('click', () => {
-    if (currentStep === 1 && netSalaryInput.value && parseInt(netSalaryInput.value.replace(/\D/g, '')) >= 5000000) {
+    if (currentStep === 1 && netSalaryInput.value && parseInt(netSalaryInput.value.replace(/\D/g, '')) >= 3000000) {
       currentStep++;
       showStep(currentStep);
     }
   });
   function updateStep2Btn() {
     const val = netSalaryInput.value.replace(/\D/g, '');
-    if (val && parseInt(val) >= 5000000) {
+    if (val && parseInt(val) >= 3000000) {
       continueBtns[1].classList.remove('unavailable');
       continueBtns[1].disabled = false;
     } else {
@@ -573,7 +573,7 @@ document.addEventListener('DOMContentLoaded', () => {
       citizenship: getVal('citizenship'),
     };
 
-    const data = calculateFromGrossToNet(params);
+    const data = simulateSalary(params);
 
     if (data && data.error) {
       DOM.resultDiv.innerHTML = `<span style="color:red">${data.error}</span>`;
