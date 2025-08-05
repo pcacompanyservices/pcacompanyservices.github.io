@@ -45,19 +45,19 @@ function getRoundedValue(value, enabled) {
 function calculateFromGross(grossSalary, totalBonusAndAllowance, lunchAllowance, phoneAllowance, uniformAllowance, citizenship) {
   const adjustedGrossSalary = grossSalary + totalBonusAndAllowance;
 
-  // Employee Insurance contributions
-  const employeeInsurance =
-    Math.min(grossSalary, socialHealthCapSalaryForInsurance) * (insuranceRate.employee.social + insuranceRate.employee.health) +
-    (citizenship === 'local'
-      ? Math.min(grossSalary, unemploymentCapSalaryForInsurance) * insuranceRate.employee.unemployment
-      : 0);
+  // Employee Insurance contributions (detailed)
+  const employeeSocialInsurance = Math.min(grossSalary, socialHealthCapSalaryForInsurance) * insuranceRate.employee.social;
+  const employeeHealthInsurance = Math.min(grossSalary, socialHealthCapSalaryForInsurance) * insuranceRate.employee.health;
+  const employeeUnemploymentInsurance =
+    citizenship === 'local' ? Math.min(grossSalary, unemploymentCapSalaryForInsurance) * insuranceRate.employee.unemployment : 0;
+  const employeeInsurance = employeeSocialInsurance + employeeHealthInsurance + employeeUnemploymentInsurance;
 
-  // Employer Insurance contributions
-  const employerInsurance =
-    Math.min(grossSalary, socialHealthCapSalaryForInsurance) * (insuranceRate.employer.social + insuranceRate.employer.health) +
-    (citizenship === 'local'
-      ? Math.min(grossSalary, unemploymentCapSalaryForInsurance) * insuranceRate.employer.unemployment
-      : 0);
+  // Employer Insurance contributions (detailed)
+  const employerSocialInsurance = Math.min(grossSalary, socialHealthCapSalaryForInsurance) * insuranceRate.employer.social;
+  const employerHealthInsurance = Math.min(grossSalary, socialHealthCapSalaryForInsurance) * insuranceRate.employer.health;
+  const employerUnemploymentInsurance =
+    citizenship === 'local' ? Math.min(grossSalary, unemploymentCapSalaryForInsurance) * insuranceRate.employer.unemployment : 0;
+  const employerInsurance = employerSocialInsurance + employerHealthInsurance + employerUnemploymentInsurance;
 
   // Taxable Income calculation
   const taxableIncome =
@@ -88,10 +88,25 @@ function calculateFromGross(grossSalary, totalBonusAndAllowance, lunchAllowance,
   // Total Employer Cost
   const totalEmployerCost = adjustedGrossSalary + employerInsurance + unionFeeAmount;
 
+  // Employee and Employer Contributions
+  const employeeContribution = employeeInsurance + incomeTax;
+  const employerContribution = employerInsurance + unionFeeAmount;
+
   return {
     adjustedGrossSalary,
+    // Insurance breakdowns
+    employeeSocialInsurance,
+    employeeHealthInsurance,
+    employeeUnemploymentInsurance,
     employeeInsurance,
+    employerSocialInsurance,
+    employerHealthInsurance,
+    employerUnemploymentInsurance,
     employerInsurance,
+    // Contributions
+    employeeContribution,
+    employerContribution,
+    // Other payroll values
     taxableIncome,
     incomeTax,
     netSalary,
@@ -158,7 +173,7 @@ export function simulateSalary(params) {
 
     // Bisection method to find gross salary that produces target net salary
     let low = 5000000;
-    let high = 200000000; // Increased upper bound for high salaries
+    let high = 1000000000; // Increased upper bound for high salaries
     let mid = 0;
     let found = false;
     const tolerance = 0.5; // Allow 0.5 VND difference
@@ -226,14 +241,25 @@ export function simulateSalary(params) {
     totalBonusAndAllowance: Math.round(totalBonusAndAllowance),
     // Adjusted Gross Salary construction
     percentGrossSalary:        Math.round(percentGrossSalary * 100) / 100, // Round to 2 decimal places
-    percentBonusAndAllowance: Math.round(percentBonusAndAllowance * 100) / 100, // Round to 2 decimal places
+    percentBonusAndAllowance:  Math.round(percentBonusAndAllowance * 100) / 100, // Round to 2 decimal places
+    // Employee Insurance
+    employeeSocialInsurance:       Math.round(calculationResult.employeeSocialInsurance),
+    employeeHealthInsurance:       Math.round(calculationResult.employeeHealthInsurance),
+    employeeUnemploymentInsurance: Math.round(calculationResult.employeeUnemploymentInsurance),
+    employeeInsurance:             Math.round(calculationResult.employeeInsurance),
+    // Employer Insurance
+    employerSocialInsurance:       Math.round(calculationResult.employerSocialInsurance),
+    employerHealthInsurance:       Math.round(calculationResult.employerHealthInsurance),
+    employerUnemploymentInsurance: Math.round(calculationResult.employerUnemploymentInsurance),
+    employerInsurance:             Math.round(calculationResult.employerInsurance),
+    // Contributions
+    employeeContribution: Math.round(calculationResult.employeeContribution),
+    employerContribution: Math.round(calculationResult.employerContribution),
     // Calculated Salaries and Deductions
-    employeeInsurance: Math.round(calculationResult.employeeInsurance),
     taxableIncome:     Math.round(calculationResult.taxableIncome),
     incomeTax:         Math.round(calculationResult.incomeTax),
     netSalary:         Math.round(calculationResult.netSalary),
     // Employer Costs
-    employerInsurance: Math.round(calculationResult.employerInsurance),
     employerUnionFee:  Math.round(calculationResult.unionFeeAmount),
     totalEmployerCost: Math.round(calculationResult.totalEmployerCost)
   };

@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
       info: 'Coming soon.',
       enabled: true,
       onClick: employeeHandler,
-      extraClass: 'unavailable' // off
+      extraClass: ''
     }));
 
     main.appendChild(createButton({
@@ -85,15 +85,17 @@ document.addEventListener('DOMContentLoaded', () => {
     main.appendChild(createButton({
       value: 'gross-to-net',
       text: 'Calculate from your Gross Salary',
-      info: 'Coming soon.',
-      enabled: false,
+      info: 'Calculate take-home salary from your gross salary.',
+      enabled: true,
+      onClick : () => { window.location.href = 'employee-gross-to-net.html' },
       extraClass: 'employee-choice'
     }));
     main.appendChild(createButton({
       value: 'net-to-gross',
       text: 'Calculate from your Net Salary',
-      info: 'Coming soon.',
-      enabled: false,
+      info: 'Calculate gross salary from how much you want to take home.',
+      enabled: true,
+      onClick: () => { window.location.href = 'employee-net-to-gross.html' },
       extraClass: 'employee-choice'
     }));
     main.appendChild(createBackButton(renderInitialButtons));

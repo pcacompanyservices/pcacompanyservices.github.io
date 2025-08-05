@@ -711,7 +711,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </tr>
         </table>
       </div>
-      <div class="salary-visualization-heading" style="text-align:center;margin:24px 0 12px 0;font-size:1.125em;font-weight:bold;">Salary Visualization</div>
+      <div class="salary-visualization-heading" style="text-align:center;margin:24px 0 0 0;font-size:1.125em;font-weight:bold;">Salary Visualization</div>
     `;
     DOM.downloadPdfBtn.style.display = 'block';
     // Show reset and hard reset buttons

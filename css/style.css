@@ -44,7 +44,7 @@
   background: #fff;
   color: #222;
   width: 100%;
-  max-width: 65vw;
+  max-width: 60vw;
   margin: 0 auto;
   position: fixed;
   left: -9999px;
@@ -110,6 +110,13 @@ h2 {
   margin: 0.08em auto 0.05em auto;
 }
 
+.result-divider-insurance {
+  border: none;
+  border-top: 1px solid #aaa;
+  width: 75%;
+  margin: 0.08em auto 0.05em auto;
+}
+
 /* ========================= */
 /* Result Details Grid       */
 /* ========================= */
@@ -159,7 +166,7 @@ h2 {
 
 .result-table-container {
   width: 100%;
-  max-width: 50vw;
+  max-width: 55vw;
   margin: 0 auto;
 }
 
@@ -201,7 +208,8 @@ h2 {
 /* Light grey background for the national cell (first row), gross row, and last row */
 
 .result-table tr:first-child td,
-.result-table tr:nth-last-child(3) td,
+.result-table tr:nth-last-child(4) td,
+.result-table tr:nth-last-child(2) td,
 .result-table tr:last-child td {
   background: #f3f3f3;
 }
@@ -240,7 +248,7 @@ h2 {
 .result-list {
   width: 100%;
   max-width: 21.25rem;
-  margin: 0 auto 0 auto;
+  margin: 0 auto 0.4rem auto;
   display: flex;
   flex-direction: column;
   align-items: center;

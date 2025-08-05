@@ -15,7 +15,7 @@ function createProgressBar(root) {
   progressBar.innerHTML = html`
     <div class="progress-step" data-step="0">Citizenship</div>
     <div class="progress-bar-line"></div>
-    <div class="progress-step" data-step="1">Gross Salary</div>
+    <div class="progress-step" data-step="1">Net Salary</div>
     <div class="progress-bar-line"></div>
     <div class="progress-step" data-step="2">Allowances</div>
     <div class="progress-bar-line"></div>
@@ -26,7 +26,7 @@ function createProgressBar(root) {
 
 function createTitleBlock(root) {
   const h1 = createAndAppend(root, 'h1');
-  h1.textContent = "Calculate from Employee's Gross Salary";
+  h1.textContent = "Calculate from your Net Salary";
   root.appendChild(document.createElement('hr'));
   return h1;
 }
@@ -65,13 +65,13 @@ function createStep2() {
   step2.style.display = 'none';
   step2.innerHTML = html`
     <div class="step-title-row">
-      <h2>Gross Salary</h2>
+      <h2>Net Salary</h2>
       <span class="question-icon" tabindex="0">
         <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
+        <span class="info-box">Enter the employee's net (take-home) salary.</span>
       </span>
     </div>
-    <input type="text" class="number-input" id="gross-salary" placeholder="Min 5,000,000 VND" />
+    <input type="text" class="number-input" id="net-salary" placeholder="Min 3,000,000 VND" />
     <button type="button" id="continue-step2" class="simulation-button unavailable" disabled>Continue</button>
   `;
   return step2;
@@ -314,14 +314,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     returnBtn.style.display = idx > 0 ? '' : 'none';
     calculateBtn.style.display = idx === steps.length - 1 ? '' : 'none';
-  // Auto-focus gross salary input on step 2
-  if (idx === 1) {
-    const grossSalaryInput = document.getElementById('gross-salary');
-    if (grossSalaryInput) {
-      grossSalaryInput.focus();
-      grossSalaryInput.select && grossSalaryInput.select();
+    // Auto-focus net salary input on step 2
+    if (idx === 1) {
+      const netSalaryInput = document.getElementById('net-salary');
+      if (netSalaryInput) {
+        netSalaryInput.focus();
+        netSalaryInput.select && netSalaryInput.select();
+      }
     }
-  }
     // Update progress bar
     const stepsEls = document.querySelectorAll('#progress-bar .progress-step');
     stepsEls.forEach((el, i) => {
@@ -366,17 +366,17 @@ document.addEventListener('DOMContentLoaded', () => {
   citizenshipSelect.addEventListener('change', updateStep1Btn);
   updateStep1Btn();
 
-  // --- Step 2: Gross Salary ---
-  const grossSalaryInput = getElement('gross-salary');
+  // --- Step 2: Net Salary ---
+  const netSalaryInput = getElement('net-salary');
   continueBtns[1].addEventListener('click', () => {
-    if (currentStep === 1 && grossSalaryInput.value && parseInt(grossSalaryInput.value.replace(/\D/g, '')) >= 5000000) {
+    if (currentStep === 1 && netSalaryInput.value && parseInt(netSalaryInput.value.replace(/\D/g, '')) >= 3000000) {
       currentStep++;
       showStep(currentStep);
     }
   });
   function updateStep2Btn() {
-    const val = grossSalaryInput.value.replace(/\D/g, '');
-    if (val && parseInt(val) >= 5000000) {
+    const val = netSalaryInput.value.replace(/\D/g, '');
+    if (val && parseInt(val) >= 3000000) {
       continueBtns[1].classList.remove('unavailable');
       continueBtns[1].disabled = false;
     } else {
@@ -384,7 +384,7 @@ document.addEventListener('DOMContentLoaded', () => {
       continueBtns[1].disabled = true;
     }
   }
-  grossSalaryInput.addEventListener('input', updateStep2Btn);
+  netSalaryInput.addEventListener('input', updateStep2Btn);
   updateStep2Btn();
 
   // --- Step 3: Allowance (always enabled, can skip) ---
@@ -546,8 +546,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const params = {
-      method: 'gross-to-net',
-      grossSalary: parseNumber(getVal('gross-salary')),
+      method: 'net-to-gross',
+      netSalary: parseNumber(getVal('net-salary')),
       isAllowanceEnabled: getChecked('allowance-checkbox'),
       lunchAllowance: parseNumber(getVal('allowance-lunch')),
       lunchEnabled: getChecked('lunch-checkbox'),
@@ -666,30 +666,60 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="result-center-value">${data.grossSalary ? data.grossSalary.toLocaleString('en-US') + ' VND' : '-'}</div>
     `;
 
-    // Adjusted Gross Salary box
+    // Adjusted Gross Salary box with Total Employer Cost
     const adjustedGrossSalaryCell = html`
       <div class="result-title">Adjusted Gross Salary</div>
       <div class="result-center-value">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('en-US') + ' VND' : '-'}</div>
+      <div style="text-align:center;margin-top:4px;font-size:0.8em;">
+        (Total Employer Cost: <span style="color:#C1272D;">${data.totalEmployerCost ? data.totalEmployerCost.toLocaleString('en-US') + ' VND' : '-'}</span>)
+      </div>
     `;
 
 
-    // Employer and Employee details: details row, then total value in a new row below
-    const employerDetailsCell = html`
-      <div class="result-title">Employer Cost</div>
+    // Insurance Contribution (all employee insurances)
+    const insuranceItems = [
+      { label: 'Social Insurance', value: data.employeeSocialInsurance },
+      { label: 'Health Insurance', value: data.employeeHealthInsurance },
+      { label: 'Unemployment Insurance', value: data.employeeUnemploymentInsurance }
+    ].filter(item => item.value && item.value > 0);
+
+    const insuranceContributionCell = `
+      <div class="result-title">Compulsory Insurance</div>
       <div class="result-list">
-        <div class="result-item">Social Insurance: <span>+${data.employerInsurance.toLocaleString('en-US')} VND</span></div>
-        <div class="result-item">Union Fee: <span>+${data.employerUnionFee.toLocaleString('en-US')} VND</span></div>
+        ${insuranceItems.map(item => `<div class="result-item">${item.label}: <span>-${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
+        <hr class="result-divider-insurance" />
+        <div class="result-total"><span>-${data.employeeInsurance.toLocaleString('en-US')} VND</span></div>
       </div>
     `;
-    const employeeDetailsCell = html`
-      <div class="result-title">Employee Take-home</div>
-      <div class="result-list">
-        <div class="result-item">Social Insurance: <span>-${data.employeeInsurance.toLocaleString('en-US')} VND</span></div>
-        <div class="result-item">Personal Income Tax: <span>-${data.incomeTax.toLocaleString('en-US')} VND</span></div>
+
+    // Personal Income Tax cell
+    const personalIncomeTaxCell = html`
+      <div class="result-title">Personal Income Tax</div>
+      <div class="result-center-value">
+        <div><span>-${data.incomeTax.toLocaleString('en-US')} VND</span></div>
       </div>
     `;
-    const employerTotalCell = html`<div class="result-total"><span class="employer-total-value">${data.totalEmployerCost.toLocaleString('en-US')} VND</span></div>`;
-    const employeeTotalCell = html`<div class="result-total"><span class="employee-total-value">${data.netSalary.toLocaleString('en-US')} VND</span></div>`;
+
+
+    // Employee Contribution row (styled like gross/adjusted gross)
+    const employeeContributionRow = html`
+      <tr>
+        <td colspan="2">
+          <div class="result-title">Statutory Contribution</div>
+          <div class="result-center-value" style="color:#C1272D;">-${data.employeeContribution.toLocaleString('en-US')} VND</div>
+        </td>
+      </tr>
+    `;
+
+    // Employee Take-home row (styled like gross/adjusted gross)
+    const employeeTakeHomeRow = html`
+      <tr>
+        <td colspan="2">
+          <div class="result-title">Take-home Salary</div>
+          <div class="result-center-value" style="color:#1a7f3c;">${data.netSalary.toLocaleString('en-US')} VND</div>
+        </td>
+      </tr>
+    `;
 
     DOM.resultDiv.innerHTML = html`
       <h1 style="text-align:center;margin-bottom:16px;font-size:30px">PAYSLIP</h1>
@@ -702,13 +732,11 @@ document.addEventListener('DOMContentLoaded', () => {
           ${!allowanceRow && !bonusRow ? noAllowanceBonusRow : ''}
           <tr><td colspan="2">${adjustedGrossSalaryCell}</td></tr>
           <tr>
-            <td style="padding:0;vertical-align:top;">${employerDetailsCell}</td>
-            <td style="padding:0;vertical-align:top;">${employeeDetailsCell}</td>
+            <td style="padding:0;vertical-align:top;">${insuranceContributionCell}</td>
+            <td style="padding:0;vertical-align:top;">${personalIncomeTaxCell}</td>
           </tr>
-          <tr>
-            <td class="result-total">${employerTotalCell}</td>
-            <td class="result-total">${employeeTotalCell}</td>
-          </tr>
+          ${employeeContributionRow}
+          ${employeeTakeHomeRow}
         </table>
       </div>
       <div class="salary-visualization-heading" style="text-align:center;margin:24px 0 0 0;font-size:1.125em;font-weight:bold;">Salary Visualization</div>
