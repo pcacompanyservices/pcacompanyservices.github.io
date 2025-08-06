@@ -938,6 +938,15 @@ document.addEventListener('DOMContentLoaded', () => {
           exportContainer.appendChild(hrClone);
         }
         exportContainer.appendChild(resultTableContainer.cloneNode(true));
+        // Clone and append the footer below the result table
+        const footer = document.querySelector('.app-footer');
+        if (footer) {
+          const footerClone = footer.cloneNode(true);
+          // Remove any id attributes from the clone to avoid duplicate IDs
+          footerClone.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+          footerClone.style.width = '100%';
+          exportContainer.appendChild(footerClone);
+        }
         document.body.appendChild(exportContainer);
         // Format date as dd/mm/yyyy
         const now = new Date();
