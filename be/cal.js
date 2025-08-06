@@ -161,8 +161,8 @@ export function simulateSalary(params) {
   } else if (method === 'net-to-gross') {
     // Parse and validate net salary
     const targetNetSalary = parseFloat((params.netSalary + '').replace(/,/g, ''));
-    if (isNaN(targetNetSalary) || targetNetSalary < 3000000) {
-      return { error: 'Please enter a valid net salary (minimum 3,000,000 VND).' };
+    if (isNaN(targetNetSalary) || targetNetSalary < 4475000) {
+      return { error: 'Please enter a valid net salary (minimum 4,475,000 VND).' };
     }
 
     // Function to compute net salary from gross salary

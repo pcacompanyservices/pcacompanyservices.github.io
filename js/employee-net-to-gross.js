@@ -70,7 +70,7 @@ function createStep2() {
         <span class="info-box">Enter the employee's net (take-home) salary.</span>
       </span>
     </div>
-    <input type="text" class="number-input" id="net-salary" placeholder="Min 3,000,000 VND" />
+    <input type="text" class="number-input" id="net-salary" placeholder="Min 4,475,000 VND" />
     <div id="net-salary-warning" class="input-warning" style="display:none;color:#C1272D;font-size:0.9em;margin-top:4px;">Maximum 9 digits allowed.</div>
     <button type="button" id="continue-step2" class="simulation-button unavailable" disabled>Continue</button>
   `;
@@ -359,14 +359,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- Step 2: Net Salary ---
   const netSalaryInput = getElement('net-salary');
   continueBtns[1].addEventListener('click', () => {
-    if (currentStep === 1 && netSalaryInput.value && parseInt(netSalaryInput.value.replace(/\D/g, '')) >= 3000000) {
+    if (currentStep === 1 && netSalaryInput.value && parseInt(netSalaryInput.value.replace(/\D/g, '')) >= 4475000) {
       currentStep++;
       showStep(currentStep);
     }
   });
   function updateStep2Btn() {
     const val = netSalaryInput.value.replace(/\D/g, '');
-    if (val && parseInt(val) >= 3000000) {
+    if (val && parseInt(val) >= 4475000) {
       continueBtns[1].classList.remove('unavailable');
       continueBtns[1].disabled = false;
     } else {
