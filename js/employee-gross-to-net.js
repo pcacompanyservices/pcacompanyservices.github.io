@@ -666,9 +666,9 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="result-title">Compulsory Insurances</div>
       <div class="result-list">
         ${insuranceItems.map(item => `<div class="result-item">${item.label}: <span>-${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
-        <hr class="result-divider-insurance" />
-        <div class="result-total"><span>-${data.employeeInsurance.toLocaleString('en-US')} VND</span></div>
       </div>
+      <hr class="result-divider-insurance" />
+      <div class="result-center-value"><span>-${data.employeeInsurance.toLocaleString('en-US')} VND</span></div>
     `;
     // Personal Income Tax cell
     const personalIncomeTaxCell = html`

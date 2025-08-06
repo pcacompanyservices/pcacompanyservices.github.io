@@ -1,17 +1,13 @@
 .pdf-export-container hr,
 .pdf-export-container .result-divider {
-  border: none;
-  border-top: 1px solid #aaa;
+  margin: 0 auto 0 auto !important;
   width: 55%;
-  margin: 0.08em auto 0.05em auto;
 }
 
 .pdf-export-container hr,
 .pdf-export-container .result-divider-insurance {
-  border: none;
-  border-top: 1px solid #aaa;
+  margin: 0 auto 0 auto !important;
   width: 90%;
-  margin: 0.08em auto 0.05em auto;
 }
 /* ========================= */
 /* Step Title with Icon      */
@@ -58,14 +54,15 @@
   font-family: 'EB Garamond', Garamond, serif;
   background: #fff;
   color: #222;
-  width: 100%;
-  max-width: 60vw;
+  width: 794px; /* A4 width at 96dpi */
+  height: 1123px; /* A4 height at 96dpi */
   margin: 0 auto;
   position: fixed;
   left: -9999px;
   top: 0;
   z-index: -1;
   padding: 1.875rem;
+  box-sizing: border-box;
 }
 
 /* PDF Export: logo, h1, hr tweaks */
@@ -79,7 +76,7 @@
   border: none !important;
   border-top: 1px solid #666 !important;
   height: 0 !important;
-  margin: 0.375rem auto 0.625rem auto !important;
+  margin: 0.375rem auto 1rem auto !important;
   width: 100%;
 }
 
@@ -269,7 +266,7 @@ h2 {
 .result-list {
   width: 100%;
   max-width: 21.25rem;
-  margin: 0 auto 0.4rem auto;
+  margin: 0 auto 0.2rem auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -311,12 +308,11 @@ h2 {
   font-size: 1.25rem;
   font-weight: 600;
   text-align: center;
-  margin: 0.04em 0 0.02em 0;
+  margin: 0.02em 0 0.02em 0;
 }
 
 
 .result {
-  margin-top: 1rem;
   font-size: 1.125rem;
   color: #333;
 }
