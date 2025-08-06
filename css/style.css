@@ -642,7 +642,7 @@ button:hover,
 .app-footer {
   width: 80%;
   margin: 2rem auto;
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   color: #555;
 }
 
@@ -658,7 +658,7 @@ button:hover,
   display: block;
   text-align: center;
   color: #222;
-  font-size: 0.95em;
+  font-size: 1.05em;
   width: fit-content;
   margin-left: auto;
   margin-right: auto;
