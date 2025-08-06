@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     main.appendChild(createButton({
       value: 'employee',
       text: `I'm an employee`,
-      info: 'Coming soon.',
+      info: 'You have a job.',
       enabled: true,
       onClick: employeeHandler,
       extraClass: ''

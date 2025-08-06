@@ -254,15 +254,6 @@ function createHardResetButton(root) {
   return hardResetBtn;
 }
 
-function createFooter(root) {
-  const footer = createAndAppend(root, 'footer', {
-    className: 'app-footer',
-  });
-  footer.textContent = 'The simulation assumes that there is no deductions for personal dependants. For further information, please contact us.';
-  return footer;
-}
-
-
 document.addEventListener('DOMContentLoaded', () => {
   // --- Dynamic UI creation ---
   const root = getElement('gross-to-net-root');
@@ -293,8 +284,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Reset and hard reset
   const resetBtn = createResetButton(root);
   const hardResetBtn = createHardResetButton(root);
-  // Footer
-  createFooter(root);
 
   // --- Multi-step form navigation logic ---
   const steps = [step1, step2, step3, step4];
