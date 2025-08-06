@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
   function createButton({ value, text, info, enabled = true, onClick, extraClass = '' }) {
     const div = document.createElement('div');
     div.className = 'simulation-list';
-
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.value = value;
@@ -21,14 +20,12 @@ document.addEventListener('DOMContentLoaded', () => {
       ${text}
       <span class="info-box">${info}</span>
     `;
-
     if (!enabled) {
       btn.disabled = true;
       btn.setAttribute('aria-disabled', 'true');
     } else if (typeof onClick === 'function') {
       btn.addEventListener('click', onClick);
     }
-
     div.appendChild(btn);
     return div;
   }

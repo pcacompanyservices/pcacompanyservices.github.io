@@ -206,11 +206,16 @@ h2 {
 }
 
 /* Light grey background for the national cell (first row), gross row, and last row */
+.employee-table-layout tr:first-child td,
+.employee-table-layout tr:nth-last-child(4) td,
+.employee-table-layout tr:nth-last-child(2) td,
+.employee-table-layout tr:last-child td {
+  background: #f3f3f3;
+}
 
-.result-table tr:first-child td,
-.result-table tr:nth-last-child(4) td,
-.result-table tr:nth-last-child(2) td,
-.result-table tr:last-child td {
+.employer-table-layout tr:first-child td,
+.employer-table-layout tr:nth-last-child(3) td,
+.employer-table-layout tr:last-child td {
   background: #f3f3f3;
 }
 

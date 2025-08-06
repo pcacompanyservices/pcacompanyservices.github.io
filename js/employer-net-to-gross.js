@@ -6,7 +6,7 @@ import { exportResultToPdf } from '../util/pdf-exporter.js';
 import { getElement, createAndAppend } from '../util/dom-utils.js';
 import { formatLine, safeText, formatCurrency } from '../util/format-utils.js';
 
-// Utility functions moved to util/dom-utils.js and util/format-utils.js
+
 
 // --- UI creation functions ---
 function createProgressBar(root) {
@@ -694,7 +694,7 @@ document.addEventListener('DOMContentLoaded', () => {
     DOM.resultDiv.innerHTML = html`
       <h1 style="text-align:center;margin-bottom:16px;font-size:30px">PAYSLIP</h1>
       <div class="result-table-container">
-        <table class="result-table result-table-vertical result-table-bordered">
+        <table class="result-table result-table-vertical result-table-bordered employer-table-layout">
           <tr><td colspan="2">${employeeTypeCell}</td></tr>
           <tr><td colspan="2">${grossSalaryCell}</td></tr>
           ${allowanceRow}

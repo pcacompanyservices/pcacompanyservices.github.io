@@ -4,9 +4,8 @@ import { simulateSalary } from '../be/cal.js';
 import { html } from '../util/html-parser.js';
 import { exportResultToPdf } from '../util/pdf-exporter.js';
 import { getElement, createAndAppend } from '../util/dom-utils.js';
-import { formatLine, safeText, formatCurrency } from '../util/format-utils.js';
 
-// Utility functions moved to util/dom-utils.js and util/format-utils.js
+
 
 // --- UI creation functions ---
 function createProgressBar(root) {
@@ -296,7 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Footer
   createFooter(root);
 
-  // --- Multi-step form navigation logic ---
+// --- Multi-step form navigation logic ---
   const steps = [step1, step2, step3, step4];
   const continueBtns = [
     getElement('continue-step1'),
@@ -527,24 +526,20 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- Calculation handler ---
-
+  function parseNumber(val) {
+    if (typeof val === 'number') return val;
+    if (!val) return 0;
+    return parseFloat((val + '').replace(/,/g, '')) || 0;
+  }
+  function getVal(id) {
+    const el = getElement(id);
+    return el ? el.value : '';
+  }
+  function getChecked(id) {
+    const el = getElement(id);
+    return el ? el.checked : false;
+  }
   function handleCalculation() {
-
-    // Helper to parse numbers (remove commas, parse to number)
-    const parseNumber = (val) => {
-      if (typeof val === 'number') return val;
-      if (!val) return 0;
-      return parseFloat((val + '').replace(/,/g, '')) || 0;
-    };
-    const getVal = (id) => {
-      const el = getElement(id);
-      return el ? el.value : '';
-    };
-    const getChecked = (id) => {
-      const el = getElement(id);
-      return el ? el.checked : false;
-    };
-
     const params = {
       method: 'net-to-gross',
       netSalary: parseNumber(getVal('net-salary')),
@@ -572,17 +567,13 @@ document.addEventListener('DOMContentLoaded', () => {
       otherBonusEnabled: getChecked('other-bonus-checkbox'),
       citizenship: getVal('citizenship'),
     };
-
     const data = simulateSalary(params);
-
     if (data && data.error) {
       DOM.resultDiv.innerHTML = `<span style="color:red">${data.error}</span>`;
       DOM.downloadPdfBtn.style.display = 'none';
       renderPieChart({});
       return;
     }
-
-
     // Destroy the form and navigation UI after calculation
     if (salaryForm && salaryForm.parentNode) {
       salaryForm.parentNode.removeChild(salaryForm);
@@ -590,12 +581,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Hide progress bar
     const progressBar = document.getElementById('progress-bar');
     if (progressBar) progressBar.style.display = 'none';
-
     renderPieChart(data);
-
     // --- Restructured result boxes ---
-
-    // Allowance and Bonus items
     const allowanceItems = [
       { label: 'Lunch', value: data.lunchAllowance },
       { label: 'Fuel', value: data.fuelAllowance },
@@ -610,11 +597,9 @@ document.addEventListener('DOMContentLoaded', () => {
       { label: 'KPI', value: data.kpiBonus },
       { label: 'Other', value: data.otherBonus }
     ].filter(item => item.value && item.value > 0);
-
     let allowanceRow = '';
     let bonusRow = '';
     let noAllowanceBonusRow = '';
-
     if (allowanceItems.length > 0) {
       allowanceRow = `
         <tr>
@@ -648,7 +633,6 @@ document.addEventListener('DOMContentLoaded', () => {
         <tr><td colspan="2"><div class="result-center-value" style="font-size:1em; color:#888;">(There are no Allowances or Bonuses in the Contract)</div></td></tr>
       `;
     }
-
     // Employee type box (local/expat)
     let employeeTypeLabel = '';
     if (data.citizenship === 'local') {
@@ -659,13 +643,11 @@ document.addEventListener('DOMContentLoaded', () => {
       employeeTypeLabel = 'Employee';
     }
     const employeeTypeCell = html`<div class="result-title"><u>${employeeTypeLabel}</u></div>`;
-
     // Gross Salary box
     const grossSalaryCell = html`
       <div class="result-title">Gross Salary</div>
       <div class="result-center-value">${data.grossSalary ? data.grossSalary.toLocaleString('en-US') + ' VND' : '-'}</div>
     `;
-
     // Adjusted Gross Salary box with Total Employer Cost
     const adjustedGrossSalaryCell = html`
       <div class="result-title">Adjusted Gross Salary</div>
@@ -674,15 +656,12 @@ document.addEventListener('DOMContentLoaded', () => {
         (Total Employer Cost: <span style="color:#C1272D;">${data.totalEmployerCost ? data.totalEmployerCost.toLocaleString('en-US') + ' VND' : '-'}</span>)
       </div>
     `;
-
-
     // Insurance Contribution (all employee insurances)
     const insuranceItems = [
       { label: 'Social Insurance', value: data.employeeSocialInsurance },
       { label: 'Health Insurance', value: data.employeeHealthInsurance },
       { label: 'Unemployment Insurance', value: data.employeeUnemploymentInsurance }
     ].filter(item => item.value && item.value > 0);
-
     const insuranceContributionCell = `
       <div class="result-title">Compulsory Insurances</div>
       <div class="result-list">
@@ -691,7 +670,6 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="result-total"><span>-${data.employeeInsurance.toLocaleString('en-US')} VND</span></div>
       </div>
     `;
-
     // Personal Income Tax cell
     const personalIncomeTaxCell = html`
       <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:100%;min-height:80px;">
@@ -701,8 +679,6 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       </div>
     `;
-
-
     // Employee Contribution row (styled like gross/adjusted gross)
     const employeeContributionRow = html`
       <tr>
@@ -712,7 +688,6 @@ document.addEventListener('DOMContentLoaded', () => {
         </td>
       </tr>
     `;
-
     // Employee Take-home row (styled like gross/adjusted gross)
     const employeeTakeHomeRow = html`
       <tr>
@@ -722,11 +697,10 @@ document.addEventListener('DOMContentLoaded', () => {
         </td>
       </tr>
     `;
-
     DOM.resultDiv.innerHTML = html`
       <h1 style="text-align:center;margin-bottom:16px;font-size:30px">PAYSLIP</h1>
       <div class="result-table-container">
-        <table class="result-table result-table-vertical result-table-bordered">
+        <table class="result-table result-table-vertical result-table-bordered employee-table-layout">
           <tr><td colspan="2">${employeeTypeCell}</td></tr>
           <tr><td colspan="2">${grossSalaryCell}</td></tr>
           ${allowanceRow}
@@ -770,7 +744,6 @@ document.addEventListener('DOMContentLoaded', () => {
       currentStep = 0;
       showStep(currentStep);
     };
-
     // --- Hard Reset button logic ---
     hardResetBtn.onclick = () => {
       window.location.reload();
