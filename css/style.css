@@ -667,3 +667,9 @@ button:hover,
 .footer-text {
   text-align:justify;
 }
+
+.input-warning {
+  color: #C1272D;
+  font-size: 0.9em;
+  margin: 4px auto;
+}

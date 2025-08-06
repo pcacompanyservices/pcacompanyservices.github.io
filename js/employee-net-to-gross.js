@@ -71,6 +71,7 @@ function createStep2() {
       </span>
     </div>
     <input type="text" class="number-input" id="net-salary" placeholder="Min 3,000,000 VND" />
+    <div id="net-salary-warning" class="input-warning" style="display:none;color:#C1272D;font-size:0.9em;margin-top:4px;">Maximum 9 digits allowed.</div>
     <button type="button" id="continue-step2" class="simulation-button unavailable" disabled>Continue</button>
   `;
   return step2;
@@ -94,6 +95,7 @@ function createStep3() {
         <input type="checkbox" id="allowance-checkbox" /> There are Allowances in the Contract
       </label>
       <div id="allowance-inputs" style="display: none;">
+        <div id="allowance-warning" class="input-warning" style="display:none;color:#C1272D;font-size:0.9em;margin-bottom:4px;">Maximum 9 digits allowed.</div>
         <label class="checkbox-item"><input type="checkbox" id="lunch-checkbox" /> Lunch
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
@@ -492,9 +494,20 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- Format number input fields and restrict max value ---
   function formatNumberInput(input) {
     let raw = input.value.replace(/[^\d]/g, '');
+    let warning = null;
+    if (input.id === 'net-salary') {
+      warning = document.getElementById('net-salary-warning');
+    } else if (input.closest('#allowance-inputs')) {
+      warning = document.getElementById('allowance-warning');
+    }
+    if (raw.length > 9) {
+      if (warning) warning.style.display = '';
+      raw = raw.slice(0, 9);
+    } else {
+      if (warning) warning.style.display = 'none';
+    }
     if (raw) {
       let num = parseInt(raw, 10);
-      if (num > 999999999) num = 999999999;
       input.value = num ? num.toLocaleString('en-US') : '';
     } else {
       input.value = '';
