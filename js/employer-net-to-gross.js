@@ -100,45 +100,45 @@ function createStep3() {
         <label class="checkbox-item"><input type="checkbox" id="lunch-checkbox" /> Lunch
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
+            <span class="info-box">Specify your monthly allowance for lunch in the contract.</span>
           </span>
         </label>
-        <div id="lunch-input" style="display: none;"><input type="text" class="number-input" id="allowance-lunch" placeholder="Please enter your allowances for lunch" min="0" /></div>
+        <div id="lunch-input" style="display: none;"><input type="text" class="number-input" id="allowance-lunch" placeholder="Lunch allowance (VND)" min="0" /></div>
         <label class="checkbox-item"><input type="checkbox" id="fuel-checkbox" /> Fuel
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
+            <span class="info-box">Specify your monthly allowance for fuel in the contract.</span>
           </span>
         </label>
-        <div id="fuel-input" style="display: none;"><input type="text" class="number-input" id="allowance-fuel" placeholder="Please enter your allowances for fuel" min="0" /></div>
+        <div id="fuel-input" style="display: none;"><input type="text" class="number-input" id="allowance-fuel" placeholder="Fuel allowance (VND)" min="0" /></div>
         <label class="checkbox-item"><input type="checkbox" id="phone-checkbox" /> Phone
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
+            <span class="info-box">Specify your monthly allowance for phone in the contract.</span>
           </span>
         </label>
-        <div id="phone-input" style="display: none;"><input type="text" class="number-input" id="allowance-phone" placeholder="Please enter your allowances for phone" min="0" /></div>
+        <div id="phone-input" style="display: none;"><input type="text" class="number-input" id="allowance-phone" placeholder="Phone allowance (VND)" min="0" /></div>
         <label class="checkbox-item"><input type="checkbox" id="travel-checkbox" /> Traveling
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
+            <span class="info-box">Specify your monthly allowance for traveling in the contract.</span>
           </span>
         </label>
-        <div id="travel-input" style="display: none;"><input type="text" class="number-input" id="allowance-travel" placeholder="Please enter your allowances for traveling" min="0" /></div>
+        <div id="travel-input" style="display: none;"><input type="text" class="number-input" id="allowance-travel" placeholder="Travel allowance (VND)" min="0" /></div>
         <label class="checkbox-item"><input type="checkbox" id="uniform-checkbox" /> Uniform
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
+            <span class="info-box">Specify your monthly allowance for uniform in the contract.</span>
           </span>
         </label>
-        <div id="uniform-input" style="display: none;"><input type="text" class="number-input" id="allowance-uniform" placeholder="Please enter your allowances for uniform" min="0" /></div>
+        <div id="uniform-input" style="display: none;"><input type="text" class="number-input" id="allowance-uniform" placeholder="Uniform allowance (VND)" min="0" /></div>
         <label class="checkbox-item"><input type="checkbox" id="other-allowance-checkbox" /> Other Allowances
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Enter any other allowances not listed above.</span>
+            <span class="info-box">Enter any other allowances in the contract that are not listed above.</span>
           </span>
         </label>
-        <div id="other-allowance-input" style="display: none;"><input type="text" class="number-input" id="allowance-other" placeholder="Please enter your other allowances" min="0" /></div>
+        <div id="other-allowance-input" style="display: none;"><input type="text" class="number-input" id="allowance-other" placeholder="Other allowances (VND)" min="0" /></div>
       </div>
     </div>
     <button type="button" id="continue-step3" class="simulation-button unavailable" disabled>Continue</button>
@@ -167,31 +167,31 @@ function createStep4() {
         <label class="checkbox-item"><input type="checkbox" id="productivity-checkbox" /> Productivity
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
+            <span class="info-box">Specify your monthly bonus for productivity in the contract.</span>
           </span>
         </label>
-        <div id="productivity-input" style="display: none;"><input type="text" class="number-input" id="bonus-productivity" placeholder="Please enter your bonuses for productivity" min="0" /></div>
+        <div id="productivity-input" style="display: none;"><input type="text" class="number-input" id="bonus-productivity" placeholder="Productivity bonus (VND)" min="0" /></div>
         <label class="checkbox-item"><input type="checkbox" id="incentive-checkbox" /> Incentive
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
+            <span class="info-box">Specify your monthly bonus for incentive in the contract.</span>
           </span>
         </label>
-        <div id="incentive-input" style="display: none;"><input type="text" class="number-input" id="bonus-incentive" placeholder="Please enter your bonuses for incentive" min="0" /></div>
+        <div id="incentive-input" style="display: none;"><input type="text" class="number-input" id="bonus-incentive" placeholder="Incentive bonus (VND)" min="0" /></div>
         <label class="checkbox-item"><input type="checkbox" id="kpi-checkbox" /> KPI
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
+            <span class="info-box">Specify your monthly bonus for KPI in the contract.</span>
           </span>
         </label>
-        <div id="kpi-input" style="display: none;"><input type="text" class="number-input" id="bonus-kpi" placeholder="Please enter your bonuses for KPI" min="0" /></div>
+        <div id="kpi-input" style="display: none;"><input type="text" class="number-input" id="bonus-kpi" placeholder="KPI bonus (VND)" min="0" /></div>
         <label class="checkbox-item"><input type="checkbox" id="other-bonus-checkbox" /> Other Bonuses
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Enter any other bonuses not listed above.</span>
+            <span class="info-box">Enter any other bonuses in the contract that are not listed above.</span>
           </span>
         </label>
-        <div id="other-bonus-input" style="display: none;"><input type="text" class="number-input" id="bonus-other" placeholder="Please enter your other bonuses" min="0" /></div>
+        <div id="other-bonus-input" style="display: none;"><input type="text" class="number-input" id="bonus-other" placeholder="Other bonuses (VND)" min="0" /></div>
       </div>
     </div>
   `;
