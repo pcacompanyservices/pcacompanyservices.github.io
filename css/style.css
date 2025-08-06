@@ -1,3 +1,18 @@
+.pdf-export-container hr,
+.pdf-export-container .result-divider {
+  border: none;
+  border-top: 1px solid #aaa;
+  width: 55%;
+  margin: 0.08em auto 0.05em auto;
+}
+
+.pdf-export-container hr,
+.pdf-export-container .result-divider-insurance {
+  border: none;
+  border-top: 1px solid #aaa;
+  width: 90%;
+  margin: 0.08em auto 0.05em auto;
+}
 /* ========================= */
 /* Step Title with Icon      */
 /* ========================= */
@@ -67,6 +82,7 @@
   margin: 0.375rem auto 0.625rem auto !important;
   width: 100%;
 }
+
 /* ========================= */
 /* Reset & Global Styles     */
 /* ========================= */
