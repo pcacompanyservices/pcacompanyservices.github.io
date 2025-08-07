@@ -71,7 +71,7 @@ function createStep2() {
       </span>
     </div>
     <input type="text" class="number-input" id="net-salary" placeholder="Min 4,475,000 VND" />
-    <div id="net-salary-warning" class="input-warning" style="display:none;color:#C1272D;font-size:0.9em;margin-top:4px;">Maximum 9 digits allowed.</div>
+    <div id="net-salary-warning" class="input-warning" style="display:none;">Maximum 9 digits allowed.</div>
     <button type="button" id="continue-step2" class="simulation-button unavailable" disabled>Continue</button>
   `;
   return step2;
@@ -95,7 +95,7 @@ function createStep3() {
         <input type="checkbox" id="allowance-checkbox" /> There are Allowances in the Contract
       </label>
       <div id="allowance-inputs" style="display: none;">
-        <div id="allowance-warning" class="input-warning" style="display:none;color:#C1272D;font-size:0.9em;margin-bottom:4px;">Maximum 9 digits allowed.</div>
+        <div id="allowance-warning" class="input-warning" style="display:none;">Maximum 9 digits allowed.</div>
         <label class="checkbox-item"><input type="checkbox" id="lunch-checkbox" /> Lunch
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
@@ -163,6 +163,7 @@ function createStep4() {
         <input type="checkbox" id="bonus-checkbox" /> There are Bonuses in the Contract
       </label>
       <div id="bonus-inputs" style="display: none;">
+        <div id="bonus-warning" class="input-warning" style="display:none;">Maximum 9 digits allowed.</div>
         <label class="checkbox-item"><input type="checkbox" id="productivity-checkbox" /> Productivity
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
@@ -499,6 +500,8 @@ document.addEventListener('DOMContentLoaded', () => {
       warning = document.getElementById('net-salary-warning');
     } else if (input.closest('#allowance-inputs')) {
       warning = document.getElementById('allowance-warning');
+    } else if (input.closest('#bonus-inputs')) {
+      warning = document.getElementById('bonus-warning');
     }
     if (raw.length > 9) {
       if (warning) warning.style.display = '';
