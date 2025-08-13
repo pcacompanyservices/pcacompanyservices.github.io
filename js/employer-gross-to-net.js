@@ -121,6 +121,16 @@ const TEXT_CONFIG = {
     incentive: "Specify your monthly bonus for incentive in the contract.",
     kpi: "Specify your monthly bonus for KPI in the contract.",
     otherBonus: "Enter any other bonuses in the contract that are not listed above."
+  },
+
+  // Footer content
+  footer: {
+    importantNoteTitle: "IMPORTANT NOTE",
+    importantNoteText: "This simulation assumes a standard labor contract with a duration exceeding three months, for a resident in Viet Nam, applied in Region I (Zone I). It does not account for any registered dependent deductions. For further information, please contact us.",
+    contactLinkText: "contact us",
+    contactUrl: "https://pca-cs.com/",
+    disclaimerTitle: "DISCLAIMER",
+    disclaimerText: "The information provided in this simulation is for general informational purposes only. It does not constitute legal advice, nor does it create a service provider or client relationship. While we make every effort to ensure the accuracy, no warranty is given, whether express or implied, to its correctness or completeness. We accept NO RESPONSIBILITY for any errors or omissions. We are NOT LIABLE for any loss or damage, including but not limited to loss of business or profits, arising from the use of this simulation or reliance on its contents, whether in contract, tort, or otherwise."
   }
 };
 
@@ -434,6 +444,22 @@ function createResultButtonsContainer(root) {
   return { buttonContainer, downloadBtn, resetBtn, hardResetBtn };
 }
 
+/**
+ * Create the footer with disclaimer and important notes
+ * @param {HTMLElement} root - Root element to append footer to
+ * @returns {HTMLElement} The created footer element
+ */
+function createFooter(root) {
+  const footer = createAndAppend(root, 'footer', { className: 'app-footer' });
+  footer.innerHTML = html`
+    <span class="footer-title">${TEXT_CONFIG.footer.importantNoteTitle}</span>
+    <div class="footer-text">${TEXT_CONFIG.footer.importantNoteText} <a href="${TEXT_CONFIG.footer.contactUrl}" target="_blank">${TEXT_CONFIG.footer.contactLinkText}</a>.</div>
+    <span class="footer-title">${TEXT_CONFIG.footer.disclaimerTitle}</span>
+    <div class="footer-text">${TEXT_CONFIG.footer.disclaimerText}</div>
+  `;
+  return footer;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   // ============================================================================
   // INITIALIZATION
@@ -462,6 +488,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Create result containers and buttons
   const { resultDiv, pieChartContainer } = createResultAndCharts(root);
   const { buttonContainer, downloadBtn, resetBtn, hardResetBtn } = createResultButtonsContainer(root);
+
+  // Create footer
+  createFooter(root);
 
   // ============================================================================
   // FORM NAVIGATION
