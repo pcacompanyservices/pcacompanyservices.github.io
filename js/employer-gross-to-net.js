@@ -517,14 +517,15 @@ function createFooter(root) {
     const footerHeight = footer.offsetHeight;
     
     // Check if content + footer fits in viewport
-    if (bodyHeight <= viewportHeight) {
+    if (bodyHeight + footerHeight <= viewportHeight) {
       // Fix footer at bottom of viewport (minimal positioning changes only)
       footer.style.position = 'fixed';
       footer.style.bottom = '0.5rem';
       footer.style.left = '50%';
       footer.style.transform = 'translateX(-50%)';
       footer.style.zIndex = '1000';
-      footer.style.width = '70%';
+      footer.style.margin = '2rem auto';
+      footer.style.width = '70vw';
       // Add padding to body to prevent content from being hidden behind footer
       document.body.style.paddingBottom = `calc(2rem + ${footerHeight}px)`;
     } else {
@@ -534,7 +535,7 @@ function createFooter(root) {
       footer.style.left = '';
       footer.style.transform = '';
       footer.style.zIndex = '';
-      footer.style.marginTop = '15rem'; // Only this override for extra spacing
+      footer.style.marginTop = '12rem'; // Only this override for extra spacing
       document.body.style.paddingBottom = '';
     }
   }
