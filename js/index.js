@@ -1,4 +1,10 @@
-import { html } from '../util/html-parser.js';
+// ============================================================================
+// UTILITY FUNCTIONS (formerly from util/ directory)
+// ============================================================================
+
+// HTML template literal utility
+const html = (strings, ...values) =>
+  strings.reduce((acc, str, i) => acc + str + (values[i] || ''), '');
 
 document.addEventListener('DOMContentLoaded', () => {
   const main = document.getElementById('simulation-root');

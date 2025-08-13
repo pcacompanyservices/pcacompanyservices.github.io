@@ -1,13 +1,98 @@
 
 
 import { simulateSalary } from '../be/cal.js';
-import { html } from '../util/html-parser.js';
-import { exportResultToPdf } from '../util/pdf-exporter.js';
-import { getElement, createAndAppend } from '../util/dom-utils.js';
 
+// ============================================================================
+// UTILITY FUNCTIONS (formerly from util/ directory)
+// ============================================================================
 
+// DOM utilities
+function getElement(id) {
+  return document.getElementById(id);
+}
 
-// --- UI creation functions ---
+function createAndAppend(parent, tag, props = {}, innerHTML = '') {
+  const el = document.createElement(tag);
+  Object.assign(el, props);
+  if (innerHTML) el.innerHTML = innerHTML;
+  parent.appendChild(el);
+  return el;
+}
+
+// HTML template literal utility
+const html = (strings, ...values) =>
+  strings.reduce((acc, str, i) => acc + str + (values[i] || ''), '');
+
+// PDF export utility
+async function exportResultToPdf({
+  exportContainer,
+  filename = 'export.pdf',
+  onStart = () => {},
+  onComplete = () => {}
+}) {
+  if (!window.jspdf || !window.jspdf.jsPDF || !window.html2canvas) {
+    throw new Error('jsPDF and html2canvas must be loaded before calling exportResultToPdf');
+  }
+  onStart();
+  await document.fonts.ready;
+  window.html2canvas(exportContainer, {
+    backgroundColor: '#fff',
+    scale: 2,
+    useCORS: true
+  }).then(canvas => {
+    const imgData = canvas.toDataURL('image/png');
+    const jsPDF = window.jspdf.jsPDF;
+    const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
+    const pageWidth = 595.28;
+    const margin = 40;
+    const imgWidth = pageWidth - margin * 2;
+    const imgHeight = canvas.height * imgWidth / canvas.width;
+    let y = margin;
+    pdf.addImage(imgData, 'PNG', margin, y, imgWidth, imgHeight);
+    pdf.save(filename);
+    onComplete();
+  });
+}
+
+// Format utilities
+function formatLine(label, value) {
+  return value ? `- ${label}: ${value.toLocaleString('en-US')} VND<br>` : '';
+}
+
+function safeText(text) {
+  return text ? String(text) : '';
+}
+
+function formatCurrency(val) {
+  return val ? val.toLocaleString('en-US') + ' VND' : '-';
+}
+
+// ============================================================================
+// CONSTANTS AND CONFIGURATION
+// ============================================================================
+
+const MIN_SALARY = 5000000;
+const MAX_DIGITS = 9;
+
+const ALLOWANCE_FIELDS = {
+  'lunch-checkbox': 'lunch-input',
+  'fuel-checkbox': 'fuel-input',
+  'phone-checkbox': 'phone-input',
+  'travel-checkbox': 'travel-input',
+  'uniform-checkbox': 'uniform-input',
+  'other-allowance-checkbox': 'other-allowance-input',
+};
+
+const BONUS_FIELDS = {
+  'productivity-checkbox': 'productivity-input',
+  'incentive-checkbox': 'incentive-input',
+  'kpi-checkbox': 'kpi-input',
+  'other-bonus-checkbox': 'other-bonus-input',
+};
+
+// ============================================================================
+// UI CREATION FUNCTIONS
+// ============================================================================
 function createProgressBar(root) {
   const progressBar = createAndAppend(root, 'div', { id: 'progress-bar' });
   progressBar.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin:18px 0;width:100%;max-width:480px;margin-left:auto;margin-right:auto;user-select:none;';
@@ -257,37 +342,39 @@ function createHardResetButton(root) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // --- Dynamic UI creation ---
+  // ============================================================================
+  // INITIALIZATION
+  // ============================================================================
+  
   const root = getElement('gross-to-net-root');
   root.innerHTML = '';
 
-  // Title and header
+  // Create UI components
   createTitleBlock(root);
-  // Progress bar
   createProgressBar(root);
-  // Form
   const salaryForm = createSalaryForm(root);
-  // Steps
+  
+  // Create form steps
   const step1 = createStep1();
   const step2 = createStep2();
   const step3 = createStep3();
   const step4 = createStep4();
+  
   salaryForm.appendChild(step1);
   salaryForm.appendChild(step2);
   salaryForm.appendChild(step3);
   salaryForm.appendChild(step4);
-  // Navigation buttons
-  const navDiv = createNavButtons();
-  salaryForm.appendChild(navDiv);
-  // Results and charts
+  salaryForm.appendChild(createNavButtons());
+  
+  // Create result containers and buttons
   const { resultDiv, pieChartContainer } = createResultAndCharts(root);
-  // Download button
   const downloadBtn = createDownloadButton(root);
-  // Reset and hard reset
   const resetBtn = createResetButton(root);
   const hardResetBtn = createHardResetButton(root);
 
-  // --- Multi-step form navigation logic ---
+  // ============================================================================
+  // FORM NAVIGATION
+  // ============================================================================
   const steps = [step1, step2, step3, step4];
   const continueBtns = [
     getElement('continue-step1'),
@@ -298,22 +385,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const calculateBtn = getElement('calculate-btn');
   let currentStep = 0;
 
-  // Show the current step and update navigation buttons and progress bar
   function showStep(idx) {
     steps.forEach((step, i) => {
       if (step) step.style.display = i === idx ? '' : 'none';
     });
+    
     returnBtn.style.display = idx > 0 ? '' : 'none';
     calculateBtn.style.display = idx === steps.length - 1 ? '' : 'none';
-  // Auto-focus gross salary input on step 2
-  if (idx === 1) {
-    const grossSalaryInput = document.getElementById('gross-salary');
-    if (grossSalaryInput) {
-      grossSalaryInput.focus();
-      grossSalaryInput.select && grossSalaryInput.select();
+    
+    // Auto-focus gross salary input on step 2
+    if (idx === 1) {
+      const grossSalaryInput = document.getElementById('gross-salary');
+      if (grossSalaryInput) {
+        grossSalaryInput.focus();
+        grossSalaryInput.select && grossSalaryInput.select();
+      }
     }
+    
+    updateProgressBar(idx);
   }
-    // Update progress bar
+
+  function updateProgressBar(idx) {
     const stepsEls = document.querySelectorAll('#progress-bar .progress-step');
     stepsEls.forEach((el, i) => {
       if (i < idx) {
@@ -326,7 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
         el.classList.remove('active', 'completed');
       }
     });
-    // Update progress bar lines
+    
     const lines = document.querySelectorAll('#progress-bar .progress-bar-line');
     lines.forEach((line, i) => {
       if (i < idx) {
@@ -337,48 +429,51 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- Step 1: National Status ---
+  // ============================================================================
+  // STEP VALIDATION AND EVENT HANDLERS
+  // ============================================================================
+
+  // Step 1: Citizenship Selection
   const citizenshipSelect = getElement('citizenship');
+  
+  function updateStep1Btn() {
+    const isValid = citizenshipSelect.value;
+    continueBtns[0].classList.toggle('unavailable', !isValid);
+    continueBtns[0].disabled = !isValid;
+  }
+  
   continueBtns[0].addEventListener('click', () => {
     if (currentStep === 0 && citizenshipSelect.value) {
       currentStep++;
       showStep(currentStep);
     }
   });
-  function updateStep1Btn() {
-    if (citizenshipSelect.value) {
-      continueBtns[0].classList.remove('unavailable');
-      continueBtns[0].disabled = false;
-    } else {
-      continueBtns[0].classList.add('unavailable');
-      continueBtns[0].disabled = true;
-    }
-  }
   citizenshipSelect.addEventListener('change', updateStep1Btn);
   updateStep1Btn();
 
-  // --- Step 2: Gross Salary ---
+  // Step 2: Gross Salary Input
   const grossSalaryInput = getElement('gross-salary');
+  
+  function updateStep2Btn() {
+    const numericValue = parseInt(grossSalaryInput.value.replace(/\D/g, '')) || 0;
+    const isValid = numericValue >= MIN_SALARY;
+    continueBtns[1].classList.toggle('unavailable', !isValid);
+    continueBtns[1].disabled = !isValid;
+  }
+  
   continueBtns[1].addEventListener('click', () => {
-    if (currentStep === 1 && grossSalaryInput.value && parseInt(grossSalaryInput.value.replace(/\D/g, '')) >= 5000000) {
-      currentStep++;
-      showStep(currentStep);
+    if (currentStep === 1) {
+      const numericValue = parseInt(grossSalaryInput.value.replace(/\D/g, '')) || 0;
+      if (numericValue >= MIN_SALARY) {
+        currentStep++;
+        showStep(currentStep);
+      }
     }
   });
-  function updateStep2Btn() {
-    const val = grossSalaryInput.value.replace(/\D/g, '');
-    if (val && parseInt(val) >= 5000000) {
-      continueBtns[1].classList.remove('unavailable');
-      continueBtns[1].disabled = false;
-    } else {
-      continueBtns[1].classList.add('unavailable');
-      continueBtns[1].disabled = true;
-    }
-  }
   grossSalaryInput.addEventListener('input', updateStep2Btn);
   updateStep2Btn();
 
-  // --- Step 3: Allowance (always enabled, can skip) ---
+  // Step 3: Allowances (always enabled, can skip)
   continueBtns[2].addEventListener('click', () => {
     if (currentStep === 2) {
       currentStep++;
@@ -388,9 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
   continueBtns[2].classList.remove('unavailable');
   continueBtns[2].disabled = false;
 
-  // --- No continue button for step 4 ---
-
-  // --- Return button logic ---
+  // Return button
   returnBtn?.addEventListener('click', () => {
     if (currentStep > 0) {
       currentStep--;
@@ -398,17 +491,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // --- On load, show first step ---
+  // Initialize first step
   showStep(currentStep);
 
-  // --- Load Chart.js if not present ---
+  // ============================================================================
+  // CHART.JS INITIALIZATION
+  // ============================================================================
+  
   if (!window.Chart) {
     const script = document.createElement('script');
     script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
     document.head.appendChild(script);
   }
 
-  // --- DOM references ---
+  // ============================================================================
+  // DOM REFERENCES
+  // ============================================================================
   const DOM = {
     salaryForm,
     calculateBtn,
@@ -424,40 +522,28 @@ document.addEventListener('DOMContentLoaded', () => {
     salaryBreakdownChartLabel: getElement('salary-breakdown-chart-label'),
   };
 
-  // --- Allowance and Bonus checkbox/input mapping ---
-  const allowanceMap = {
-    'lunch-checkbox': 'lunch-input',
-    'fuel-checkbox': 'fuel-input',
-    'phone-checkbox': 'phone-input',
-    'travel-checkbox': 'travel-input',
-    'uniform-checkbox': 'uniform-input',
-    'other-allowance-checkbox': 'other-allowance-input',
-  };
-  const bonusMap = {
-    'productivity-checkbox': 'productivity-input',
-    'incentive-checkbox': 'incentive-input',
-    'kpi-checkbox': 'kpi-input',
-    'other-bonus-checkbox': 'other-bonus-input',
-  };
+  // ============================================================================
+  // DYNAMIC FIELD MANAGEMENT
+  // ============================================================================
 
-  // --- Show/hide allowance/bonus input fields ---
-  function toggleVisibility(map, parentCheckbox, container) {
+  function toggleVisibility(fieldMap, parentCheckbox, container) {
     parentCheckbox.addEventListener('change', () => {
       container.style.display = parentCheckbox.checked ? 'block' : 'none';
-      Object.entries(map).forEach(([cbId, inputId]) => {
-        const cb = getElement(cbId);
-        const div = getElement(inputId);
-        if (cb && div) {
-          div.style.display = cb.checked && parentCheckbox.checked ? 'block' : 'none';
+      
+      Object.entries(fieldMap).forEach(([checkboxId, inputId]) => {
+        const checkbox = getElement(checkboxId);
+        const inputDiv = getElement(inputId);
+        if (checkbox && inputDiv) {
+          inputDiv.style.display = checkbox.checked && parentCheckbox.checked ? 'block' : 'none';
         }
       });
-      // Auto-focus first visible input when parentCheckbox is checked
+      
+      // Auto-focus first visible input when parent checkbox is checked
       if (parentCheckbox.checked) {
         setTimeout(() => {
-          const firstInput = container.querySelector('input[type="checkbox"]:checked');
-          if (firstInput) {
-            // Find the corresponding input field for the checked box
-            const inputDiv = getElement(map[firstInput.id]);
+          const firstChecked = container.querySelector('input[type="checkbox"]:checked');
+          if (firstChecked) {
+            const inputDiv = getElement(fieldMap[firstChecked.id]);
             if (inputDiv) {
               const textInput = inputDiv.querySelector('input[type="text"]');
               if (textInput) {
@@ -469,16 +555,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 0);
       }
     });
-    Object.entries(map).forEach(([cbId, inputId]) => {
-      const cb = getElement(cbId);
-      const div = getElement(inputId);
-      if (cb && div) {
-        cb.addEventListener('change', () => {
-          div.style.display = cb.checked && parentCheckbox.checked ? 'block' : 'none';
-          // Auto-focus the input when this box is checked and parent is checked
-          if (cb.checked && parentCheckbox.checked) {
+    
+    Object.entries(fieldMap).forEach(([checkboxId, inputId]) => {
+      const checkbox = getElement(checkboxId);
+      const inputDiv = getElement(inputId);
+      if (checkbox && inputDiv) {
+        checkbox.addEventListener('change', () => {
+          inputDiv.style.display = checkbox.checked && parentCheckbox.checked ? 'block' : 'none';
+          
+          // Auto-focus input when checkbox is checked
+          if (checkbox.checked && parentCheckbox.checked) {
             setTimeout(() => {
-              const textInput = div.querySelector('input[type="text"]');
+              const textInput = inputDiv.querySelector('input[type="text"]');
               if (textInput) {
                 textInput.focus();
                 textInput.select && textInput.select();
@@ -489,40 +577,55 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-  toggleVisibility(allowanceMap, DOM.allowanceCheckbox, DOM.allowanceInputs);
-  toggleVisibility(bonusMap, DOM.bonusCheckbox, DOM.bonusInputs);
 
-  // --- Format number input fields and restrict max value ---
+  toggleVisibility(ALLOWANCE_FIELDS, DOM.allowanceCheckbox, DOM.allowanceInputs);
+  toggleVisibility(BONUS_FIELDS, DOM.bonusCheckbox, DOM.bonusInputs);
+
+  // ============================================================================
+  // NUMBER FORMATTING
+  // ============================================================================
+
   function formatNumberInput(input) {
-    let raw = input.value.replace(/[^\d]/g, '');
-    let warning = null;
+    let rawValue = input.value.replace(/[^\d]/g, '');
+    let warningElement = null;
+    
+    // Get appropriate warning element
     if (input.id === 'gross-salary') {
-      warning = document.getElementById('gross-salary-warning');
+      warningElement = document.getElementById('gross-salary-warning');
     } else if (input.closest('#allowance-inputs')) {
-      warning = document.getElementById('allowance-warning');
+      warningElement = document.getElementById('allowance-warning');
     } else if (input.closest('#bonus-inputs')) {
-      warning = document.getElementById('bonus-warning');
+      warningElement = document.getElementById('bonus-warning');
     }
-    if (raw.length > 9) {
-      if (warning) warning.style.display = '';
-      raw = raw.slice(0, 9);
+    
+    // Check max digits limit
+    if (rawValue.length > MAX_DIGITS) {
+      if (warningElement) warningElement.style.display = '';
+      rawValue = rawValue.slice(0, MAX_DIGITS);
     } else {
-      if (warning) warning.style.display = 'none';
+      if (warningElement) warningElement.style.display = 'none';
     }
-    if (raw) {
-      let num = parseInt(raw, 10);
-      input.value = num ? num.toLocaleString('en-US') : '';
+    
+    // Format with commas
+    if (rawValue) {
+      const numericValue = parseInt(rawValue, 10);
+      input.value = numericValue ? numericValue.toLocaleString('en-US') : '';
     } else {
       input.value = '';
     }
   }
+
+  // Apply number formatting to all number inputs
   document.addEventListener('input', (e) => {
     if (e.target.tagName === 'INPUT' && e.target.classList.contains('number-input')) {
       formatNumberInput(e.target);
     }
   });
 
-  // --- Chart.js destroy helper ---
+  // ============================================================================
+  // CHART UTILITIES
+  // ============================================================================
+  
   function destroyChart(chartName) {
     if (window[chartName] && typeof window[chartName].destroy === 'function') {
       window[chartName].destroy();
@@ -530,25 +633,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- Calculation handler ---
+  // ============================================================================
+  // CALCULATION LOGIC
+  // ============================================================================
 
   function handleCalculation() {
-
-    // Helper to parse numbers (remove commas, parse to number)
+    // Helper functions
     const parseNumber = (val) => {
       if (typeof val === 'number') return val;
       if (!val) return 0;
       return parseFloat((val + '').replace(/,/g, '')) || 0;
     };
+    
     const getVal = (id) => {
-      const el = getElement(id);
-      return el ? el.value : '';
+      const element = getElement(id);
+      return element ? element.value : '';
     };
+    
     const getChecked = (id) => {
-      const el = getElement(id);
-      return el ? el.checked : false;
+      const element = getElement(id);
+      return element ? element.checked : false;
     };
 
+    // Collect form data
     const params = {
       method: 'gross-to-net',
       grossSalary: parseNumber(getVal('gross-salary')),
@@ -577,8 +684,10 @@ document.addEventListener('DOMContentLoaded', () => {
       citizenship: getVal('citizenship'),
     };
 
+    // Simulate salary calculation
     const data = simulateSalary(params);
 
+    // Handle calculation errors
     if (data && data.error) {
       DOM.resultDiv.innerHTML = `<span style="color:red">${data.error}</span>`;
       DOM.downloadPdfBtn.style.display = 'none';
@@ -586,20 +695,33 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // Clean up form UI after successful calculation
+    cleanupFormAfterCalculation();
+    
+    // Render results
+    renderResults(data);
+    renderPieChart(data);
+    
+    // Show action buttons
+    DOM.downloadPdfBtn.style.display = 'block';
+    resetBtn.style.display = 'block';
+    hardResetBtn.style.display = 'block';
+    
+    // Setup button handlers
+    setupResetHandlers();
+  }
 
-    // Destroy the form and navigation UI after calculation
+  function cleanupFormAfterCalculation() {
+    // Remove form and hide progress bar
     if (salaryForm && salaryForm.parentNode) {
       salaryForm.parentNode.removeChild(salaryForm);
     }
-    // Hide progress bar
     const progressBar = document.getElementById('progress-bar');
     if (progressBar) progressBar.style.display = 'none';
+  }
 
-    renderPieChart(data);
-
-    // --- Restructured result boxes ---
-
-    // Allowance and Bonus items
+  function renderResults(data) {
+    // Prepare allowance and bonus items
     const allowanceItems = [
       { label: 'Lunch', value: data.lunchAllowance },
       { label: 'Fuel', value: data.fuelAllowance },
@@ -608,6 +730,7 @@ document.addEventListener('DOMContentLoaded', () => {
       { label: 'Uniform', value: data.uniformAllowance },
       { label: 'Other', value: data.otherAllowance }
     ].filter(item => item.value && item.value > 0);
+    
     const bonusItems = [
       { label: 'Productivity', value: data.productivityBonus },
       { label: 'Incentive', value: data.incentiveBonus },
@@ -615,86 +738,25 @@ document.addEventListener('DOMContentLoaded', () => {
       { label: 'Other', value: data.otherBonus }
     ].filter(item => item.value && item.value > 0);
 
-    let allowanceRow = '';
-    let bonusRow = '';
-    let noAllowanceBonusRow = '';
+    // Generate table rows
+    const allowanceRow = generateAllowanceRow(allowanceItems, data.totalAllowance);
+    const bonusRow = generateBonusRow(bonusItems, data.totalBonus);
+    const noAllowanceBonusRow = (allowanceItems.length === 0 && bonusItems.length === 0) 
+      ? `<tr><td colspan="2"><div class="result-center-value" style="font-size:1em; color:#888;">(There are no Allowances or Bonuses in the Contract)</div></td></tr>`
+      : '';
 
-    if (allowanceItems.length > 0) {
-      allowanceRow = `
-        <tr>
-          <td colspan="2">
-            <div class="result-title">Allowances</div>
-            <div class="result-list">
-              ${allowanceItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
-            </div>
-            <hr class="result-divider" />
-            <div class="result-total"><span>${data.totalAllowance.toLocaleString('en-US')} VND</span></div>
-          </td>
-        </tr>
-      `;
-    }
-    if (bonusItems.length > 0) {
-      bonusRow = `
-        <tr>
-          <td colspan="2">
-            <div class="result-title">Bonuses</div>
-            <div class="result-list">
-              ${bonusItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
-            </div>
-            <hr class="result-divider" />
-            <div class="result-total"><span>${data.totalBonus.toLocaleString('en-US')} VND</span></div>
-          </td>
-        </tr>
-      `;
-    }
-    if (allowanceItems.length === 0 && bonusItems.length === 0) {
-      noAllowanceBonusRow = `
-        <tr><td colspan="2"><div class="result-center-value" style="font-size:1em; color:#888;">(There are no Allowances or Bonuses in the Contract)</div></td></tr>
-      `;
-    }
+    // Generate content sections
+    const employeeTypeLabel = getEmployeeTypeLabel(data.citizenship);
+    const employeeTypeCell = `<div class="result-title"><u>${employeeTypeLabel}</u></div>`;
+    const grossSalaryCell = `<div class="result-title">Gross Salary</div><div class="result-center-value">${data.grossSalary ? data.grossSalary.toLocaleString('en-US') + ' VND' : '-'}</div>`;
+    const adjustedGrossSalaryCell = `<div class="result-title">Adjusted Gross Salary</div><div class="result-center-value">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('en-US') + ' VND' : '-'}</div>`;
 
-    // Employee type box (local/expat)
-    let employeeTypeLabel = '';
-    if (data.citizenship === 'local') {
-      employeeTypeLabel = 'Local Employee';
-    } else if (data.citizenship === 'expat') {
-      employeeTypeLabel = 'Expat Employee';
-    } else {
-      employeeTypeLabel = 'Employee';
-    }
-    const employeeTypeCell = html`<div class="result-title"><u>${employeeTypeLabel}</u></div>`;
+    const employerDetailsCell = generateEmployerDetailsCell(data);
+    const employeeDetailsCell = generateEmployeeDetailsCell(data);
+    const employerTotalCell = `<div class="result-total"><span class="employer-total-value">${data.totalEmployerCost.toLocaleString('en-US')} VND</span></div>`;
+    const employeeTotalCell = `<div class="result-total"><span class="employee-total-value">${data.netSalary.toLocaleString('en-US')} VND</span></div>`;
 
-    // Gross Salary box
-    const grossSalaryCell = html`
-      <div class="result-title">Gross Salary</div>
-      <div class="result-center-value">${data.grossSalary ? data.grossSalary.toLocaleString('en-US') + ' VND' : '-'}</div>
-    `;
-
-    // Adjusted Gross Salary box
-    const adjustedGrossSalaryCell = html`
-      <div class="result-title">Adjusted Gross Salary</div>
-      <div class="result-center-value">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('en-US') + ' VND' : '-'}</div>
-    `;
-
-
-    // Employer and Employee details: details row, then total value in a new row below
-    const employerDetailsCell = html`
-      <div class="result-title">Employer Cost</div>
-      <div class="result-list">
-        <div class="result-item">Social Insurance: <span>+${data.employerInsurance.toLocaleString('en-US')} VND</span></div>
-        <div class="result-item">Union Fee: <span>+${data.employerUnionFee.toLocaleString('en-US')} VND</span></div>
-      </div>
-    `;
-    const employeeDetailsCell = html`
-      <div class="result-title">Employee Take-home</div>
-      <div class="result-list">
-        <div class="result-item">Social Insurance: <span>-${data.employeeInsurance.toLocaleString('en-US')} VND</span></div>
-        <div class="result-item">Personal Income Tax: <span>-${data.incomeTax.toLocaleString('en-US')} VND</span></div>
-      </div>
-    `;
-    const employerTotalCell = html`<div class="result-total"><span class="employer-total-value">${data.totalEmployerCost.toLocaleString('en-US')} VND</span></div>`;
-    const employeeTotalCell = html`<div class="result-total"><span class="employee-total-value">${data.netSalary.toLocaleString('en-US')} VND</span></div>`;
-
+    // Render final result table
     DOM.resultDiv.innerHTML = html`
       <h1 style="text-align:center;margin-bottom:16px;font-size:30px">PAYSLIP</h1>
       <div class="result-table-container">
@@ -703,7 +765,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <tr><td colspan="2">${grossSalaryCell}</td></tr>
           ${allowanceRow}
           ${bonusRow}
-          ${!allowanceRow && !bonusRow ? noAllowanceBonusRow : ''}
+          ${noAllowanceBonusRow}
           <tr><td colspan="2">${adjustedGrossSalaryCell}</td></tr>
           <tr>
             <td style="padding:0;vertical-align:top;">${employerDetailsCell}</td>
@@ -717,51 +779,117 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
       <div class="salary-visualization-heading" style="text-align:center;margin:24px 0 0 0;font-size:1.125em;font-weight:bold;">Salary Visualization</div>
     `;
-    DOM.downloadPdfBtn.style.display = 'block';
-    // Show reset and hard reset buttons
-    resetBtn.style.display = 'block';
-    hardResetBtn.style.display = 'block';
-    // --- Reset button logic ---
+  }
+
+  function generateAllowanceRow(allowanceItems, totalAllowance) {
+    if (allowanceItems.length === 0) return '';
+    
+    return `
+      <tr>
+        <td colspan="2">
+          <div class="result-title">Allowances</div>
+          <div class="result-list">
+            ${allowanceItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
+          </div>
+          <hr class="result-divider" />
+          <div class="result-total"><span>${totalAllowance.toLocaleString('en-US')} VND</span></div>
+        </td>
+      </tr>
+    `;
+  }
+
+  function generateBonusRow(bonusItems, totalBonus) {
+    if (bonusItems.length === 0) return '';
+    
+    return `
+      <tr>
+        <td colspan="2">
+          <div class="result-title">Bonuses</div>
+          <div class="result-list">
+            ${bonusItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
+          </div>
+          <hr class="result-divider" />
+          <div class="result-total"><span>${totalBonus.toLocaleString('en-US')} VND</span></div>
+        </td>
+      </tr>
+    `;
+  }
+
+  function getEmployeeTypeLabel(citizenship) {
+    switch (citizenship) {
+      case 'local': return 'Local Employee';
+      case 'expat': return 'Expat Employee';
+      default: return 'Employee';
+    }
+  }
+
+  function generateEmployerDetailsCell(data) {
+    return html`
+      <div class="result-title">Employer Cost</div>
+      <div class="result-list">
+        <div class="result-item">Social Insurance: <span>+${data.employerInsurance.toLocaleString('en-US')} VND</span></div>
+        <div class="result-item">Union Fee: <span>+${data.employerUnionFee.toLocaleString('en-US')} VND</span></div>
+      </div>
+    `;
+  }
+
+  function generateEmployeeDetailsCell(data) {
+    return html`
+      <div class="result-title">Employee Take-home</div>
+      <div class="result-list">
+        <div class="result-item">Social Insurance: <span>-${data.employeeInsurance.toLocaleString('en-US')} VND</span></div>
+        <div class="result-item">Personal Income Tax: <span>-${data.incomeTax.toLocaleString('en-US')} VND</span></div>
+      </div>
+    `;
+  }
+
+  function setupResetHandlers() {
     resetBtn.onclick = () => {
-      // Hide results
+      // Hide results and buttons
       DOM.resultDiv.innerHTML = '';
       DOM.downloadPdfBtn.style.display = 'none';
       resetBtn.style.display = 'none';
       hardResetBtn.style.display = 'none';
+      
       // Hide charts
       if (DOM.salaryBreakdownChart) DOM.salaryBreakdownChart.style.display = 'none';
       if (DOM.salaryBreakdownChartLabel) DOM.salaryBreakdownChartLabel.style.display = 'none';
       if (DOM.costBreakdownChart) DOM.costBreakdownChart.style.display = 'none';
       if (DOM.costBreakdownChartLabel) DOM.costBreakdownChartLabel.style.display = 'none';
-      // Re-insert the form at the top (before resultDiv)
+      
+      // Re-insert form
       if (!document.getElementById('salary-form')) {
         root.insertBefore(salaryForm, DOM.resultDiv);
       }
-      // Show progress bar again
+      
+      // Show progress bar and reset to first step
       const progressBar = document.getElementById('progress-bar');
       if (progressBar) progressBar.style.display = 'flex';
-      // Reset to the first step
       currentStep = 0;
       showStep(currentStep);
     };
 
-    // --- Hard Reset button logic ---
     hardResetBtn.onclick = () => {
       window.location.reload();
     };
   }
 
-  // --- Calculation triggers ---
+  // ============================================================================
+  // EVENT HANDLERS
+  // ============================================================================
+
+  // Calculation event handlers
   DOM.calculateBtn.addEventListener('click', (e) => {
     e.preventDefault();
     handleCalculation();
   });
+  
   salaryForm.addEventListener('submit', (e) => {
     e.preventDefault();
     handleCalculation();
   });
 
-  // --- Per-step Enter key handling ---
+  // Enter key handling for each step
   steps.forEach((step, idx) => {
     step.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
@@ -769,11 +897,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (idx === steps.length - 1) {
           handleCalculation();
         } else if (continueBtns[idx]) {
-          if (idx === 2) {
-            continueBtns[idx].click();
-          } else if (idx === 1) {
-            if (!continueBtns[idx].disabled) continueBtns[idx].click();
-          } else if (!continueBtns[idx].disabled) {
+          if (idx === 2 || !continueBtns[idx].disabled) {
             continueBtns[idx].click();
           }
         }
@@ -781,25 +905,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // --- Chart rendering ---
+  // ============================================================================
+  // CHART RENDERING
+  // ============================================================================
+
   function renderPieChart(data) {
-    // Helper: show/hide chart blocks and center if only one is visible
     function updateChartBlockVisibility(showSalary, showCost) {
       const salaryBlock = document.getElementById('salary-chart-block');
       const costBlock = document.getElementById('cost-chart-block');
+      
       if (salaryBlock) salaryBlock.style.display = showSalary ? 'flex' : 'none';
       if (costBlock) costBlock.style.display = showCost ? 'flex' : 'none';
-      // Center the only visible chart
+      
+      // Center charts when only one is visible
       const pieChartContainer = document.querySelector('.pie-chart-container');
       if (pieChartContainer) {
-        if ((showSalary && !showCost) || (!showSalary && showCost)) {
-          pieChartContainer.style.justifyContent = 'center';
-        } else {
-          pieChartContainer.style.justifyContent = 'center';
-        }
+        pieChartContainer.style.justifyContent = 'center';
       }
     }
 
+    // Handle empty data
     if (!data.grossSalary) {
       destroyChart('salaryChart');
       destroyChart('costBreakdownChart');
@@ -810,6 +935,8 @@ document.addEventListener('DOMContentLoaded', () => {
       updateChartBlockVisibility(false, false);
       return;
     }
+
+    // Render salary breakdown chart
     const bonusAndAllowance = data.adjustedGrossSalary - data.grossSalary;
     if (bonusAndAllowance === 0) {
       destroyChart('salaryChart');
@@ -817,40 +944,53 @@ document.addEventListener('DOMContentLoaded', () => {
       DOM.salaryBreakdownChartLabel.style.display = 'none';
       updateChartBlockVisibility(false, true);
     } else {
-      destroyChart('salaryChart');
-      window.salaryChart = new Chart(DOM.salaryBreakdownChart.getContext('2d'), {
-        type: 'doughnut',
-        data: {
-          labels: ['Bonus & Allowance', 'Gross Salary'],
-          datasets: [{
-            data: [bonusAndAllowance, data.grossSalary],
-            backgroundColor: ['#999999', '#666666'],
-            spacing: 5,
-          }]
-        },
-        options: {
-          responsive: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              bodyFont: { family: 'EB Garamond' },
-              callbacks: {
-                label: (ctx) => {
-                  const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                  const value = ctx.raw;
-                  const percent = ((value / total) * 100).toFixed(2);
-                  return `${ctx.label}: ${value.toLocaleString('en-US')} VND (${percent}%)`;
-                }
-              }
-            }
-          }
-        }
-      });
+      renderSalaryChart(bonusAndAllowance, data.grossSalary);
       DOM.salaryBreakdownChart.style.display = 'block';
       DOM.salaryBreakdownChartLabel.style.display = 'block';
       updateChartBlockVisibility(true, true);
     }
+
+    // Render cost breakdown chart
+    renderCostChart(data);
+    DOM.costBreakdownChart.style.display = 'block';
+    DOM.costBreakdownChartLabel.style.display = 'block';
+  }
+
+  function renderSalaryChart(bonusAndAllowance, grossSalary) {
+    destroyChart('salaryChart');
+    window.salaryChart = new Chart(DOM.salaryBreakdownChart.getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Bonus & Allowance', 'Gross Salary'],
+        datasets: [{
+          data: [bonusAndAllowance, grossSalary],
+          backgroundColor: ['#999999', '#666666'],
+          spacing: 5,
+        }]
+      },
+      options: {
+        responsive: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            bodyFont: { family: 'EB Garamond' },
+            callbacks: {
+              label: (ctx) => {
+                const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                const value = ctx.raw;
+                const percent = ((value / total) * 100).toFixed(2);
+                return `${ctx.label}: ${value.toLocaleString('en-US')} VND (${percent}%)`;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function renderCostChart(data) {
     destroyChart('costBreakdownChart');
+    
     const breakdownData = [
       data.employeeInsurance || 0,
       data.incomeTax || 0,
@@ -858,6 +998,7 @@ document.addEventListener('DOMContentLoaded', () => {
       data.employerUnionFee || 0,
       data.netSalary || 0
     ];
+    
     const breakdownLabels = [
       'Employee Insurance',
       'Personal Income Tax',
@@ -865,6 +1006,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'Employer Union Fee',
       'Employee Take-home (Net) Salary'
     ];
+
     window.costBreakdownChart = new Chart(DOM.costBreakdownChart.getContext('2d'), {
       type: 'doughnut',
       data: {
@@ -899,64 +1041,87 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     });
-    DOM.costBreakdownChart.style.display = 'block';
-    DOM.costBreakdownChartLabel.style.display = 'block';
   }
-  // --- PDF Export logic (A4, Garamond, instant download) ---
-  // Ensure jsPDF and html2canvas are loaded
-  function ensureJsPdfAndHtml2Canvas(cb) {
+  // ============================================================================
+  // PDF EXPORT
+  // ============================================================================
+
+  function ensureJsPdfAndHtml2Canvas(callback) {
     let loaded = 0;
-    function check() { loaded++; if (loaded === 2) cb(); }
-    // Check jsPDF
+    const checkLoaded = () => { 
+      loaded++; 
+      if (loaded === 2) callback(); 
+    };
+    
+    // Load jsPDF
     if (!window.jspdf || !window.jspdf.jsPDF) {
-      const s = document.createElement('script');
-      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-      s.onload = check;
-      document.head.appendChild(s);
-    } else loaded++;
-    // Check html2canvas
+      const jsPdfScript = document.createElement('script');
+      jsPdfScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+      jsPdfScript.onload = checkLoaded;
+      document.head.appendChild(jsPdfScript);
+    } else {
+      loaded++;
+    }
+    
+    // Load html2canvas
     if (!window.html2canvas) {
-      const s = document.createElement('script');
-      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-      s.onload = check;
-      document.head.appendChild(s);
-    } else loaded++;
-    if ((window.jspdf && window.jspdf.jsPDF) && window.html2canvas) cb();
+      const html2canvasScript = document.createElement('script');
+      html2canvasScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      html2canvasScript.onload = checkLoaded;
+      document.head.appendChild(html2canvasScript);
+    } else {
+      loaded++;
+    }
+    
+    // If both are already loaded
+    if ((window.jspdf && window.jspdf.jsPDF) && window.html2canvas) {
+      callback();
+    }
   }
 
   function setupDownloadButton() {
     downloadBtn.addEventListener('click', async (e) => {
       e.preventDefault();
+      
       ensureJsPdfAndHtml2Canvas(async () => {
         const resultTableContainer = document.querySelector('.result-table-container');
         if (!resultTableContainer) return;
+        
+        // Create export container
         const exportContainer = document.createElement('div');
         exportContainer.className = 'pdf-export-container';
-        // Clone logo, hr, and result table, but use PAYSLIP h2 instead of h1
+        
+        // Add logo if exists
         const logo = document.querySelector('.logo');
-        const hr = root.querySelector('hr');
         if (logo) {
-          const logoClone = logo.cloneNode(true);
-          exportContainer.appendChild(logoClone);
+          exportContainer.appendChild(logo.cloneNode(true));
         }
-        // Add PAYSLIP h2
-        const payslipH2 = document.createElement('h1');
-        payslipH2.textContent = 'PAYSLIP';
-        payslipH2.style.textAlign = 'center';
-        payslipH2.style.marginBottom = '16px';
-        exportContainer.appendChild(payslipH2);
+        
+        // Add PAYSLIP title
+        const payslipTitle = document.createElement('h1');
+        payslipTitle.textContent = 'PAYSLIP';
+        payslipTitle.style.textAlign = 'center';
+        payslipTitle.style.marginBottom = '16px';
+        exportContainer.appendChild(payslipTitle);
+        
+        // Add hr if exists
+        const hr = root.querySelector('hr');
         if (hr) {
-          const hrClone = hr.cloneNode(true);
-          exportContainer.appendChild(hrClone);
+          exportContainer.appendChild(hr.cloneNode(true));
         }
+        
+        // Add result table
         exportContainer.appendChild(resultTableContainer.cloneNode(true));
         document.body.appendChild(exportContainer);
-        // Format date as dd/mm/yyyy
+        
+        // Generate filename with current date
         const now = new Date();
         const day = String(now.getDate()).padStart(2, '0');
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const year = now.getFullYear();
         const filename = `[PCA Salary Simulation]_${day}-${month}-${year}.pdf`;
+        
+        // Export to PDF
         await exportResultToPdf({
           exportContainer,
           filename,

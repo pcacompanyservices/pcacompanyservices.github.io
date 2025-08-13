@@ -1,9 +1,71 @@
 
 
 import { simulateSalary } from '../be/cal.js';
-import { html } from '../util/html-parser.js';
-import { exportResultToPdf } from '../util/pdf-exporter.js';
-import { getElement, createAndAppend } from '../util/dom-utils.js';
+
+// ============================================================================
+// UTILITY FUNCTIONS (formerly from util/ directory)
+// ============================================================================
+
+// DOM utilities
+function getElement(id) {
+  return document.getElementById(id);
+}
+
+function createAndAppend(parent, tag, props = {}, innerHTML = '') {
+  const el = document.createElement(tag);
+  Object.assign(el, props);
+  if (innerHTML) el.innerHTML = innerHTML;
+  parent.appendChild(el);
+  return el;
+}
+
+// HTML template literal utility
+const html = (strings, ...values) =>
+  strings.reduce((acc, str, i) => acc + str + (values[i] || ''), '');
+
+// PDF export utility
+async function exportResultToPdf({
+  exportContainer,
+  filename = 'export.pdf',
+  onStart = () => {},
+  onComplete = () => {}
+}) {
+  if (!window.jspdf || !window.jspdf.jsPDF || !window.html2canvas) {
+    throw new Error('jsPDF and html2canvas must be loaded before calling exportResultToPdf');
+  }
+  onStart();
+  await document.fonts.ready;
+  window.html2canvas(exportContainer, {
+    backgroundColor: '#fff',
+    scale: 2,
+    useCORS: true
+  }).then(canvas => {
+    const imgData = canvas.toDataURL('image/png');
+    const jsPDF = window.jspdf.jsPDF;
+    const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
+    const pageWidth = 595.28;
+    const margin = 40;
+    const imgWidth = pageWidth - margin * 2;
+    const imgHeight = canvas.height * imgWidth / canvas.width;
+    let y = margin;
+    pdf.addImage(imgData, 'PNG', margin, y, imgWidth, imgHeight);
+    pdf.save(filename);
+    onComplete();
+  });
+}
+
+// Format utilities
+function formatLine(label, value) {
+  return value ? `- ${label}: ${value.toLocaleString('en-US')} VND<br>` : '';
+}
+
+function safeText(text) {
+  return text ? String(text) : '';
+}
+
+function formatCurrency(val) {
+  return val ? val.toLocaleString('en-US') + ' VND' : '-';
+}
 
 
 
