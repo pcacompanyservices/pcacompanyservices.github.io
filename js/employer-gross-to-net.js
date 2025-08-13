@@ -341,6 +341,37 @@ function createHardResetButton(root) {
   return hardResetBtn;
 }
 
+function createResultButtonsContainer(root) {
+  const buttonContainer = createAndAppend(root, 'div', {
+    className: 'result-buttons-container',
+    id: 'result-buttons-container',
+    style: 'display:none;'
+  });
+  
+  // Reorganized order: Reset, Modify Information, Download PDF
+  const hardResetBtn = createAndAppend(buttonContainer, 'button', {
+    className: 'simulation-button return-button',
+    id: 'hard-reset-btn',
+    textContent: 'Reset',
+    type: 'button'
+  });
+  
+  const resetBtn = createAndAppend(buttonContainer, 'button', {
+    className: 'simulation-button return-button',
+    id: 'reset-btn',
+    textContent: 'Modify Information',
+    type: 'button'
+  });
+  
+  const downloadBtn = createAndAppend(buttonContainer, 'button', {
+    className: 'simulation-button',
+    id: 'download-pdf-btn',
+    textContent: 'Download PDF'
+  });
+  
+  return { buttonContainer, downloadBtn, resetBtn, hardResetBtn };
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   // ============================================================================
   // INITIALIZATION
@@ -368,9 +399,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Create result containers and buttons
   const { resultDiv, pieChartContainer } = createResultAndCharts(root);
-  const downloadBtn = createDownloadButton(root);
-  const resetBtn = createResetButton(root);
-  const hardResetBtn = createHardResetButton(root);
+  const { buttonContainer, downloadBtn, resetBtn, hardResetBtn } = createResultButtonsContainer(root);
 
   // ============================================================================
   // FORM NAVIGATION
@@ -511,6 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
     salaryForm,
     calculateBtn,
     downloadPdfBtn: downloadBtn,
+    buttonContainer,
     resultDiv,
     allowanceCheckbox: getElement('allowance-checkbox'),
     allowanceInputs: getElement('allowance-inputs'),
@@ -702,10 +732,8 @@ document.addEventListener('DOMContentLoaded', () => {
     renderResults(data);
     renderPieChart(data);
     
-    // Show action buttons
-    DOM.downloadPdfBtn.style.display = 'block';
-    resetBtn.style.display = 'block';
-    hardResetBtn.style.display = 'block';
+    // Show action buttons container
+    DOM.buttonContainer.style.display = 'flex';
     
     // Setup button handlers
     setupResetHandlers();
@@ -845,11 +873,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function setupResetHandlers() {
     resetBtn.onclick = () => {
-      // Hide results and buttons
+      // Hide results and button container
       DOM.resultDiv.innerHTML = '';
-      DOM.downloadPdfBtn.style.display = 'none';
-      resetBtn.style.display = 'none';
-      hardResetBtn.style.display = 'none';
+      DOM.buttonContainer.style.display = 'none';
       
       // Hide charts
       if (DOM.salaryBreakdownChart) DOM.salaryBreakdownChart.style.display = 'none';

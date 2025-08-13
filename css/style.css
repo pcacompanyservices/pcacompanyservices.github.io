@@ -673,3 +673,24 @@ button:hover,
   font-size: 0.9em;
   margin: 4px auto;
 }
+
+/* ========================= */
+/* Result Buttons Container  */
+/* ========================= */
+.result-buttons-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.5rem auto;
+  max-width: 55rem;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.result-buttons-container .simulation-button {
+  flex: 1;
+  min-width: 12rem;
+  max-width: 16rem;
+  margin: 0;
+}
