@@ -42,21 +42,21 @@ function getRoundedValue(value, enabled) {
 }
 
 // Helper: Calculate all values from gross salary
-function calculateFromGross(grossSalary, totalBonusAndAllowance, lunchAllowance, phoneAllowance, uniformAllowance, citizenship) {
+function calculateFromGross(grossSalary, totalBonusAndAllowance, lunchAllowance, phoneAllowance, uniformAllowance, taxResidentStatus) {
   const adjustedGrossSalary = grossSalary + totalBonusAndAllowance;
 
   // Employee Insurance contributions (detailed)
   const employeeSocialInsurance = Math.min(grossSalary, socialHealthCapSalaryForInsurance) * insuranceRate.employee.social;
   const employeeHealthInsurance = Math.min(grossSalary, socialHealthCapSalaryForInsurance) * insuranceRate.employee.health;
   const employeeUnemploymentInsurance =
-    citizenship === 'local' ? Math.min(grossSalary, unemploymentCapSalaryForInsurance) * insuranceRate.employee.unemployment : 0;
+    taxResidentStatus === 'local' ? Math.min(grossSalary, unemploymentCapSalaryForInsurance) * insuranceRate.employee.unemployment : 0;
   const employeeInsurance = employeeSocialInsurance + employeeHealthInsurance + employeeUnemploymentInsurance;
 
   // Employer Insurance contributions (detailed)
   const employerSocialInsurance = Math.min(grossSalary, socialHealthCapSalaryForInsurance) * insuranceRate.employer.social;
   const employerHealthInsurance = Math.min(grossSalary, socialHealthCapSalaryForInsurance) * insuranceRate.employer.health;
   const employerUnemploymentInsurance =
-    citizenship === 'local' ? Math.min(grossSalary, unemploymentCapSalaryForInsurance) * insuranceRate.employer.unemployment : 0;
+    taxResidentStatus === 'local' ? Math.min(grossSalary, unemploymentCapSalaryForInsurance) * insuranceRate.employer.unemployment : 0;
   const employerInsurance = employerSocialInsurance + employerHealthInsurance + employerUnemploymentInsurance;
 
   // Taxable Income calculation
@@ -145,7 +145,7 @@ export function simulateSalary(params) {
   const rentalBenefit          = isBenefitEnabled ? getRoundedValue(params.rentalBenefit,          !!params.rentalEnabled)          : 0;
   const healthInsuranceBenefit = isBenefitEnabled ? getRoundedValue(params.healthInsuranceBenefit, !!params.healthInsuranceEnabled) : 0;
 
-  const citizenship = params.citizenship;
+  const taxResidentStatus = params.taxResidentStatus;
 
   // Calculate totals
   const totalAllowance = lunchAllowance + fuelAllowance + phoneAllowance + travelAllowance + uniformAllowance + otherAllowance;
@@ -161,7 +161,7 @@ export function simulateSalary(params) {
       return { error: 'Please enter a valid gross salary (minimum 5,000,000 VND).' };
     }
 
-    calculationResult = calculateFromGross(grossSalary, totalBonusAndAllowance, lunchAllowance, phoneAllowance, uniformAllowance, citizenship);
+    calculationResult = calculateFromGross(grossSalary, totalBonusAndAllowance, lunchAllowance, phoneAllowance, uniformAllowance, taxResidentStatus);
 
   } else if (method === 'net-to-gross') {
     // Parse and validate net salary
@@ -172,7 +172,7 @@ export function simulateSalary(params) {
 
     // Function to compute net salary from gross salary
     function computeNetFromGross(testGrossSalary) {
-      const result = calculateFromGross(testGrossSalary, totalBonusAndAllowance, lunchAllowance, phoneAllowance, uniformAllowance, citizenship);
+      const result = calculateFromGross(testGrossSalary, totalBonusAndAllowance, lunchAllowance, phoneAllowance, uniformAllowance, taxResidentStatus);
       return result.netSalary;
     }
 
@@ -211,7 +211,7 @@ export function simulateSalary(params) {
       grossSalary = mid; // Use the closest approximation
     }
 
-    calculationResult = calculateFromGross(grossSalary, totalBonusAndAllowance, lunchAllowance, phoneAllowance, uniformAllowance, citizenship);
+    calculationResult = calculateFromGross(grossSalary, totalBonusAndAllowance, lunchAllowance, phoneAllowance, uniformAllowance, taxResidentStatus);
 
   } else {
     return { error: 'Unknown calculation method.' };
@@ -223,8 +223,8 @@ export function simulateSalary(params) {
 
   // Return consistent results for both methods
   return {
-    // Citizenship
-    citizenship: citizenship,
+    // Tax Resident Status
+    taxResidentStatus: taxResidentStatus,
     // Salary
     adjustedGrossSalary: Math.round(calculationResult.adjustedGrossSalary),
     grossSalary:         Math.round(grossSalary),

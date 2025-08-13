@@ -8,13 +8,13 @@ import { simulateSalary } from '../be/cal.js';
 
 const TEXT_CONFIG = {
   // Page title and main headers
-  pageTitle: "Calculate from Employee's Gross Salary",
+  pageTitle: "Calculate from Employee's Gross Base Salary",
   payslipTitle: "PAYSLIP",
   
   // Progress bar steps
   progressSteps: {
-    citizenship: "Citizenship",
-    grossSalary: "Gross Salary", 
+    taxResidentStatus: "Status",
+    grossSalary: "Base Salary", 
     allowance: "Allowance",
     bonus: "Bonus",
     benefit: "Benefit"
@@ -22,16 +22,16 @@ const TEXT_CONFIG = {
   
   // Step titles and descriptions
   steps: {
-    citizenship: {
-      title: "Citizenship",
-      selectPlaceholder: "Select your citizenship",
+    taxResidentStatus: {
+      title: "Tax Resident Status",
+      selectPlaceholder: "Select your tax resident status",
       options: {
-        local: "Local",
-        expat: "Expat"
+        local: "Local – Tax resident",
+        expat: "Expat – Tax resident"
       }
     },
     grossSalary: {
-      title: "Gross Salary",
+      title: "Gross Base Salary",
       placeholder: "Min 5,000,000 VND"
     },
     allowance: {
@@ -91,12 +91,12 @@ const TEXT_CONFIG = {
   // Result labels
   results: {
     employeeTypes: {
-      local: "Local Employee",
-      expat: "Expat Employee",
+      local: "Local Employee – Tax Resident",
+      expat: "Expat Employee – Tax Resident",
       default: "Employee"
     },
     sections: {
-      grossSalary: "Gross Salary",
+      grossSalary: "Gross Base Salary",
       adjustedGrossSalary: "Adjusted Gross Salary",
       allowance: "Allowance",
       bonus: "Bonus",
@@ -117,7 +117,7 @@ const TEXT_CONFIG = {
   
   // Info tooltips (placeholder text)
   infoTooltips: {
-    citizenship: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.",
+    taxResidentStatus: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.",
     grossSalary: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.",
     allowance: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.",
     bonus: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.",
@@ -238,7 +238,7 @@ function createProgressBar(root) {
   const progressBar = createAndAppend(root, 'div', { id: 'progress-bar' });
   progressBar.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin:18px 0;width:100%;max-width:480px;margin-left:auto;margin-right:auto;user-select:none;';
   progressBar.innerHTML = html`
-    <div class="progress-step" data-step="0">${TEXT_CONFIG.progressSteps.citizenship}</div>
+    <div class="progress-step" data-step="0">${TEXT_CONFIG.progressSteps.taxResidentStatus}</div>
     <div class="progress-bar-line"></div>
     <div class="progress-step" data-step="1">${TEXT_CONFIG.progressSteps.grossSalary}</div>
     <div class="progress-bar-line"></div>
@@ -269,16 +269,16 @@ function createStep1() {
   step1.id = 'step-1';
   step1.innerHTML = html`
     <div class="step-title-row">
-      <h2>${TEXT_CONFIG.steps.citizenship.title}</h2>
+      <h2>${TEXT_CONFIG.steps.taxResidentStatus.title}</h2>
       <span class="question-icon" tabindex="0">
         <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">${TEXT_CONFIG.infoTooltips.citizenship}</span>
+        <span class="info-box">${TEXT_CONFIG.infoTooltips.taxResidentStatus}</span>
       </span>
     </div>
-    <select id="citizenship">
-      <option value="" disabled selected>${TEXT_CONFIG.steps.citizenship.selectPlaceholder}</option>
-      <option value="local">${TEXT_CONFIG.steps.citizenship.options.local}</option>
-      <option value="expat">${TEXT_CONFIG.steps.citizenship.options.expat}</option>
+    <select id="tax-resident-status">
+      <option value="" disabled selected>${TEXT_CONFIG.steps.taxResidentStatus.selectPlaceholder}</option>
+      <option value="local">${TEXT_CONFIG.steps.taxResidentStatus.options.local}</option>
+      <option value="expat">${TEXT_CONFIG.steps.taxResidentStatus.options.expat}</option>
     </select>
   `;
   return step1;
@@ -626,7 +626,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update continue button state based on step validation
     updateContinueButtonState(idx);
     
-    // Auto-focus gross salary input on step 2
+    // Auto-focus gross base salary input on step 2
     if (idx === 1) {
       const grossSalaryInput = document.getElementById('gross-salary');
       if (grossSalaryInput) {
@@ -668,10 +668,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let isValid = false;
     
     switch (idx) {
-      case 0: // Citizenship step
-        isValid = citizenshipSelect.value;
+      case 0: // Tax Resident Status step
+        isValid = taxResidentStatusSelect.value;
         break;
-      case 1: // Gross salary step
+      case 1: // Gross base salary step
         const numericValue = parseInt(grossSalaryInput.value.replace(/\D/g, '')) || 0;
         isValid = numericValue >= MIN_SALARY;
         break;
@@ -696,11 +696,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // STEP VALIDATION AND EVENT HANDLERS
   // ============================================================================
 
-  // Step 1: Citizenship Selection
-  const citizenshipSelect = getElement('citizenship');
-  citizenshipSelect.addEventListener('change', () => updateContinueButtonState(currentStep));
+  // Step 1: Tax Resident Status Selection
+  const taxResidentStatusSelect = getElement('tax-resident-status');
+  taxResidentStatusSelect.addEventListener('change', () => updateContinueButtonState(currentStep));
 
-  // Step 2: Gross Salary Input
+  // Step 2: Gross Base Salary Input
   const grossSalaryInput = getElement('gross-salary');
   grossSalaryInput.addEventListener('input', () => updateContinueButtonState(currentStep));
 
@@ -837,7 +837,7 @@ document.addEventListener('DOMContentLoaded', () => {
       rentalEnabled: parseNumber(getVal('benefit-rental')) > 0,
       healthInsuranceBenefit: parseNumber(getVal('benefit-health-insurance')),
       healthInsuranceEnabled: parseNumber(getVal('benefit-health-insurance')) > 0,
-      citizenship: getVal('citizenship'),
+      taxResidentStatus: getVal('tax-resident-status'),
     };
 
     // Simulate salary calculation
@@ -902,7 +902,7 @@ document.addEventListener('DOMContentLoaded', () => {
       : '';
 
     // Generate content sections
-    const employeeTypeLabel = getEmployeeTypeLabel(data.citizenship);
+    const employeeTypeLabel = getEmployeeTypeLabel(data.taxResidentStatus);
     const employeeTypeCell = `<div class="result-title"><u>${employeeTypeLabel}</u></div>`;
     const grossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.sections.grossSalary}</div><div class="result-center-value">${data.grossSalary ? data.grossSalary.toLocaleString('en-US') + ' VND' : '-'}</div>`;
     const adjustedGrossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.sections.adjustedGrossSalary}</div><div class="result-center-value">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('en-US') + ' VND' : '-'}</div>`;
@@ -984,8 +984,8 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   }
 
-  function getEmployeeTypeLabel(citizenship) {
-    return TEXT_CONFIG.results.employeeTypes[citizenship] || TEXT_CONFIG.results.employeeTypes.default;
+  function getEmployeeTypeLabel(taxResidentStatus) {
+    return TEXT_CONFIG.results.employeeTypes[taxResidentStatus] || TEXT_CONFIG.results.employeeTypes.default;
   }
 
   function generateEmployerDetailsCell(data) {
