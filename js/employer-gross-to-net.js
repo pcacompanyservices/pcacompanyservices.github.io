@@ -3,14 +3,148 @@
 import { simulateSalary } from '../be/cal.js';
 
 // ============================================================================
+// TEXT CONFIGURATION - Centralized static text management
+// ============================================================================
+
+const TEXT_CONFIG = {
+  // Page title and main headers
+  pageTitle: "Calculate from Employee's Gross Salary",
+  payslipTitle: "PAYSLIP",
+  salaryVisualizationHeading: "Salary Visualization",
+  
+  // Progress bar steps
+  progressSteps: {
+    citizenship: "Citizenship",
+    grossSalary: "Gross Salary", 
+    allowances: "Allowances",
+    bonuses: "Bonuses"
+  },
+  
+  // Step titles and descriptions
+  steps: {
+    citizenship: {
+      title: "Citizenship",
+      selectPlaceholder: "Select your citizenship",
+      options: {
+        local: "Local",
+        expat: "Expat"
+      }
+    },
+    grossSalary: {
+      title: "Gross Salary",
+      placeholder: "Min 5,000,000 VND"
+    },
+    allowances: {
+      title: "Allowances",
+      types: {
+        lunch: "Lunch",
+        fuel: "Fuel", 
+        phone: "Phone",
+        travel: "Traveling",
+        uniform: "Uniform",
+        other: "Other Allowances"
+      },
+      placeholders: {
+        lunch: "Lunch allowance (VND)",
+        fuel: "Fuel allowance (VND)",
+        phone: "Phone allowance (VND)",
+        travel: "Travel allowance (VND)",
+        uniform: "Uniform allowance (VND)",
+        other: "Other allowances (VND)"
+      }
+    },
+    bonuses: {
+      title: "Bonuses",
+      placeholder: "Total bonuses (VND)"
+    }
+  },
+  
+  // Buttons
+  buttons: {
+    continue: "Continue",
+    calculate: "Calculate",
+    return: "Return",
+    reset: "Reset",
+    modify: "Modify Information",
+    downloadPdf: "Download PDF"
+  },
+  
+  // Warnings and messages
+  warnings: {
+    maxDigits: "Maximum 9 digits allowed.",
+    noAllowancesOrBonuses: "(There are no Allowances or Bonuses in the Contract)"
+  },
+  
+  // Result labels
+  results: {
+    employeeTypes: {
+      local: "Local Employee",
+      expat: "Expat Employee",
+      default: "Employee"
+    },
+    sections: {
+      grossSalary: "Gross Salary",
+      adjustedGrossSalary: "Adjusted Gross Salary",
+      allowances: "Allowances",
+      bonuses: "Bonuses",
+      employerCost: "Employer Cost",
+      employeeTakeHome: "Employee Take-home"
+    },
+    costBreakdown: {
+      socialInsurance: "Social Insurance",
+      unionFee: "Union Fee",
+      personalIncomeTax: "Personal Income Tax",
+      netSalary: "Employee Take-home (Net) Salary",
+      employerInsurance: "Employer Insurance",
+      employerUnionFee: "Employer Union Fee",
+      employeeInsurance: "Employee Insurance"
+    },
+    chartLabels: {
+      bonusAndAllowance: "Bonus & Allowance",
+      grossSalary: "Gross Salary"
+    }
+  },
+  
+  // Info tooltips (placeholder text)
+  infoTooltips: {
+    citizenship: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.",
+    grossSalary: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.",
+    allowances: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.",
+    bonuses: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.",
+    lunch: "Specify your monthly allowance for lunch in the contract.",
+    fuel: "Specify your monthly allowance for fuel in the contract.",
+    phone: "Specify your monthly allowance for phone in the contract.",
+    travel: "Specify your monthly allowance for traveling in the contract.",
+    uniform: "Specify your monthly allowance for uniform in the contract.",
+    otherAllowance: "Enter any other allowances in the contract that are not listed above.",
+    productivity: "Specify your monthly bonus for productivity in the contract.",
+    incentive: "Specify your monthly bonus for incentive in the contract.",
+    kpi: "Specify your monthly bonus for KPI in the contract.",
+    otherBonus: "Enter any other bonuses in the contract that are not listed above."
+  }
+};
+
+// ============================================================================
 // UTILITY FUNCTIONS (formerly from util/ directory)
 // ============================================================================
 
-// DOM utilities
+/**
+ * Get an element by its ID
+ * @param {string} id - The element ID
+ * @returns {HTMLElement|null} The element or null if not found
+ */
 function getElement(id) {
   return document.getElementById(id);
 }
 
+/**
+ * Create an element and append it to parent with optional properties and innerHTML
+ * @param {HTMLElement} parent - Parent element to append to
+ * @param {string} tag - HTML tag name
+ * @param {Object} props - Properties to assign to the element
+ * @param {string} innerHTML - Inner HTML content
+ * @returns {HTMLElement} The created element
+ */
 function createAndAppend(parent, tag, props = {}, innerHTML = '') {
   const el = document.createElement(tag);
   Object.assign(el, props);
@@ -19,11 +153,23 @@ function createAndAppend(parent, tag, props = {}, innerHTML = '') {
   return el;
 }
 
-// HTML template literal utility
+/**
+ * Template literal utility for HTML strings
+ * @param {Array<string>} strings - Template literal string parts
+ * @param {...any} values - Template literal values
+ * @returns {string} Concatenated HTML string
+ */
 const html = (strings, ...values) =>
   strings.reduce((acc, str, i) => acc + str + (values[i] || ''), '');
 
-// PDF export utility
+/**
+ * Export the result container to PDF
+ * @param {Object} options - Export options
+ * @param {HTMLElement} options.exportContainer - Container to export
+ * @param {string} options.filename - PDF filename
+ * @param {Function} options.onStart - Callback before export starts
+ * @param {Function} options.onComplete - Callback after export completes
+ */
 async function exportResultToPdf({
   exportContainer,
   filename = 'export.pdf',
@@ -54,41 +200,12 @@ async function exportResultToPdf({
   });
 }
 
-// Format utilities
-function formatLine(label, value) {
-  return value ? `- ${label}: ${value.toLocaleString('en-US')} VND<br>` : '';
-}
-
-function safeText(text) {
-  return text ? String(text) : '';
-}
-
-function formatCurrency(val) {
-  return val ? val.toLocaleString('en-US') + ' VND' : '-';
-}
-
 // ============================================================================
 // CONSTANTS AND CONFIGURATION
 // ============================================================================
 
 const MIN_SALARY = 5000000;
 const MAX_DIGITS = 9;
-
-const ALLOWANCE_FIELDS = {
-  'lunch-checkbox': 'lunch-input',
-  'fuel-checkbox': 'fuel-input',
-  'phone-checkbox': 'phone-input',
-  'travel-checkbox': 'travel-input',
-  'uniform-checkbox': 'uniform-input',
-  'other-allowance-checkbox': 'other-allowance-input',
-};
-
-const BONUS_FIELDS = {
-  'productivity-checkbox': 'productivity-input',
-  'incentive-checkbox': 'incentive-input',
-  'kpi-checkbox': 'kpi-input',
-  'other-bonus-checkbox': 'other-bonus-input',
-};
 
 // ============================================================================
 // UI CREATION FUNCTIONS
@@ -97,20 +214,20 @@ function createProgressBar(root) {
   const progressBar = createAndAppend(root, 'div', { id: 'progress-bar' });
   progressBar.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin:18px 0;width:100%;max-width:480px;margin-left:auto;margin-right:auto;user-select:none;';
   progressBar.innerHTML = html`
-    <div class="progress-step" data-step="0">Citizenship</div>
+    <div class="progress-step" data-step="0">${TEXT_CONFIG.progressSteps.citizenship}</div>
     <div class="progress-bar-line"></div>
-    <div class="progress-step" data-step="1">Gross Salary</div>
+    <div class="progress-step" data-step="1">${TEXT_CONFIG.progressSteps.grossSalary}</div>
     <div class="progress-bar-line"></div>
-    <div class="progress-step" data-step="2">Allowances</div>
+    <div class="progress-step" data-step="2">${TEXT_CONFIG.progressSteps.allowances}</div>
     <div class="progress-bar-line"></div>
-    <div class="progress-step" data-step="3">Bonuses</div>
+    <div class="progress-step" data-step="3">${TEXT_CONFIG.progressSteps.bonuses}</div>
   `;
   return progressBar;
 }
 
 function createTitleBlock(root) {
   const h1 = createAndAppend(root, 'h1');
-  h1.textContent = "Calculate from Employee's Gross Salary";
+  h1.textContent = TEXT_CONFIG.pageTitle;
   root.appendChild(document.createElement('hr'));
   return h1;
 }
@@ -126,18 +243,17 @@ function createStep1() {
   step1.id = 'step-1';
   step1.innerHTML = html`
     <div class="step-title-row">
-      <h2>Citizenship</h2>
+      <h2>${TEXT_CONFIG.steps.citizenship.title}</h2>
       <span class="question-icon" tabindex="0">
         <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
+        <span class="info-box">${TEXT_CONFIG.infoTooltips.citizenship}</span>
       </span>
     </div>
     <select id="citizenship">
-      <option value="" disabled selected>Select your citizenship</option>
-      <option value="local">Local</option>
-      <option value="expat">Expat</option>
+      <option value="" disabled selected>${TEXT_CONFIG.steps.citizenship.selectPlaceholder}</option>
+      <option value="local">${TEXT_CONFIG.steps.citizenship.options.local}</option>
+      <option value="expat">${TEXT_CONFIG.steps.citizenship.options.expat}</option>
     </select>
-    <button type="button" id="continue-step1" class="simulation-button unavailable" disabled>Continue</button>
   `;
   return step1;
 }
@@ -149,15 +265,14 @@ function createStep2() {
   step2.style.display = 'none';
   step2.innerHTML = html`
     <div class="step-title-row">
-      <h2>Gross Salary</h2>
+      <h2>${TEXT_CONFIG.steps.grossSalary.title}</h2>
       <span class="question-icon" tabindex="0">
         <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
+        <span class="info-box">${TEXT_CONFIG.infoTooltips.grossSalary}</span>
       </span>
     </div>
-    <input type="text" class="number-input" id="gross-salary" placeholder="Min 5,000,000 VND" />
-    <div id="gross-salary-warning" class="input-warning" style="display:none;">Maximum 9 digits allowed.</div>
-    <button type="button" id="continue-step2" class="simulation-button unavailable" disabled>Continue</button>
+    <input type="text" class="number-input" id="gross-salary" placeholder="${TEXT_CONFIG.steps.grossSalary.placeholder}" />
+    <div id="gross-salary-warning" class="input-warning" style="display:none;">${TEXT_CONFIG.warnings.maxDigits}</div>
   `;
   return step2;
 }
@@ -169,63 +284,65 @@ function createStep3() {
   step3.style.display = 'none';
   step3.innerHTML = html`
     <div class="step-title-row">
-      <h2>Allowances</h2>
+      <h2>${TEXT_CONFIG.steps.allowances.title}</h2>
       <span class="question-icon" tabindex="0">
         <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
+        <span class="info-box">${TEXT_CONFIG.infoTooltips.allowances}</span>
       </span>
     </div>
     <div id="allowance-container">
-      <label class="checkbox-item">
-        <input type="checkbox" id="allowance-checkbox" /> There are Allowances in the Contract
-      </label>
-      <div id="allowance-inputs" style="display: none;">
-        <div id="allowance-warning" class="input-warning" style="display:none;">Maximum 9 digits allowed.</div>
-        <label class="checkbox-item"><input type="checkbox" id="lunch-checkbox" /> Lunch
+      <div id="allowance-inputs">
+        <div id="allowance-warning" class="input-warning" style="display:none;">${TEXT_CONFIG.warnings.maxDigits}</div>
+        
+        <label class="input-label">${TEXT_CONFIG.steps.allowances.types.lunch}
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Specify your monthly allowance for lunch in the contract.</span>
+            <span class="info-box">${TEXT_CONFIG.infoTooltips.lunch}</span>
           </span>
         </label>
-        <div id="lunch-input" style="display: none;"><input type="text" class="number-input" id="allowance-lunch" placeholder="Lunch allowance (VND)" min="0" /></div>
-        <label class="checkbox-item"><input type="checkbox" id="fuel-checkbox" /> Fuel
+        <input type="text" class="number-input" id="allowance-lunch" placeholder="${TEXT_CONFIG.steps.allowances.placeholders.lunch}" min="0" />
+        
+        <label class="input-label">${TEXT_CONFIG.steps.allowances.types.fuel}
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Specify your monthly allowance for fuel in the contract.</span>
+            <span class="info-box">${TEXT_CONFIG.infoTooltips.fuel}</span>
           </span>
         </label>
-        <div id="fuel-input" style="display: none;"><input type="text" class="number-input" id="allowance-fuel" placeholder="Fuel allowance (VND)" min="0" /></div>
-        <label class="checkbox-item"><input type="checkbox" id="phone-checkbox" /> Phone
+        <input type="text" class="number-input" id="allowance-fuel" placeholder="${TEXT_CONFIG.steps.allowances.placeholders.fuel}" min="0" />
+        
+        <label class="input-label">${TEXT_CONFIG.steps.allowances.types.phone}
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Specify your monthly allowance for phone in the contract.</span>
+            <span class="info-box">${TEXT_CONFIG.infoTooltips.phone}</span>
           </span>
         </label>
-        <div id="phone-input" style="display: none;"><input type="text" class="number-input" id="allowance-phone" placeholder="Phone allowance (VND)" min="0" /></div>
-        <label class="checkbox-item"><input type="checkbox" id="travel-checkbox" /> Traveling
+        <input type="text" class="number-input" id="allowance-phone" placeholder="${TEXT_CONFIG.steps.allowances.placeholders.phone}" min="0" />
+        
+        <label class="input-label">${TEXT_CONFIG.steps.allowances.types.travel}
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Specify your monthly allowance for traveling in the contract.</span>
+            <span class="info-box">${TEXT_CONFIG.infoTooltips.travel}</span>
           </span>
         </label>
-        <div id="travel-input" style="display: none;"><input type="text" class="number-input" id="allowance-travel" placeholder="Travel allowance (VND)" min="0" /></div>
-        <label class="checkbox-item"><input type="checkbox" id="uniform-checkbox" /> Uniform
+        <input type="text" class="number-input" id="allowance-travel" placeholder="${TEXT_CONFIG.steps.allowances.placeholders.travel}" min="0" />
+        
+        <label class="input-label">${TEXT_CONFIG.steps.allowances.types.uniform}
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Specify your monthly allowance for uniform in the contract.</span>
+            <span class="info-box">${TEXT_CONFIG.infoTooltips.uniform}</span>
           </span>
         </label>
-        <div id="uniform-input" style="display: none;"><input type="text" class="number-input" id="allowance-uniform" placeholder="Uniform allowance (VND)" min="0" /></div>
-        <label class="checkbox-item"><input type="checkbox" id="other-allowance-checkbox" /> Other Allowances
+        <input type="text" class="number-input" id="allowance-uniform" placeholder="${TEXT_CONFIG.steps.allowances.placeholders.uniform}" min="0" />
+        
+        <label class="input-label">${TEXT_CONFIG.steps.allowances.types.other}
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Enter any other allowances in the contract that are not listed above.</span>
+            <span class="info-box">${TEXT_CONFIG.infoTooltips.otherAllowance}</span>
           </span>
         </label>
-        <div id="other-allowance-input" style="display: none;"><input type="text" class="number-input" id="allowance-other" placeholder="Other allowances (VND)" min="0" /></div>
+        <input type="text" class="number-input" id="allowance-other" placeholder="${TEXT_CONFIG.steps.allowances.placeholders.other}" min="0" />
       </div>
     </div>
-    <button type="button" id="continue-step3" class="simulation-button unavailable" disabled>Continue</button>
   `;
   return step3;
 }
@@ -237,48 +354,14 @@ function createStep4() {
   step4.style.display = 'none';
   step4.innerHTML = html`
     <div class="step-title-row">
-      <h2>Bonuses</h2>
+      <h2>${TEXT_CONFIG.steps.bonuses.title}</h2>
       <span class="question-icon" tabindex="0">
         <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
+        <span class="info-box">${TEXT_CONFIG.infoTooltips.bonuses}</span>
       </span>
     </div>
-    <div id="bonus-container">
-      <label class="checkbox-item">
-        <input type="checkbox" id="bonus-checkbox" /> There are Bonuses in the Contract
-      </label>
-      <div id="bonus-inputs" style="display: none;">
-        <div id="bonus-warning" class="input-warning" style="display:none;">Maximum 9 digits allowed.</div>
-        <label class="checkbox-item"><input type="checkbox" id="productivity-checkbox" /> Productivity
-          <span class="question-icon" tabindex="0">
-            <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Specify your monthly bonus for productivity in the contract.</span>
-          </span>
-        </label>
-        <div id="productivity-input" style="display: none;"><input type="text" class="number-input" id="bonus-productivity" placeholder="Productivity bonus (VND)" min="0" /></div>
-        <label class="checkbox-item"><input type="checkbox" id="incentive-checkbox" /> Incentive
-          <span class="question-icon" tabindex="0">
-            <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Specify your monthly bonus for incentive in the contract.</span>
-          </span>
-        </label>
-        <div id="incentive-input" style="display: none;"><input type="text" class="number-input" id="bonus-incentive" placeholder="Incentive bonus (VND)" min="0" /></div>
-        <label class="checkbox-item"><input type="checkbox" id="kpi-checkbox" /> KPI
-          <span class="question-icon" tabindex="0">
-            <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Specify your monthly bonus for KPI in the contract.</span>
-          </span>
-        </label>
-        <div id="kpi-input" style="display: none;"><input type="text" class="number-input" id="bonus-kpi" placeholder="KPI bonus (VND)" min="0" /></div>
-        <label class="checkbox-item"><input type="checkbox" id="other-bonus-checkbox" /> Other Bonuses
-          <span class="question-icon" tabindex="0">
-            <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Enter any other bonuses in the contract that are not listed above.</span>
-          </span>
-        </label>
-        <div id="other-bonus-input" style="display: none;"><input type="text" class="number-input" id="bonus-other" placeholder="Other bonuses (VND)" min="0" /></div>
-      </div>
-    </div>
+    <input type="text" class="number-input" id="total-bonus" placeholder="${TEXT_CONFIG.steps.bonuses.placeholder}" />
+    <div id="bonus-warning" class="input-warning" style="display:none;">${TEXT_CONFIG.warnings.maxDigits}</div>
   `;
   return step4;
 }
@@ -286,9 +369,20 @@ function createStep4() {
 function createNavButtons() {
   const navDiv = document.createElement('div');
   navDiv.className = 'form-navigation';
+  navDiv.style.cssText = `
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.5rem auto;
+    max-width: 55rem;
+    width: 100%;
+    flex-wrap: wrap;
+  `;
   navDiv.innerHTML = html`
-    <button type="submit" id="calculate-btn" class="simulation-button" style="display:none;">Calculate</button>
-    <button type="button" id="return-btn" class="simulation-button return-button" style="display:none;">Return</button>
+    <button type="button" id="return-btn" class="simulation-button return-button" style="display:none;flex:1;min-width:12rem;max-width:16rem;margin:0;">${TEXT_CONFIG.buttons.return}</button>
+    <button type="button" id="continue-btn" class="simulation-button" style="display:none;flex:1;min-width:12rem;max-width:16rem;margin:0;">${TEXT_CONFIG.buttons.continue}</button>
+    <button type="submit" id="calculate-btn" class="simulation-button" style="display:none;flex:1;min-width:12rem;max-width:16rem;margin:0;">${TEXT_CONFIG.buttons.calculate}</button>
   `;
   return navDiv;
 }
@@ -309,38 +403,6 @@ function createResultAndCharts(root) {
   return { resultDiv, pieChartContainer };
 }
 
-function createDownloadButton(root) {
-  const downloadBtn = createAndAppend(root, 'button', {
-    className: 'simulation-button',
-    id: 'download-pdf-btn',
-    style: 'display:none;',
-    textContent: 'Download PDF'
-  });
-  return downloadBtn;
-}
-
-function createResetButton(root) {
-  const resetBtn = createAndAppend(root, 'button', {
-    className: 'simulation-button return-button',
-    id: 'reset-btn',
-    style: 'display:none;',
-    textContent: 'Modify Information',
-    type: 'button'
-  });
-  return resetBtn;
-}
-
-function createHardResetButton(root) {
-  const hardResetBtn = createAndAppend(root, 'button', {
-    className: 'simulation-button return-button',
-    id: 'hard-reset-btn',
-    style: 'display:none;',
-    textContent: 'Reset',
-    type: 'button'
-  });
-  return hardResetBtn;
-}
-
 function createResultButtonsContainer(root) {
   const buttonContainer = createAndAppend(root, 'div', {
     className: 'result-buttons-container',
@@ -352,21 +414,21 @@ function createResultButtonsContainer(root) {
   const hardResetBtn = createAndAppend(buttonContainer, 'button', {
     className: 'simulation-button return-button',
     id: 'hard-reset-btn',
-    textContent: 'Reset',
+    textContent: TEXT_CONFIG.buttons.reset,
     type: 'button'
   });
   
   const resetBtn = createAndAppend(buttonContainer, 'button', {
     className: 'simulation-button return-button',
     id: 'reset-btn',
-    textContent: 'Modify Information',
+    textContent: TEXT_CONFIG.buttons.modify,
     type: 'button'
   });
   
   const downloadBtn = createAndAppend(buttonContainer, 'button', {
     className: 'simulation-button',
     id: 'download-pdf-btn',
-    textContent: 'Download PDF'
+    textContent: TEXT_CONFIG.buttons.downloadPdf
   });
   
   return { buttonContainer, downloadBtn, resetBtn, hardResetBtn };
@@ -405,12 +467,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // FORM NAVIGATION
   // ============================================================================
   const steps = [step1, step2, step3, step4];
-  const continueBtns = [
-    getElement('continue-step1'),
-    getElement('continue-step2'),
-    getElement('continue-step3'),
-  ];
   const returnBtn = getElement('return-btn');
+  const continueBtn = getElement('continue-btn');
   const calculateBtn = getElement('calculate-btn');
   let currentStep = 0;
 
@@ -419,8 +477,22 @@ document.addEventListener('DOMContentLoaded', () => {
       if (step) step.style.display = i === idx ? '' : 'none';
     });
     
-    returnBtn.style.display = idx > 0 ? '' : 'none';
+    // Show/hide navigation buttons based on current step
+    // Always show return button, but disable it on first step
+    returnBtn.style.display = '';
+    if (idx === 0) {
+      returnBtn.disabled = true;
+      returnBtn.classList.add('disabled');
+    } else {
+      returnBtn.disabled = false;
+      returnBtn.classList.remove('disabled');
+    }
+    
+    continueBtn.style.display = idx < steps.length - 1 ? '' : 'none';
     calculateBtn.style.display = idx === steps.length - 1 ? '' : 'none';
+    
+    // Update continue button state based on step validation
+    updateContinueButtonState(idx);
     
     // Auto-focus gross salary input on step 2
     if (idx === 1) {
@@ -458,63 +530,53 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  function updateContinueButtonState(idx) {
+    if (!continueBtn) return;
+    
+    let isValid = false;
+    
+    switch (idx) {
+      case 0: // Citizenship step
+        isValid = citizenshipSelect.value;
+        break;
+      case 1: // Gross salary step
+        const numericValue = parseInt(grossSalaryInput.value.replace(/\D/g, '')) || 0;
+        isValid = numericValue >= MIN_SALARY;
+        break;
+      case 2: // Allowances step (always valid, can skip)
+        isValid = true;
+        break;
+      default:
+        isValid = false;
+    }
+    
+    continueBtn.classList.toggle('unavailable', !isValid);
+    continueBtn.disabled = !isValid;
+  }
+
   // ============================================================================
   // STEP VALIDATION AND EVENT HANDLERS
   // ============================================================================
 
   // Step 1: Citizenship Selection
   const citizenshipSelect = getElement('citizenship');
-  
-  function updateStep1Btn() {
-    const isValid = citizenshipSelect.value;
-    continueBtns[0].classList.toggle('unavailable', !isValid);
-    continueBtns[0].disabled = !isValid;
-  }
-  
-  continueBtns[0].addEventListener('click', () => {
-    if (currentStep === 0 && citizenshipSelect.value) {
-      currentStep++;
-      showStep(currentStep);
-    }
-  });
-  citizenshipSelect.addEventListener('change', updateStep1Btn);
-  updateStep1Btn();
+  citizenshipSelect.addEventListener('change', () => updateContinueButtonState(currentStep));
 
   // Step 2: Gross Salary Input
   const grossSalaryInput = getElement('gross-salary');
-  
-  function updateStep2Btn() {
-    const numericValue = parseInt(grossSalaryInput.value.replace(/\D/g, '')) || 0;
-    const isValid = numericValue >= MIN_SALARY;
-    continueBtns[1].classList.toggle('unavailable', !isValid);
-    continueBtns[1].disabled = !isValid;
-  }
-  
-  continueBtns[1].addEventListener('click', () => {
-    if (currentStep === 1) {
-      const numericValue = parseInt(grossSalaryInput.value.replace(/\D/g, '')) || 0;
-      if (numericValue >= MIN_SALARY) {
-        currentStep++;
-        showStep(currentStep);
-      }
-    }
-  });
-  grossSalaryInput.addEventListener('input', updateStep2Btn);
-  updateStep2Btn();
+  grossSalaryInput.addEventListener('input', () => updateContinueButtonState(currentStep));
 
-  // Step 3: Allowances (always enabled, can skip)
-  continueBtns[2].addEventListener('click', () => {
-    if (currentStep === 2) {
+  // Continue button handler
+  continueBtn.addEventListener('click', () => {
+    if (currentStep < steps.length - 1 && !continueBtn.disabled) {
       currentStep++;
       showStep(currentStep);
     }
   });
-  continueBtns[2].classList.remove('unavailable');
-  continueBtns[2].disabled = false;
 
-  // Return button
+  // Return button handler
   returnBtn?.addEventListener('click', () => {
-    if (currentStep > 0) {
+    if (currentStep > 0 && !returnBtn.disabled) {
       currentStep--;
       showStep(currentStep);
     }
@@ -542,10 +604,7 @@ document.addEventListener('DOMContentLoaded', () => {
     downloadPdfBtn: downloadBtn,
     buttonContainer,
     resultDiv,
-    allowanceCheckbox: getElement('allowance-checkbox'),
     allowanceInputs: getElement('allowance-inputs'),
-    bonusCheckbox: getElement('bonus-checkbox'),
-    bonusInputs: getElement('bonus-inputs'),
     costBreakdownChart: getElement('cost-breakdown-chart'),
     salaryBreakdownChart: getElement('salary-breakdown-chart'),
     costBreakdownChartLabel: getElement('cost-breakdown-chart-label'),
@@ -556,60 +615,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // DYNAMIC FIELD MANAGEMENT
   // ============================================================================
 
-  function toggleVisibility(fieldMap, parentCheckbox, container) {
-    parentCheckbox.addEventListener('change', () => {
-      container.style.display = parentCheckbox.checked ? 'block' : 'none';
-      
-      Object.entries(fieldMap).forEach(([checkboxId, inputId]) => {
-        const checkbox = getElement(checkboxId);
-        const inputDiv = getElement(inputId);
-        if (checkbox && inputDiv) {
-          inputDiv.style.display = checkbox.checked && parentCheckbox.checked ? 'block' : 'none';
-        }
-      });
-      
-      // Auto-focus first visible input when parent checkbox is checked
-      if (parentCheckbox.checked) {
-        setTimeout(() => {
-          const firstChecked = container.querySelector('input[type="checkbox"]:checked');
-          if (firstChecked) {
-            const inputDiv = getElement(fieldMap[firstChecked.id]);
-            if (inputDiv) {
-              const textInput = inputDiv.querySelector('input[type="text"]');
-              if (textInput) {
-                textInput.focus();
-                textInput.select && textInput.select();
-              }
-            }
-          }
-        }, 0);
-      }
-    });
-    
-    Object.entries(fieldMap).forEach(([checkboxId, inputId]) => {
-      const checkbox = getElement(checkboxId);
-      const inputDiv = getElement(inputId);
-      if (checkbox && inputDiv) {
-        checkbox.addEventListener('change', () => {
-          inputDiv.style.display = checkbox.checked && parentCheckbox.checked ? 'block' : 'none';
-          
-          // Auto-focus input when checkbox is checked
-          if (checkbox.checked && parentCheckbox.checked) {
-            setTimeout(() => {
-              const textInput = inputDiv.querySelector('input[type="text"]');
-              if (textInput) {
-                textInput.focus();
-                textInput.select && textInput.select();
-              }
-            }, 0);
-          }
-        });
-      }
-    });
-  }
-
-  toggleVisibility(ALLOWANCE_FIELDS, DOM.allowanceCheckbox, DOM.allowanceInputs);
-  toggleVisibility(BONUS_FIELDS, DOM.bonusCheckbox, DOM.bonusInputs);
+  // No dynamic field management needed - all allowance inputs are always visible
+  // and bonus is now a single input field
 
   // ============================================================================
   // NUMBER FORMATTING
@@ -689,28 +696,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const params = {
       method: 'gross-to-net',
       grossSalary: parseNumber(getVal('gross-salary')),
-      isAllowanceEnabled: getChecked('allowance-checkbox'),
+      // Simplified allowance handling - no checkboxes needed
+      isAllowanceEnabled: true, // Always true since we show all fields
       lunchAllowance: parseNumber(getVal('allowance-lunch')),
-      lunchEnabled: getChecked('lunch-checkbox'),
+      lunchEnabled: parseNumber(getVal('allowance-lunch')) > 0,
       fuelAllowance: parseNumber(getVal('allowance-fuel')),
-      fuelEnabled: getChecked('fuel-checkbox'),
+      fuelEnabled: parseNumber(getVal('allowance-fuel')) > 0,
       phoneAllowance: parseNumber(getVal('allowance-phone')),
-      phoneEnabled: getChecked('phone-checkbox'),
+      phoneEnabled: parseNumber(getVal('allowance-phone')) > 0,
       travelAllowance: parseNumber(getVal('allowance-travel')),
-      travelEnabled: getChecked('travel-checkbox'),
+      travelEnabled: parseNumber(getVal('allowance-travel')) > 0,
       uniformAllowance: parseNumber(getVal('allowance-uniform')),
-      uniformEnabled: getChecked('uniform-checkbox'),
+      uniformEnabled: parseNumber(getVal('allowance-uniform')) > 0,
       otherAllowance: parseNumber(getVal('allowance-other')),
-      otherAllowanceEnabled: getChecked('other-allowance-checkbox'),
-      isBonusEnabled: getChecked('bonus-checkbox'),
-      productivityBonus: parseNumber(getVal('bonus-productivity')),
-      productivityEnabled: getChecked('productivity-checkbox'),
-      incentiveBonus: parseNumber(getVal('bonus-incentive')),
-      incentiveEnabled: getChecked('incentive-checkbox'),
-      kpiBonus: parseNumber(getVal('bonus-kpi')),
-      kpiEnabled: getChecked('kpi-checkbox'),
-      otherBonus: parseNumber(getVal('bonus-other')),
-      otherBonusEnabled: getChecked('other-bonus-checkbox'),
+      otherAllowanceEnabled: parseNumber(getVal('allowance-other')) > 0,
+      // Simplified bonus handling - single input
+      isBonusEnabled: parseNumber(getVal('total-bonus')) > 0,
+      totalBonus: parseNumber(getVal('total-bonus')),
       citizenship: getVal('citizenship'),
     };
 
@@ -751,33 +753,29 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderResults(data) {
     // Prepare allowance and bonus items
     const allowanceItems = [
-      { label: 'Lunch', value: data.lunchAllowance },
-      { label: 'Fuel', value: data.fuelAllowance },
-      { label: 'Phone', value: data.phoneAllowance },
-      { label: 'Traveling', value: data.travelAllowance },
-      { label: 'Uniform', value: data.uniformAllowance },
-      { label: 'Other', value: data.otherAllowance }
+      { label: TEXT_CONFIG.steps.allowances.types.lunch, value: data.lunchAllowance },
+      { label: TEXT_CONFIG.steps.allowances.types.fuel, value: data.fuelAllowance },
+      { label: TEXT_CONFIG.steps.allowances.types.phone, value: data.phoneAllowance },
+      { label: TEXT_CONFIG.steps.allowances.types.travel, value: data.travelAllowance },
+      { label: TEXT_CONFIG.steps.allowances.types.uniform, value: data.uniformAllowance },
+      { label: TEXT_CONFIG.steps.allowances.types.other, value: data.otherAllowance }
     ].filter(item => item.value && item.value > 0);
     
-    const bonusItems = [
-      { label: 'Productivity', value: data.productivityBonus },
-      { label: 'Incentive', value: data.incentiveBonus },
-      { label: 'KPI', value: data.kpiBonus },
-      { label: 'Other', value: data.otherBonus }
-    ].filter(item => item.value && item.value > 0);
+    // Simplified bonus handling - just check if totalBonus exists
+    const hasBonuses = data.totalBonus && data.totalBonus > 0;
 
     // Generate table rows
     const allowanceRow = generateAllowanceRow(allowanceItems, data.totalAllowance);
-    const bonusRow = generateBonusRow(bonusItems, data.totalBonus);
-    const noAllowanceBonusRow = (allowanceItems.length === 0 && bonusItems.length === 0) 
-      ? `<tr><td colspan="2"><div class="result-center-value" style="font-size:1em; color:#888;">(There are no Allowances or Bonuses in the Contract)</div></td></tr>`
+    const bonusRow = generateBonusRow(hasBonuses, data.totalBonus);
+    const noAllowanceBonusRow = (allowanceItems.length === 0 && !hasBonuses) 
+      ? `<tr><td colspan="2"><div class="result-center-value" style="font-size:1em; color:#888;">${TEXT_CONFIG.warnings.noAllowancesOrBonuses}</div></td></tr>`
       : '';
 
     // Generate content sections
     const employeeTypeLabel = getEmployeeTypeLabel(data.citizenship);
     const employeeTypeCell = `<div class="result-title"><u>${employeeTypeLabel}</u></div>`;
-    const grossSalaryCell = `<div class="result-title">Gross Salary</div><div class="result-center-value">${data.grossSalary ? data.grossSalary.toLocaleString('en-US') + ' VND' : '-'}</div>`;
-    const adjustedGrossSalaryCell = `<div class="result-title">Adjusted Gross Salary</div><div class="result-center-value">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('en-US') + ' VND' : '-'}</div>`;
+    const grossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.sections.grossSalary}</div><div class="result-center-value">${data.grossSalary ? data.grossSalary.toLocaleString('en-US') + ' VND' : '-'}</div>`;
+    const adjustedGrossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.sections.adjustedGrossSalary}</div><div class="result-center-value">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('en-US') + ' VND' : '-'}</div>`;
 
     const employerDetailsCell = generateEmployerDetailsCell(data);
     const employeeDetailsCell = generateEmployeeDetailsCell(data);
@@ -786,7 +784,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Render final result table
     DOM.resultDiv.innerHTML = html`
-      <h1 style="text-align:center;margin-bottom:16px;font-size:30px">PAYSLIP</h1>
+      <h1 style="text-align:center;margin-bottom:16px;font-size:30px">${TEXT_CONFIG.payslipTitle}</h1>
       <div class="result-table-container">
         <table class="result-table result-table-vertical result-table-bordered employer-table-layout">
           <tr><td colspan="2">${employeeTypeCell}</td></tr>
@@ -805,7 +803,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </tr>
         </table>
       </div>
-      <div class="salary-visualization-heading" style="text-align:center;margin:24px 0 0 0;font-size:1.125em;font-weight:bold;">Salary Visualization</div>
+      <div class="salary-visualization-heading" style="text-align:center;margin:24px 0 0 0;font-size:1.125em;font-weight:bold;">${TEXT_CONFIG.salaryVisualizationHeading}</div>
     `;
   }
 
@@ -815,7 +813,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return `
       <tr>
         <td colspan="2">
-          <div class="result-title">Allowances</div>
+          <div class="result-title">${TEXT_CONFIG.results.sections.allowances}</div>
           <div class="result-list">
             ${allowanceItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
           </div>
@@ -826,47 +824,39 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   }
 
-  function generateBonusRow(bonusItems, totalBonus) {
-    if (bonusItems.length === 0) return '';
+  function generateBonusRow(hasBonuses, totalBonus) {
+    if (!hasBonuses) return '';
     
     return `
       <tr>
         <td colspan="2">
-          <div class="result-title">Bonuses</div>
-          <div class="result-list">
-            ${bonusItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
-          </div>
-          <hr class="result-divider" />
-          <div class="result-total"><span>${totalBonus.toLocaleString('en-US')} VND</span></div>
+          <div class="result-title">${TEXT_CONFIG.results.sections.bonuses}</div>
+          <div class="result-center-value">${totalBonus.toLocaleString('en-US')} VND</div>
         </td>
       </tr>
     `;
   }
 
   function getEmployeeTypeLabel(citizenship) {
-    switch (citizenship) {
-      case 'local': return 'Local Employee';
-      case 'expat': return 'Expat Employee';
-      default: return 'Employee';
-    }
+    return TEXT_CONFIG.results.employeeTypes[citizenship] || TEXT_CONFIG.results.employeeTypes.default;
   }
 
   function generateEmployerDetailsCell(data) {
     return html`
-      <div class="result-title">Employer Cost</div>
+      <div class="result-title">${TEXT_CONFIG.results.sections.employerCost}</div>
       <div class="result-list">
-        <div class="result-item">Social Insurance: <span>+${data.employerInsurance.toLocaleString('en-US')} VND</span></div>
-        <div class="result-item">Union Fee: <span>+${data.employerUnionFee.toLocaleString('en-US')} VND</span></div>
+        <div class="result-item">${TEXT_CONFIG.results.costBreakdown.socialInsurance}: <span>+${data.employerInsurance.toLocaleString('en-US')} VND</span></div>
+        <div class="result-item">${TEXT_CONFIG.results.costBreakdown.unionFee}: <span>+${data.employerUnionFee.toLocaleString('en-US')} VND</span></div>
       </div>
     `;
   }
 
   function generateEmployeeDetailsCell(data) {
     return html`
-      <div class="result-title">Employee Take-home</div>
+      <div class="result-title">${TEXT_CONFIG.results.sections.employeeTakeHome}</div>
       <div class="result-list">
-        <div class="result-item">Social Insurance: <span>-${data.employeeInsurance.toLocaleString('en-US')} VND</span></div>
-        <div class="result-item">Personal Income Tax: <span>-${data.incomeTax.toLocaleString('en-US')} VND</span></div>
+        <div class="result-item">${TEXT_CONFIG.results.costBreakdown.socialInsurance}: <span>-${data.employeeInsurance.toLocaleString('en-US')} VND</span></div>
+        <div class="result-item">${TEXT_CONFIG.results.costBreakdown.personalIncomeTax}: <span>-${data.incomeTax.toLocaleString('en-US')} VND</span></div>
       </div>
     `;
   }
@@ -922,10 +912,8 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         if (idx === steps.length - 1) {
           handleCalculation();
-        } else if (continueBtns[idx]) {
-          if (idx === 2 || !continueBtns[idx].disabled) {
-            continueBtns[idx].click();
-          }
+        } else if (continueBtn && !continueBtn.disabled) {
+          continueBtn.click();
         }
       }
     });
@@ -987,7 +975,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.salaryChart = new Chart(DOM.salaryBreakdownChart.getContext('2d'), {
       type: 'doughnut',
       data: {
-        labels: ['Bonus & Allowance', 'Gross Salary'],
+        labels: [TEXT_CONFIG.results.chartLabels.bonusAndAllowance, TEXT_CONFIG.results.chartLabels.grossSalary],
         datasets: [{
           data: [bonusAndAllowance, grossSalary],
           backgroundColor: ['#999999', '#666666'],
@@ -1026,11 +1014,11 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
     
     const breakdownLabels = [
-      'Employee Insurance',
-      'Personal Income Tax',
-      'Employer Insurance',
-      'Employer Union Fee',
-      'Employee Take-home (Net) Salary'
+      TEXT_CONFIG.results.costBreakdown.employeeInsurance,
+      TEXT_CONFIG.results.costBreakdown.personalIncomeTax,
+      TEXT_CONFIG.results.costBreakdown.employerInsurance,
+      TEXT_CONFIG.results.costBreakdown.employerUnionFee,
+      TEXT_CONFIG.results.costBreakdown.netSalary
     ];
 
     window.costBreakdownChart = new Chart(DOM.costBreakdownChart.getContext('2d'), {
@@ -1125,7 +1113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Add PAYSLIP title
         const payslipTitle = document.createElement('h1');
-        payslipTitle.textContent = 'PAYSLIP';
+        payslipTitle.textContent = TEXT_CONFIG.payslipTitle;
         payslipTitle.style.textAlign = 'center';
         payslipTitle.style.marginBottom = '16px';
         exportContainer.appendChild(payslipTitle);

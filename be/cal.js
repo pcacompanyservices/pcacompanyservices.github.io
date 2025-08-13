@@ -135,16 +135,14 @@ export function simulateSalary(params) {
   const otherAllowance   = isAllowanceEnabled ? getRoundedValue(params.otherAllowance,   !!params.otherAllowanceEnabled) : 0;
 
   const isBonusEnabled = !!params.isBonusEnabled;
-  const productivityBonus = isBonusEnabled ? getRoundedValue(params.productivityBonus, !!params.productivityEnabled) : 0;
-  const incentiveBonus    = isBonusEnabled ? getRoundedValue(params.incentiveBonus,    !!params.incentiveEnabled)    : 0;
-  const kpiBonus          = isBonusEnabled ? getRoundedValue(params.kpiBonus,          !!params.kpiEnabled)          : 0;
-  const otherBonus        = isBonusEnabled ? getRoundedValue(params.otherBonus,        !!params.otherBonusEnabled)   : 0;
+  
+  // Simplified bonus structure - single total bonus input
+  const totalBonus = isBonusEnabled ? getRoundedValue(params.totalBonus, true) : 0;
 
   const citizenship = params.citizenship;
 
   // Calculate totals
   const totalAllowance = lunchAllowance + fuelAllowance + phoneAllowance + travelAllowance + uniformAllowance + otherAllowance;
-  const totalBonus = productivityBonus + incentiveBonus + kpiBonus + otherBonus;
   const totalBonusAndAllowance = totalAllowance + totalBonus;
 
   let grossSalary, calculationResult;
@@ -232,10 +230,6 @@ export function simulateSalary(params) {
     otherAllowance:   Math.round(otherAllowance),
     totalAllowance:   Math.round(totalAllowance),
     // Bonuses
-    productivityBonus: Math.round(productivityBonus),
-    incentiveBonus:    Math.round(incentiveBonus),
-    kpiBonus:          Math.round(kpiBonus),
-    otherBonus:        Math.round(otherBonus),
     totalBonus:        Math.round(totalBonus),
     // Total Allowance and Bonus
     totalBonusAndAllowance: Math.round(totalBonusAndAllowance),
