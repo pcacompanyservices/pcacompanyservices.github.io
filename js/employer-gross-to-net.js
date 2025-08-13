@@ -15,9 +15,9 @@ const TEXT_CONFIG = {
   progressSteps: {
     citizenship: "Citizenship",
     grossSalary: "Gross Salary", 
-    allowances: "Allowances",
-    bonuses: "Bonuses",
-    benefits: "Benefits"
+    allowance: "Allowance",
+    bonus: "Bonus",
+    benefit: "Benefit"
   },
   
   // Step titles and descriptions
@@ -34,15 +34,15 @@ const TEXT_CONFIG = {
       title: "Gross Salary",
       placeholder: "Min 5,000,000 VND"
     },
-    allowances: {
-      title: "Allowances",
+    allowance: {
+      title: "Allowance",
       types: {
         lunch: "Lunch",
         fuel: "Fuel", 
         phone: "Phone",
         travel: "Traveling",
         uniform: "Uniform",
-        other: "Other Allowances"
+        other: "Other Allowance"
       },
       placeholders: {
         lunch: "Lunch allowance (VND)",
@@ -50,15 +50,15 @@ const TEXT_CONFIG = {
         phone: "Phone allowance (VND)",
         travel: "Travel allowance (VND)",
         uniform: "Uniform allowance (VND)",
-        other: "Other allowances (VND)"
+        other: "Other allowance (VND)"
       }
     },
-    bonuses: {
-      title: "Bonuses",
-      placeholder: "Total bonuses (VND)"
+    bonus: {
+      title: "Bonus",
+      placeholder: "Total bonus (VND)"
     },
-    benefits: {
-      title: "Benefits",
+    benefit: {
+      title: "Benefit",
       types: {
         childTuition: "Child's Tuition Fee",
         rental: "Rental",
@@ -84,8 +84,8 @@ const TEXT_CONFIG = {
   
   // Warnings and messages
   warnings: {
-    maxDigits: "Maximum 9 digits allowed.",
-    noAllowancesOrBonuses: "(There are no Allowances or Bonuses in the Contract)"
+    maxDigits: "Maximum 9 digit allowed.",
+    noAllowanceOrBonus: "(There is no Allowance or Bonus in the Contract)"
   },
   
   // Result labels
@@ -98,9 +98,9 @@ const TEXT_CONFIG = {
     sections: {
       grossSalary: "Gross Salary",
       adjustedGrossSalary: "Adjusted Gross Salary",
-      allowances: "Allowances",
-      bonuses: "Bonuses",
-      benefits: "Benefits",
+      allowance: "Allowance",
+      bonus: "Bonus",
+      benefit: "Benefit",
       employerCost: "Employer Cost",
       employeeTakeHome: "Employee Take-home"
     },
@@ -119,19 +119,19 @@ const TEXT_CONFIG = {
   infoTooltips: {
     citizenship: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.",
     grossSalary: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.",
-    allowances: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.",
-    bonuses: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.",
-    benefits: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.",
+    allowance: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.",
+    bonus: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.",
+    benefit: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.",
     lunch: "Specify your monthly allowance for lunch in the contract.",
     fuel: "Specify your monthly allowance for fuel in the contract.",
     phone: "Specify your monthly allowance for phone in the contract.",
     travel: "Specify your monthly allowance for traveling in the contract.",
     uniform: "Specify your monthly allowance for uniform in the contract.",
-    otherAllowance: "Enter any other allowances in the contract that are not listed above.",
+    otherAllowance: "Enter any other allowance in the contract that is not listed above.",
     productivity: "Specify your monthly bonus for productivity in the contract.",
     incentive: "Specify your monthly bonus for incentive in the contract.",
     kpi: "Specify your monthly bonus for KPI in the contract.",
-    otherBonus: "Enter any other bonuses in the contract that are not listed above.",
+    otherBonus: "Enter any other bonus in the contract that is not listed above.",
     childTuition: "Specify your monthly child's tuition fee benefit in the contract.",
     rental: "Specify your monthly rental benefit in the contract.",
     healthInsurance: "Specify your monthly health insurance benefit in the contract."
@@ -144,7 +144,7 @@ const TEXT_CONFIG = {
     contactLinkText: "contact us",
     contactUrl: "https://pca-cs.com/",
     disclaimerTitle: "DISCLAIMER",
-    disclaimerText: "The information provided in this simulation is for general informational purposes only. It does not constitute legal advice, nor does it create a service provider or client relationship. While we make every effort to ensure the accuracy, no warranty is given, whether express or implied, to its correctness or completeness. We accept NO RESPONSIBILITY for any errors or omissions. We are NOT LIABLE for any loss or damage, including but not limited to loss of business or profits, arising from the use of this simulation or reliance on its contents, whether in contract, tort, or otherwise."
+    disclaimerText: "The information provided in this simulation is for general informational purposes only. It does not constitute legal advice, nor does it create a service provider or client relationship. While we make every effort to ensure the accuracy, no warranty is given, whether express or implied, to its correctness or completeness. We accept NO RESPONSIBILITY for any error or omission. We are NOT LIABLE for any loss or damage, including but not limited to loss of business or profits, arising from the use of this simulation or reliance on its contents, whether in contract, tort, or otherwise."
   }
 };
 
@@ -242,11 +242,11 @@ function createProgressBar(root) {
     <div class="progress-bar-line"></div>
     <div class="progress-step" data-step="1">${TEXT_CONFIG.progressSteps.grossSalary}</div>
     <div class="progress-bar-line"></div>
-    <div class="progress-step" data-step="2">${TEXT_CONFIG.progressSteps.allowances}</div>
+    <div class="progress-step" data-step="2">${TEXT_CONFIG.progressSteps.allowance}</div>
     <div class="progress-bar-line"></div>
-    <div class="progress-step" data-step="3">${TEXT_CONFIG.progressSteps.bonuses}</div>
+    <div class="progress-step" data-step="3">${TEXT_CONFIG.progressSteps.bonus}</div>
     <div class="progress-bar-line"></div>
-    <div class="progress-step" data-step="4">${TEXT_CONFIG.progressSteps.benefits}</div>
+    <div class="progress-step" data-step="4">${TEXT_CONFIG.progressSteps.benefit}</div>
   `;
   return progressBar;
 }
@@ -310,63 +310,63 @@ function createStep3() {
   step3.style.display = 'none';
   step3.innerHTML = html`
     <div class="step-title-row">
-      <h2>${TEXT_CONFIG.steps.allowances.title}</h2>
+      <h2>${TEXT_CONFIG.steps.allowance.title}</h2>
       <span class="question-icon" tabindex="0">
         <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">${TEXT_CONFIG.infoTooltips.allowances}</span>
+        <span class="info-box">${TEXT_CONFIG.infoTooltips.allowance}</span>
       </span>
     </div>
     <div id="allowance-container">
       <div id="allowance-inputs">
         <div id="allowance-warning" class="input-warning" style="display:none;">${TEXT_CONFIG.warnings.maxDigits}</div>
         
-        <label class="input-label">${TEXT_CONFIG.steps.allowances.types.lunch}
+        <label class="input-label">${TEXT_CONFIG.steps.allowance.types.lunch}
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
             <span class="info-box">${TEXT_CONFIG.infoTooltips.lunch}</span>
           </span>
         </label>
-        <input type="text" class="number-input" id="allowance-lunch" placeholder="${TEXT_CONFIG.steps.allowances.placeholders.lunch}" min="0" />
+        <input type="text" class="number-input" id="allowance-lunch" placeholder="${TEXT_CONFIG.steps.allowance.placeholders.lunch}" min="0" />
         
-        <label class="input-label">${TEXT_CONFIG.steps.allowances.types.fuel}
+        <label class="input-label">${TEXT_CONFIG.steps.allowance.types.fuel}
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
             <span class="info-box">${TEXT_CONFIG.infoTooltips.fuel}</span>
           </span>
         </label>
-        <input type="text" class="number-input" id="allowance-fuel" placeholder="${TEXT_CONFIG.steps.allowances.placeholders.fuel}" min="0" />
+        <input type="text" class="number-input" id="allowance-fuel" placeholder="${TEXT_CONFIG.steps.allowance.placeholders.fuel}" min="0" />
         
-        <label class="input-label">${TEXT_CONFIG.steps.allowances.types.phone}
+        <label class="input-label">${TEXT_CONFIG.steps.allowance.types.phone}
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
             <span class="info-box">${TEXT_CONFIG.infoTooltips.phone}</span>
           </span>
         </label>
-        <input type="text" class="number-input" id="allowance-phone" placeholder="${TEXT_CONFIG.steps.allowances.placeholders.phone}" min="0" />
+        <input type="text" class="number-input" id="allowance-phone" placeholder="${TEXT_CONFIG.steps.allowance.placeholders.phone}" min="0" />
         
-        <label class="input-label">${TEXT_CONFIG.steps.allowances.types.travel}
+        <label class="input-label">${TEXT_CONFIG.steps.allowance.types.travel}
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
             <span class="info-box">${TEXT_CONFIG.infoTooltips.travel}</span>
           </span>
         </label>
-        <input type="text" class="number-input" id="allowance-travel" placeholder="${TEXT_CONFIG.steps.allowances.placeholders.travel}" min="0" />
+        <input type="text" class="number-input" id="allowance-travel" placeholder="${TEXT_CONFIG.steps.allowance.placeholders.travel}" min="0" />
         
-        <label class="input-label">${TEXT_CONFIG.steps.allowances.types.uniform}
+        <label class="input-label">${TEXT_CONFIG.steps.allowance.types.uniform}
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
             <span class="info-box">${TEXT_CONFIG.infoTooltips.uniform}</span>
           </span>
         </label>
-        <input type="text" class="number-input" id="allowance-uniform" placeholder="${TEXT_CONFIG.steps.allowances.placeholders.uniform}" min="0" />
+        <input type="text" class="number-input" id="allowance-uniform" placeholder="${TEXT_CONFIG.steps.allowance.placeholders.uniform}" min="0" />
         
-        <label class="input-label">${TEXT_CONFIG.steps.allowances.types.other}
+        <label class="input-label">${TEXT_CONFIG.steps.allowance.types.other}
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
             <span class="info-box">${TEXT_CONFIG.infoTooltips.otherAllowance}</span>
           </span>
         </label>
-        <input type="text" class="number-input" id="allowance-other" placeholder="${TEXT_CONFIG.steps.allowances.placeholders.other}" min="0" />
+        <input type="text" class="number-input" id="allowance-other" placeholder="${TEXT_CONFIG.steps.allowance.placeholders.other}" min="0" />
       </div>
     </div>
   `;
@@ -380,13 +380,13 @@ function createStep4() {
   step4.style.display = 'none';
   step4.innerHTML = html`
     <div class="step-title-row">
-      <h2>${TEXT_CONFIG.steps.bonuses.title}</h2>
+      <h2>${TEXT_CONFIG.steps.bonus.title}</h2>
       <span class="question-icon" tabindex="0">
         <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">${TEXT_CONFIG.infoTooltips.bonuses}</span>
+        <span class="info-box">${TEXT_CONFIG.infoTooltips.bonus}</span>
       </span>
     </div>
-    <input type="text" class="number-input" id="total-bonus" placeholder="${TEXT_CONFIG.steps.bonuses.placeholder}" />
+    <input type="text" class="number-input" id="total-bonus" placeholder="${TEXT_CONFIG.steps.bonus.placeholder}" />
     <div id="bonus-warning" class="input-warning" style="display:none;">${TEXT_CONFIG.warnings.maxDigits}</div>
   `;
   return step4;
@@ -399,39 +399,39 @@ function createStep5() {
   step5.style.display = 'none';
   step5.innerHTML = html`
     <div class="step-title-row">
-      <h2>${TEXT_CONFIG.steps.benefits.title}</h2>
+      <h2>${TEXT_CONFIG.steps.benefit.title}</h2>
       <span class="question-icon" tabindex="0">
         <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">${TEXT_CONFIG.infoTooltips.benefits}</span>
+        <span class="info-box">${TEXT_CONFIG.infoTooltips.benefit}</span>
       </span>
     </div>
     <div id="benefit-container">
       <div id="benefit-inputs">
         <div id="benefit-warning" class="input-warning" style="display:none;">${TEXT_CONFIG.warnings.maxDigits}</div>
         
-        <label class="input-label">${TEXT_CONFIG.steps.benefits.types.childTuition}
+        <label class="input-label">${TEXT_CONFIG.steps.benefit.types.childTuition}
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
             <span class="info-box">${TEXT_CONFIG.infoTooltips.childTuition}</span>
           </span>
         </label>
-        <input type="text" class="number-input" id="benefit-child-tuition" placeholder="${TEXT_CONFIG.steps.benefits.placeholders.childTuition}" min="0" />
+        <input type="text" class="number-input" id="benefit-child-tuition" placeholder="${TEXT_CONFIG.steps.benefit.placeholders.childTuition}" min="0" />
         
-        <label class="input-label">${TEXT_CONFIG.steps.benefits.types.rental}
+        <label class="input-label">${TEXT_CONFIG.steps.benefit.types.rental}
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
             <span class="info-box">${TEXT_CONFIG.infoTooltips.rental}</span>
           </span>
         </label>
-        <input type="text" class="number-input" id="benefit-rental" placeholder="${TEXT_CONFIG.steps.benefits.placeholders.rental}" min="0" />
+        <input type="text" class="number-input" id="benefit-rental" placeholder="${TEXT_CONFIG.steps.benefit.placeholders.rental}" min="0" />
         
-        <label class="input-label">${TEXT_CONFIG.steps.benefits.types.healthInsurance}
+        <label class="input-label">${TEXT_CONFIG.steps.benefit.types.healthInsurance}
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
             <span class="info-box">${TEXT_CONFIG.infoTooltips.healthInsurance}</span>
           </span>
         </label>
-        <input type="text" class="number-input" id="benefit-health-insurance" placeholder="${TEXT_CONFIG.steps.benefits.placeholders.healthInsurance}" min="0" />
+        <input type="text" class="number-input" id="benefit-health-insurance" placeholder="${TEXT_CONFIG.steps.benefit.placeholders.healthInsurance}" min="0" />
       </div>
     </div>
   `;
@@ -503,11 +503,60 @@ function createResultButtonsContainer(root) {
 function createFooter(root) {
   const footer = createAndAppend(root, 'footer', { className: 'app-footer' });
   footer.innerHTML = html`
+    <hr />
     <span class="footer-title">${TEXT_CONFIG.footer.importantNoteTitle}</span>
     <div class="footer-text">${TEXT_CONFIG.footer.importantNoteText} <a href="${TEXT_CONFIG.footer.contactUrl}" target="_blank">${TEXT_CONFIG.footer.contactLinkText}</a>.</div>
     <span class="footer-title">${TEXT_CONFIG.footer.disclaimerTitle}</span>
     <div class="footer-text">${TEXT_CONFIG.footer.disclaimerText}</div>
   `;
+  
+  // Function to dynamically position footer
+  function positionFooter() {
+    const viewportHeight = window.innerHeight;
+    const bodyHeight = document.body.scrollHeight;
+    const footerHeight = footer.offsetHeight;
+    
+    // Check if content + footer fits in viewport
+    if (bodyHeight <= viewportHeight) {
+      // Fix footer at bottom of viewport (minimal positioning changes only)
+      footer.style.position = 'fixed';
+      footer.style.bottom = '0.5rem';
+      footer.style.left = '50%';
+      footer.style.transform = 'translateX(-50%)';
+      footer.style.zIndex = '1000';
+      footer.style.width = '70%';
+      // Add padding to body to prevent content from being hidden behind footer
+      document.body.style.paddingBottom = `calc(2rem + ${footerHeight}px)`;
+    } else {
+      // Reset positioning to let CSS handle everything naturally
+      footer.style.position = '';
+      footer.style.bottom = '';
+      footer.style.left = '';
+      footer.style.transform = '';
+      footer.style.zIndex = '';
+      footer.style.marginTop = '15rem'; // Only this override for extra spacing
+      document.body.style.paddingBottom = '';
+    }
+  }
+  
+  // Position footer initially after a short delay to ensure DOM is ready
+  setTimeout(positionFooter, 100);
+  
+  // Reposition footer on window resize
+  window.addEventListener('resize', positionFooter);
+  
+  // Reposition footer when content changes (e.g., form to results)
+  const observer = new MutationObserver(() => {
+    setTimeout(positionFooter, 100);
+  });
+  
+  observer.observe(root, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['style']
+  });
+  
   return footer;
 }
 
@@ -625,13 +674,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const numericValue = parseInt(grossSalaryInput.value.replace(/\D/g, '')) || 0;
         isValid = numericValue >= MIN_SALARY;
         break;
-      case 2: // Allowances step (always valid, can skip)
+      case 2: // Allowance step (always valid, can skip)
         isValid = true;
         break;
-      case 3: // Bonuses step (always valid, can skip)
+      case 3: // Bonus step (always valid, can skip)
         isValid = true;
         break;
-      case 4: // Benefits step (always valid, can skip)
+      case 4: // Benefit step (always valid, can skip)
         isValid = true;
         break;
       default:
@@ -779,7 +828,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Simplified bonus handling - single input
       isBonusEnabled: parseNumber(getVal('total-bonus')) > 0,
       totalBonus: parseNumber(getVal('total-bonus')),
-      // Benefits handling
+      // Benefit handling
       isBenefitEnabled: parseNumber(getVal('benefit-child-tuition')) > 0 || parseNumber(getVal('benefit-rental')) > 0 || parseNumber(getVal('benefit-health-insurance')) > 0,
       childTuitionBenefit: parseNumber(getVal('benefit-child-tuition')),
       childTuitionEnabled: parseNumber(getVal('benefit-child-tuition')) > 0,
@@ -825,19 +874,19 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderResults(data) {
     // Prepare allowance and bonus items
     const allowanceItems = [
-      { label: TEXT_CONFIG.steps.allowances.types.lunch, value: data.lunchAllowance },
-      { label: TEXT_CONFIG.steps.allowances.types.fuel, value: data.fuelAllowance },
-      { label: TEXT_CONFIG.steps.allowances.types.phone, value: data.phoneAllowance },
-      { label: TEXT_CONFIG.steps.allowances.types.travel, value: data.travelAllowance },
-      { label: TEXT_CONFIG.steps.allowances.types.uniform, value: data.uniformAllowance },
-      { label: TEXT_CONFIG.steps.allowances.types.other, value: data.otherAllowance }
+      { label: TEXT_CONFIG.steps.allowance.types.lunch, value: data.lunchAllowance },
+      { label: TEXT_CONFIG.steps.allowance.types.fuel, value: data.fuelAllowance },
+      { label: TEXT_CONFIG.steps.allowance.types.phone, value: data.phoneAllowance },
+      { label: TEXT_CONFIG.steps.allowance.types.travel, value: data.travelAllowance },
+      { label: TEXT_CONFIG.steps.allowance.types.uniform, value: data.uniformAllowance },
+      { label: TEXT_CONFIG.steps.allowance.types.other, value: data.otherAllowance }
     ].filter(item => item.value && item.value > 0);
     
     // Prepare benefit items
     const benefitItems = [
-      { label: TEXT_CONFIG.steps.benefits.types.childTuition, value: data.childTuitionBenefit },
-      { label: TEXT_CONFIG.steps.benefits.types.rental, value: data.rentalBenefit },
-      { label: TEXT_CONFIG.steps.benefits.types.healthInsurance, value: data.healthInsuranceBenefit }
+      { label: TEXT_CONFIG.steps.benefit.types.childTuition, value: data.childTuitionBenefit },
+      { label: TEXT_CONFIG.steps.benefit.types.rental, value: data.rentalBenefit },
+      { label: TEXT_CONFIG.steps.benefit.types.healthInsurance, value: data.healthInsuranceBenefit }
     ].filter(item => item.value && item.value > 0);
     
     // Simplified bonus handling - just check if totalBonus exists
@@ -848,7 +897,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const bonusRow = generateBonusRow(hasBonuses, data.totalBonus);
     const benefitRow = generateBenefitRow(benefitItems, data.totalBenefit);
     const noAllowanceBonusBenefitRow = (allowanceItems.length === 0 && !hasBonuses && benefitItems.length === 0) 
-      ? `<tr><td colspan="2"><div class="result-center-value" style="font-size:1em; color:#888;">${TEXT_CONFIG.warnings.noAllowancesOrBonuses}</div></td></tr>`
+      ? `<tr><td colspan="2"><div class="result-center-value" style="font-size:1em; color:#888;">${TEXT_CONFIG.warnings.noAllowanceOrBonus}</div></td></tr>`
       : '';
 
     // Generate content sections
@@ -893,7 +942,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return `
       <tr>
         <td colspan="2">
-          <div class="result-title">${TEXT_CONFIG.results.sections.allowances}</div>
+          <div class="result-title">${TEXT_CONFIG.results.sections.allowance}</div>
           <div class="result-list">
             ${allowanceItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
           </div>
@@ -910,7 +959,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return `
       <tr>
         <td colspan="2">
-          <div class="result-title">${TEXT_CONFIG.results.sections.bonuses}</div>
+          <div class="result-title">${TEXT_CONFIG.results.sections.bonus}</div>
           <div class="result-center-value">${totalBonus.toLocaleString('en-US')} VND</div>
         </td>
       </tr>
@@ -923,7 +972,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return `
       <tr>
         <td colspan="2">
-          <div class="result-title">${TEXT_CONFIG.results.sections.benefits}</div>
+          <div class="result-title">${TEXT_CONFIG.results.sections.benefit}</div>
           <div class="result-list">
             ${benefitItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
           </div>
