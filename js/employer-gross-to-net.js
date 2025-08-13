@@ -10,7 +10,6 @@ const TEXT_CONFIG = {
   // Page title and main headers
   pageTitle: "Calculate from Employee's Gross Salary",
   payslipTitle: "PAYSLIP",
-  salaryVisualizationHeading: "Salary Visualization",
   
   // Progress bar steps
   progressSteps: {
@@ -98,10 +97,6 @@ const TEXT_CONFIG = {
       employerInsurance: "Employer Insurance",
       employerUnionFee: "Employer Union Fee",
       employeeInsurance: "Employee Insurance"
-    },
-    chartLabels: {
-      bonusAndAllowance: "Bonus & Allowance",
-      grossSalary: "Gross Salary"
     }
   },
   
@@ -397,20 +392,9 @@ function createNavButtons() {
   return navDiv;
 }
 
-function createResultAndCharts(root) {
+function createResultSection(root) {
   const resultDiv = createAndAppend(root, 'div', { className: 'result', id: 'result', 'aria-live': 'polite' });
-  const pieChartContainer = createAndAppend(root, 'div', { className: 'pie-chart-container' });
-  pieChartContainer.innerHTML = html`
-    <div id="salary-chart-block">
-      <canvas id="salary-breakdown-chart" style="display: none;"></canvas>
-      <div id="salary-breakdown-chart-label" style="display: none;">Salary Breakdown</div>
-    </div>
-    <div id="cost-chart-block">
-      <canvas id="cost-breakdown-chart" style="display: none;"></canvas>
-      <div id="cost-breakdown-chart-label" style="display: none;">Cost Breakdown</div>
-    </div>
-  `;
-  return { resultDiv, pieChartContainer };
+  return { resultDiv };
 }
 
 function createResultButtonsContainer(root) {
@@ -486,7 +470,7 @@ document.addEventListener('DOMContentLoaded', () => {
   salaryForm.appendChild(createNavButtons());
   
   // Create result containers and buttons
-  const { resultDiv, pieChartContainer } = createResultAndCharts(root);
+  const { resultDiv } = createResultSection(root);
   const { buttonContainer, downloadBtn, resetBtn, hardResetBtn } = createResultButtonsContainer(root);
 
   // Create footer
@@ -615,16 +599,6 @@ document.addEventListener('DOMContentLoaded', () => {
   showStep(currentStep);
 
   // ============================================================================
-  // CHART.JS INITIALIZATION
-  // ============================================================================
-  
-  if (!window.Chart) {
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
-    document.head.appendChild(script);
-  }
-
-  // ============================================================================
   // DOM REFERENCES
   // ============================================================================
   const DOM = {
@@ -633,11 +607,7 @@ document.addEventListener('DOMContentLoaded', () => {
     downloadPdfBtn: downloadBtn,
     buttonContainer,
     resultDiv,
-    allowanceInputs: getElement('allowance-inputs'),
-    costBreakdownChart: getElement('cost-breakdown-chart'),
-    salaryBreakdownChart: getElement('salary-breakdown-chart'),
-    costBreakdownChartLabel: getElement('cost-breakdown-chart-label'),
-    salaryBreakdownChartLabel: getElement('salary-breakdown-chart-label'),
+    allowanceInputs: getElement('allowance-inputs')
   };
 
   // ============================================================================
@@ -687,17 +657,6 @@ document.addEventListener('DOMContentLoaded', () => {
       formatNumberInput(e.target);
     }
   });
-
-  // ============================================================================
-  // CHART UTILITIES
-  // ============================================================================
-  
-  function destroyChart(chartName) {
-    if (window[chartName] && typeof window[chartName].destroy === 'function') {
-      window[chartName].destroy();
-      window[chartName] = null;
-    }
-  }
 
   // ============================================================================
   // CALCULATION LOGIC
@@ -752,7 +711,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (data && data.error) {
       DOM.resultDiv.innerHTML = `<span style="color:red">${data.error}</span>`;
       DOM.downloadPdfBtn.style.display = 'none';
-      renderPieChart({});
       return;
     }
 
@@ -761,7 +719,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Render results
     renderResults(data);
-    renderPieChart(data);
     
     // Show action buttons container
     DOM.buttonContainer.style.display = 'flex';
@@ -832,7 +789,6 @@ document.addEventListener('DOMContentLoaded', () => {
           </tr>
         </table>
       </div>
-      <div class="salary-visualization-heading" style="text-align:center;margin:24px 0 0 0;font-size:1.125em;font-weight:bold;">${TEXT_CONFIG.salaryVisualizationHeading}</div>
     `;
   }
 
@@ -896,12 +852,6 @@ document.addEventListener('DOMContentLoaded', () => {
       DOM.resultDiv.innerHTML = '';
       DOM.buttonContainer.style.display = 'none';
       
-      // Hide charts
-      if (DOM.salaryBreakdownChart) DOM.salaryBreakdownChart.style.display = 'none';
-      if (DOM.salaryBreakdownChartLabel) DOM.salaryBreakdownChartLabel.style.display = 'none';
-      if (DOM.costBreakdownChart) DOM.costBreakdownChart.style.display = 'none';
-      if (DOM.costBreakdownChartLabel) DOM.costBreakdownChartLabel.style.display = 'none';
-      
       // Re-insert form
       if (!document.getElementById('salary-form')) {
         root.insertBefore(salaryForm, DOM.resultDiv);
@@ -948,143 +898,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ============================================================================
-  // CHART RENDERING
-  // ============================================================================
-
-  function renderPieChart(data) {
-    function updateChartBlockVisibility(showSalary, showCost) {
-      const salaryBlock = document.getElementById('salary-chart-block');
-      const costBlock = document.getElementById('cost-chart-block');
-      
-      if (salaryBlock) salaryBlock.style.display = showSalary ? 'flex' : 'none';
-      if (costBlock) costBlock.style.display = showCost ? 'flex' : 'none';
-      
-      // Center charts when only one is visible
-      const pieChartContainer = document.querySelector('.pie-chart-container');
-      if (pieChartContainer) {
-        pieChartContainer.style.justifyContent = 'center';
-      }
-    }
-
-    // Handle empty data
-    if (!data.grossSalary) {
-      destroyChart('salaryChart');
-      destroyChart('costBreakdownChart');
-      DOM.salaryBreakdownChart.style.display = 'none';
-      DOM.salaryBreakdownChartLabel.style.display = 'none';
-      DOM.costBreakdownChart.style.display = 'none';
-      DOM.costBreakdownChartLabel.style.display = 'none';
-      updateChartBlockVisibility(false, false);
-      return;
-    }
-
-    // Render salary breakdown chart
-    const bonusAndAllowance = data.adjustedGrossSalary - data.grossSalary;
-    if (bonusAndAllowance === 0) {
-      destroyChart('salaryChart');
-      DOM.salaryBreakdownChart.style.display = 'none';
-      DOM.salaryBreakdownChartLabel.style.display = 'none';
-      updateChartBlockVisibility(false, true);
-    } else {
-      renderSalaryChart(bonusAndAllowance, data.grossSalary);
-      DOM.salaryBreakdownChart.style.display = 'block';
-      DOM.salaryBreakdownChartLabel.style.display = 'block';
-      updateChartBlockVisibility(true, true);
-    }
-
-    // Render cost breakdown chart
-    renderCostChart(data);
-    DOM.costBreakdownChart.style.display = 'block';
-    DOM.costBreakdownChartLabel.style.display = 'block';
-  }
-
-  function renderSalaryChart(bonusAndAllowance, grossSalary) {
-    destroyChart('salaryChart');
-    window.salaryChart = new Chart(DOM.salaryBreakdownChart.getContext('2d'), {
-      type: 'doughnut',
-      data: {
-        labels: [TEXT_CONFIG.results.chartLabels.bonusAndAllowance, TEXT_CONFIG.results.chartLabels.grossSalary],
-        datasets: [{
-          data: [bonusAndAllowance, grossSalary],
-          backgroundColor: ['#999999', '#666666'],
-          spacing: 5,
-        }]
-      },
-      options: {
-        responsive: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            bodyFont: { family: 'EB Garamond' },
-            callbacks: {
-              label: (ctx) => {
-                const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                const value = ctx.raw;
-                const percent = ((value / total) * 100).toFixed(2);
-                return `${ctx.label}: ${value.toLocaleString('en-US')} VND (${percent}%)`;
-              }
-            }
-          }
-        }
-      }
-    });
-  }
-
-  function renderCostChart(data) {
-    destroyChart('costBreakdownChart');
-    
-    const breakdownData = [
-      data.employeeInsurance || 0,
-      data.incomeTax || 0,
-      data.employerInsurance || 0,
-      data.employerUnionFee || 0,
-      data.netSalary || 0
-    ];
-    
-    const breakdownLabels = [
-      TEXT_CONFIG.results.costBreakdown.employeeInsurance,
-      TEXT_CONFIG.results.costBreakdown.personalIncomeTax,
-      TEXT_CONFIG.results.costBreakdown.employerInsurance,
-      TEXT_CONFIG.results.costBreakdown.employerUnionFee,
-      TEXT_CONFIG.results.costBreakdown.netSalary
-    ];
-
-    window.costBreakdownChart = new Chart(DOM.costBreakdownChart.getContext('2d'), {
-      type: 'doughnut',
-      data: {
-        labels: breakdownLabels,
-        datasets: [{
-          data: breakdownData,
-          backgroundColor: [
-            '#C1272D',
-            '#A72126',
-            '#C1272D',
-            '#A72126',
-            '#666666'
-          ],
-          spacing: 5,
-        }]
-      },
-      options: {
-        responsive: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            bodyFont: { family: 'EB Garamond' },
-            callbacks: {
-              label: (ctx) => {
-                const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                const value = ctx.raw;
-                const percent = total > 0 ? ((value / total) * 100).toFixed(2) : '0.00';
-                return `${ctx.label}: ${value.toLocaleString('en-US')} VND (${percent}%)`;
-              }
-            }
-          }
-        }
-      }
-    });
-  }
   // ============================================================================
   // PDF EXPORT
   // ============================================================================
