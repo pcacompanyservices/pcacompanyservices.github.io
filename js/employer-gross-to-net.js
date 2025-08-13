@@ -16,7 +16,8 @@ const TEXT_CONFIG = {
     citizenship: "Citizenship",
     grossSalary: "Gross Salary", 
     allowances: "Allowances",
-    bonuses: "Bonuses"
+    bonuses: "Bonuses",
+    benefits: "Benefits"
   },
   
   // Step titles and descriptions
@@ -55,6 +56,19 @@ const TEXT_CONFIG = {
     bonuses: {
       title: "Bonuses",
       placeholder: "Total bonuses (VND)"
+    },
+    benefits: {
+      title: "Benefits",
+      types: {
+        childTuition: "Child's Tuition Fee",
+        rental: "Rental",
+        healthInsurance: "Health Insurance"
+      },
+      placeholders: {
+        childTuition: "Child's tuition fee (VND)",
+        rental: "Rental benefit (VND)",
+        healthInsurance: "Health insurance benefit (VND)"
+      }
     }
   },
   
@@ -86,6 +100,7 @@ const TEXT_CONFIG = {
       adjustedGrossSalary: "Adjusted Gross Salary",
       allowances: "Allowances",
       bonuses: "Bonuses",
+      benefits: "Benefits",
       employerCost: "Employer Cost",
       employeeTakeHome: "Employee Take-home"
     },
@@ -106,6 +121,7 @@ const TEXT_CONFIG = {
     grossSalary: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.",
     allowances: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.",
     bonuses: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.",
+    benefits: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.",
     lunch: "Specify your monthly allowance for lunch in the contract.",
     fuel: "Specify your monthly allowance for fuel in the contract.",
     phone: "Specify your monthly allowance for phone in the contract.",
@@ -115,7 +131,10 @@ const TEXT_CONFIG = {
     productivity: "Specify your monthly bonus for productivity in the contract.",
     incentive: "Specify your monthly bonus for incentive in the contract.",
     kpi: "Specify your monthly bonus for KPI in the contract.",
-    otherBonus: "Enter any other bonuses in the contract that are not listed above."
+    otherBonus: "Enter any other bonuses in the contract that are not listed above.",
+    childTuition: "Specify your monthly child's tuition fee benefit in the contract.",
+    rental: "Specify your monthly rental benefit in the contract.",
+    healthInsurance: "Specify your monthly health insurance benefit in the contract."
   },
 
   // Footer content
@@ -226,6 +245,8 @@ function createProgressBar(root) {
     <div class="progress-step" data-step="2">${TEXT_CONFIG.progressSteps.allowances}</div>
     <div class="progress-bar-line"></div>
     <div class="progress-step" data-step="3">${TEXT_CONFIG.progressSteps.bonuses}</div>
+    <div class="progress-bar-line"></div>
+    <div class="progress-step" data-step="4">${TEXT_CONFIG.progressSteps.benefits}</div>
   `;
   return progressBar;
 }
@@ -371,6 +392,52 @@ function createStep4() {
   return step4;
 }
 
+function createStep5() {
+  const step5 = document.createElement('div');
+  step5.className = 'form-step';
+  step5.id = 'step-5';
+  step5.style.display = 'none';
+  step5.innerHTML = html`
+    <div class="step-title-row">
+      <h2>${TEXT_CONFIG.steps.benefits.title}</h2>
+      <span class="question-icon" tabindex="0">
+        <img src="asset/question_icon.webp" alt="info" />
+        <span class="info-box">${TEXT_CONFIG.infoTooltips.benefits}</span>
+      </span>
+    </div>
+    <div id="benefit-container">
+      <div id="benefit-inputs">
+        <div id="benefit-warning" class="input-warning" style="display:none;">${TEXT_CONFIG.warnings.maxDigits}</div>
+        
+        <label class="input-label">${TEXT_CONFIG.steps.benefits.types.childTuition}
+          <span class="question-icon" tabindex="0">
+            <img src="asset/question_icon.webp" alt="info" />
+            <span class="info-box">${TEXT_CONFIG.infoTooltips.childTuition}</span>
+          </span>
+        </label>
+        <input type="text" class="number-input" id="benefit-child-tuition" placeholder="${TEXT_CONFIG.steps.benefits.placeholders.childTuition}" min="0" />
+        
+        <label class="input-label">${TEXT_CONFIG.steps.benefits.types.rental}
+          <span class="question-icon" tabindex="0">
+            <img src="asset/question_icon.webp" alt="info" />
+            <span class="info-box">${TEXT_CONFIG.infoTooltips.rental}</span>
+          </span>
+        </label>
+        <input type="text" class="number-input" id="benefit-rental" placeholder="${TEXT_CONFIG.steps.benefits.placeholders.rental}" min="0" />
+        
+        <label class="input-label">${TEXT_CONFIG.steps.benefits.types.healthInsurance}
+          <span class="question-icon" tabindex="0">
+            <img src="asset/question_icon.webp" alt="info" />
+            <span class="info-box">${TEXT_CONFIG.infoTooltips.healthInsurance}</span>
+          </span>
+        </label>
+        <input type="text" class="number-input" id="benefit-health-insurance" placeholder="${TEXT_CONFIG.steps.benefits.placeholders.healthInsurance}" min="0" />
+      </div>
+    </div>
+  `;
+  return step5;
+}
+
 function createNavButtons() {
   const navDiv = document.createElement('div');
   navDiv.className = 'form-navigation';
@@ -462,11 +529,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const step2 = createStep2();
   const step3 = createStep3();
   const step4 = createStep4();
+  const step5 = createStep5();
   
   salaryForm.appendChild(step1);
   salaryForm.appendChild(step2);
   salaryForm.appendChild(step3);
   salaryForm.appendChild(step4);
+  salaryForm.appendChild(step5);
   salaryForm.appendChild(createNavButtons());
   
   // Create result containers and buttons
@@ -479,7 +548,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ============================================================================
   // FORM NAVIGATION
   // ============================================================================
-  const steps = [step1, step2, step3, step4];
+  const steps = [step1, step2, step3, step4, step5];
   const returnBtn = getElement('return-btn');
   const continueBtn = getElement('continue-btn');
   const calculateBtn = getElement('calculate-btn');
@@ -559,6 +628,12 @@ document.addEventListener('DOMContentLoaded', () => {
       case 2: // Allowances step (always valid, can skip)
         isValid = true;
         break;
+      case 3: // Bonuses step (always valid, can skip)
+        isValid = true;
+        break;
+      case 4: // Benefits step (always valid, can skip)
+        isValid = true;
+        break;
       default:
         isValid = false;
     }
@@ -607,7 +682,8 @@ document.addEventListener('DOMContentLoaded', () => {
     downloadPdfBtn: downloadBtn,
     buttonContainer,
     resultDiv,
-    allowanceInputs: getElement('allowance-inputs')
+    allowanceInputs: getElement('allowance-inputs'),
+    benefitInputs: getElement('benefit-inputs')
   };
 
   // ============================================================================
@@ -632,6 +708,8 @@ document.addEventListener('DOMContentLoaded', () => {
       warningElement = document.getElementById('allowance-warning');
     } else if (input.closest('#bonus-inputs')) {
       warningElement = document.getElementById('bonus-warning');
+    } else if (input.closest('#benefit-inputs')) {
+      warningElement = document.getElementById('benefit-warning');
     }
     
     // Check max digits limit
@@ -701,6 +779,14 @@ document.addEventListener('DOMContentLoaded', () => {
       // Simplified bonus handling - single input
       isBonusEnabled: parseNumber(getVal('total-bonus')) > 0,
       totalBonus: parseNumber(getVal('total-bonus')),
+      // Benefits handling
+      isBenefitEnabled: parseNumber(getVal('benefit-child-tuition')) > 0 || parseNumber(getVal('benefit-rental')) > 0 || parseNumber(getVal('benefit-health-insurance')) > 0,
+      childTuitionBenefit: parseNumber(getVal('benefit-child-tuition')),
+      childTuitionEnabled: parseNumber(getVal('benefit-child-tuition')) > 0,
+      rentalBenefit: parseNumber(getVal('benefit-rental')),
+      rentalEnabled: parseNumber(getVal('benefit-rental')) > 0,
+      healthInsuranceBenefit: parseNumber(getVal('benefit-health-insurance')),
+      healthInsuranceEnabled: parseNumber(getVal('benefit-health-insurance')) > 0,
       citizenship: getVal('citizenship'),
     };
 
@@ -747,13 +833,21 @@ document.addEventListener('DOMContentLoaded', () => {
       { label: TEXT_CONFIG.steps.allowances.types.other, value: data.otherAllowance }
     ].filter(item => item.value && item.value > 0);
     
+    // Prepare benefit items
+    const benefitItems = [
+      { label: TEXT_CONFIG.steps.benefits.types.childTuition, value: data.childTuitionBenefit },
+      { label: TEXT_CONFIG.steps.benefits.types.rental, value: data.rentalBenefit },
+      { label: TEXT_CONFIG.steps.benefits.types.healthInsurance, value: data.healthInsuranceBenefit }
+    ].filter(item => item.value && item.value > 0);
+    
     // Simplified bonus handling - just check if totalBonus exists
     const hasBonuses = data.totalBonus && data.totalBonus > 0;
 
     // Generate table rows
     const allowanceRow = generateAllowanceRow(allowanceItems, data.totalAllowance);
     const bonusRow = generateBonusRow(hasBonuses, data.totalBonus);
-    const noAllowanceBonusRow = (allowanceItems.length === 0 && !hasBonuses) 
+    const benefitRow = generateBenefitRow(benefitItems, data.totalBenefit);
+    const noAllowanceBonusBenefitRow = (allowanceItems.length === 0 && !hasBonuses && benefitItems.length === 0) 
       ? `<tr><td colspan="2"><div class="result-center-value" style="font-size:1em; color:#888;">${TEXT_CONFIG.warnings.noAllowancesOrBonuses}</div></td></tr>`
       : '';
 
@@ -777,7 +871,8 @@ document.addEventListener('DOMContentLoaded', () => {
           <tr><td colspan="2">${grossSalaryCell}</td></tr>
           ${allowanceRow}
           ${bonusRow}
-          ${noAllowanceBonusRow}
+          ${benefitRow}
+          ${noAllowanceBonusBenefitRow}
           <tr><td colspan="2">${adjustedGrossSalaryCell}</td></tr>
           <tr>
             <td style="padding:0;vertical-align:top;">${employerDetailsCell}</td>
@@ -817,6 +912,23 @@ document.addEventListener('DOMContentLoaded', () => {
         <td colspan="2">
           <div class="result-title">${TEXT_CONFIG.results.sections.bonuses}</div>
           <div class="result-center-value">${totalBonus.toLocaleString('en-US')} VND</div>
+        </td>
+      </tr>
+    `;
+  }
+
+  function generateBenefitRow(benefitItems, totalBenefit) {
+    if (benefitItems.length === 0) return '';
+    
+    return `
+      <tr>
+        <td colspan="2">
+          <div class="result-title">${TEXT_CONFIG.results.sections.benefits}</div>
+          <div class="result-list">
+            ${benefitItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
+          </div>
+          <hr class="result-divider" />
+          <div class="result-total"><span>${totalBenefit ? totalBenefit.toLocaleString('en-US') : '0'} VND</span></div>
         </td>
       </tr>
     `;

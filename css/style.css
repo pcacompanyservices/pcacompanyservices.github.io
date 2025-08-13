@@ -474,8 +474,6 @@ button:hover,
 .return-button.disabled:focus {
   background-color: #f0f0f0 !important;
   color: #999 !important;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 /* Unavailable simulation button style (lighter and not clickable) */

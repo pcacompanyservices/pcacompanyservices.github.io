@@ -139,10 +139,17 @@ export function simulateSalary(params) {
   // Simplified bonus structure - single total bonus input
   const totalBonus = isBonusEnabled ? getRoundedValue(params.totalBonus, true) : 0;
 
+  // Parse benefits
+  const isBenefitEnabled = !!params.isBenefitEnabled;
+  const childTuitionBenefit    = isBenefitEnabled ? getRoundedValue(params.childTuitionBenefit,    !!params.childTuitionEnabled)    : 0;
+  const rentalBenefit          = isBenefitEnabled ? getRoundedValue(params.rentalBenefit,          !!params.rentalEnabled)          : 0;
+  const healthInsuranceBenefit = isBenefitEnabled ? getRoundedValue(params.healthInsuranceBenefit, !!params.healthInsuranceEnabled) : 0;
+
   const citizenship = params.citizenship;
 
   // Calculate totals
   const totalAllowance = lunchAllowance + fuelAllowance + phoneAllowance + travelAllowance + uniformAllowance + otherAllowance;
+  const totalBenefit = childTuitionBenefit + rentalBenefit + healthInsuranceBenefit;
   const totalBonusAndAllowance = totalAllowance + totalBonus;
 
   let grossSalary, calculationResult;
@@ -231,6 +238,11 @@ export function simulateSalary(params) {
     totalAllowance:   Math.round(totalAllowance),
     // Bonuses
     totalBonus:        Math.round(totalBonus),
+    // Benefits
+    childTuitionBenefit:    Math.round(childTuitionBenefit),
+    rentalBenefit:          Math.round(rentalBenefit),
+    healthInsuranceBenefit: Math.round(healthInsuranceBenefit),
+    totalBenefit:           Math.round(totalBenefit),
     // Total Allowance and Bonus
     totalBonusAndAllowance: Math.round(totalBonusAndAllowance),
     // Adjusted Gross Salary construction
