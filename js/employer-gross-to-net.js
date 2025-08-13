@@ -387,7 +387,7 @@ function createNavButtons() {
   navDiv.innerHTML = html`
     <button type="button" id="return-btn" class="simulation-button return-button" style="display:none;flex:1;min-width:12rem;max-width:16rem;margin:0;">${TEXT_CONFIG.buttons.return}</button>
     <button type="button" id="continue-btn" class="simulation-button" style="display:none;flex:1;min-width:12rem;max-width:16rem;margin:0;">${TEXT_CONFIG.buttons.continue}</button>
-    <button type="submit" id="calculate-btn" class="simulation-button" style="display:none;flex:1;min-width:12rem;max-width:16rem;margin:0;">${TEXT_CONFIG.buttons.calculate}</button>
+    <button type="button" id="calculate-btn" class="simulation-button" style="display:none;flex:1;min-width:12rem;max-width:16rem;margin:0;">${TEXT_CONFIG.buttons.calculate}</button>
   `;
   return navDiv;
 }
@@ -877,25 +877,6 @@ document.addEventListener('DOMContentLoaded', () => {
   DOM.calculateBtn.addEventListener('click', (e) => {
     e.preventDefault();
     handleCalculation();
-  });
-  
-  salaryForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    handleCalculation();
-  });
-
-  // Enter key handling for each step
-  steps.forEach((step, idx) => {
-    step.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        if (idx === steps.length - 1) {
-          handleCalculation();
-        } else if (continueBtn && !continueBtn.disabled) {
-          continueBtn.click();
-        }
-      }
-    });
   });
 
   // ============================================================================
