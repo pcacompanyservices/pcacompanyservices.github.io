@@ -56,7 +56,7 @@ async function exportResultToPdf({
 
 // Format utilities
 function formatLine(label, value) {
-  return value ? `- ${label}: ${value.toLocaleString('en-US')} VND<br>` : '';
+  return value ? `- ${label}: ${value.toLocaleString('vi-VN')} VND<br>` : '';
 }
 
 function safeText(text) {
@@ -64,7 +64,7 @@ function safeText(text) {
 }
 
 function formatCurrency(val) {
-  return val ? val.toLocaleString('en-US') + ' VND' : '-';
+  return val ? val.toLocaleString('vi-VN') + ' VND' : '-';
 }
 
 
@@ -573,7 +573,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (raw) {
       let num = parseInt(raw, 10);
-      input.value = num ? num.toLocaleString('en-US') : '';
+      input.value = num ? num.toLocaleString('vi-VN') : '';
     } else {
       input.value = '';
     }
@@ -687,10 +687,10 @@ document.addEventListener('DOMContentLoaded', () => {
           <td colspan="2">
             <div class="result-title">Allowances</div>
             <div class="result-list">
-              ${allowanceItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
+              ${allowanceItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('vi-VN')} VND</span></div>`).join('')}
             </div>
             <hr class="result-divider" />
-            <div class="result-total"><span>${data.totalAllowance.toLocaleString('en-US')} VND</span></div>
+            <div class="result-total"><span>${data.totalAllowance.toLocaleString('vi-VN')} VND</span></div>
           </td>
         </tr>
       `;
@@ -701,10 +701,10 @@ document.addEventListener('DOMContentLoaded', () => {
           <td colspan="2">
             <div class="result-title">Bonuses</div>
             <div class="result-list">
-              ${bonusItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
+              ${bonusItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('vi-VN')} VND</span></div>`).join('')}
             </div>
             <hr class="result-divider" />
-            <div class="result-total"><span>${data.totalBonus.toLocaleString('en-US')} VND</span></div>
+            <div class="result-total"><span>${data.totalBonus.toLocaleString('vi-VN')} VND</span></div>
           </td>
         </tr>
       `;
@@ -729,13 +729,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Gross Salary box
     const grossSalaryCell = html`
       <div class="result-title">Gross Salary</div>
-      <div class="result-center-value">${data.grossSalary ? data.grossSalary.toLocaleString('en-US') + ' VND' : '-'}</div>
+      <div class="result-center-value">${data.grossSalary ? data.grossSalary.toLocaleString('vi-VN') + ' VND' : '-'}</div>
     `;
 
     // Adjusted Gross Salary box
     const adjustedGrossSalaryCell = html`
       <div class="result-title">Adjusted Gross Salary</div>
-      <div class="result-center-value">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('en-US') + ' VND' : '-'}</div>
+      <div class="result-center-value">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('vi-VN') + ' VND' : '-'}</div>
     `;
 
 
@@ -743,19 +743,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const employerDetailsCell = html`
       <div class="result-title">Employer Cost</div>
       <div class="result-list">
-        <div class="result-item">Social Insurance: <span>+${data.employerInsurance.toLocaleString('en-US')} VND</span></div>
-        <div class="result-item">Union Fee: <span>+${data.employerUnionFee.toLocaleString('en-US')} VND</span></div>
+        <div class="result-item">Social Insurance: <span>+${data.employerInsurance.toLocaleString('vi-VN')} VND</span></div>
+        <div class="result-item">Union Fee: <span>+${data.employerUnionFee.toLocaleString('vi-VN')} VND</span></div>
       </div>
     `;
     const employeeDetailsCell = html`
       <div class="result-title">Employee Take-home</div>
       <div class="result-list">
-        <div class="result-item">Social Insurance: <span>-${data.employeeInsurance.toLocaleString('en-US')} VND</span></div>
-        <div class="result-item">Personal Income Tax: <span>-${data.incomeTax.toLocaleString('en-US')} VND</span></div>
+        <div class="result-item">Social Insurance: <span>-${data.employeeInsurance.toLocaleString('vi-VN')} VND</span></div>
+        <div class="result-item">Personal Income Tax: <span>-${data.incomeTax.toLocaleString('vi-VN')} VND</span></div>
       </div>
     `;
-    const employerTotalCell = html`<div class="result-total"><span class="employer-total-value">${data.totalEmployerCost.toLocaleString('en-US')} VND</span></div>`;
-    const employeeTotalCell = html`<div class="result-total"><span class="employee-total-value">${data.netSalary.toLocaleString('en-US')} VND</span></div>`;
+    const employerTotalCell = html`<div class="result-total"><span class="employer-total-value">${data.totalEmployerCost.toLocaleString('vi-VN')} VND</span></div>`;
+    const employeeTotalCell = html`<div class="result-total"><span class="employee-total-value">${data.netSalary.toLocaleString('vi-VN')} VND</span></div>`;
 
     DOM.resultDiv.innerHTML = html`
       <h1 style="text-align:center;margin-bottom:16px;font-size:30px">PAYSLIP</h1>
@@ -901,7 +901,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
                   const value = ctx.raw;
                   const percent = ((value / total) * 100).toFixed(2);
-                  return `${ctx.label}: ${value.toLocaleString('en-US')} VND (${percent}%)`;
+                  return `${ctx.label}: ${value.toLocaleString('vi-VN')} VND (${percent}%)`;
                 }
               }
             }
@@ -954,7 +954,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
                 const value = ctx.raw;
                 const percent = total > 0 ? ((value / total) * 100).toFixed(2) : '0.00';
-                return `${ctx.label}: ${value.toLocaleString('en-US')} VND (${percent}%)`;
+                return `${ctx.label}: ${value.toLocaleString('vi-VN')} VND (${percent}%)`;
               }
             }
           }

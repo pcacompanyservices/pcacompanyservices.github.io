@@ -8,7 +8,7 @@ import { simulateSalary } from '../be/cal.js';
 
 const TEXT_CONFIG = {
   // Page title and main headers
-  pageTitle: "Calculate from Employee's Gross Base Salary",
+  pageTitle: "Calculate from Employee's Gross Salary",
   payslipTitle: "PAYSLIP",
   
   // Progress bar steps
@@ -32,7 +32,7 @@ const TEXT_CONFIG = {
     },
     grossSalary: {
       title: "Gross Base Salary",
-      placeholder: "Min 5,000,000 VND"
+      placeholder: "Min 5.000.000 VND"
     },
     allowance: {
       title: "Allowance",
@@ -140,11 +140,18 @@ const TEXT_CONFIG = {
   // Footer content
   footer: {
     importantNoteTitle: "IMPORTANT NOTE",
-    importantNoteText: "This simulation assumes a standard labor contract with a duration exceeding three months, for a resident in Viet Nam, applied in Region I (Zone I). It does not account for any registered dependent deductions. For further information, please contact us.",
+    importantNoteText: "This simulation assumes a standard labor contract with a duration exceeding three months, " +
+                      "for a Vietnamese tax resident, applied in Region I (Zone I). It does not account for any " +
+                      "registered dependent deductions. For further information, please", //(contact us)
     contactLinkText: "contact us",
     contactUrl: "https://pca-cs.com/",
     disclaimerTitle: "DISCLAIMER",
-    disclaimerText: "The information provided in this simulation is for general informational purposes only. It does not constitute legal advice, nor does it create a service provider or client relationship. While we make every effort to ensure the accuracy, no warranty is given, whether express or implied, to its correctness or completeness. We accept NO RESPONSIBILITY for any error or omission. We are NOT LIABLE for any loss or damage, including but not limited to loss of business or profits, arising from the use of this simulation or reliance on its contents, whether in contract, tort, or otherwise."
+    disclaimerText: "The information provided in this simulation is for general informational purposes only. " +
+                   "It does not constitute legal advice, nor does it create a service provider or client relationship. " +
+                   "While we make every effort to ensure the accuracy, no warranty is given, whether express or implied, " +
+                   "to its correctness or completeness. We accept no responsibility for any error or omission. " +
+                   "We are not liable for any loss or damage, including but not limited to loss of business or profits, " +
+                   "arising from the use of this simulation or reliance on its contents, whether in contract, tort, or otherwise."
   }
 };
 
@@ -773,7 +780,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Format with commas
     if (rawValue) {
       const numericValue = parseInt(rawValue, 10);
-      input.value = numericValue ? numericValue.toLocaleString('en-US') : '';
+      input.value = numericValue ? numericValue.toLocaleString('vi-VN') : '';
     } else {
       input.value = '';
     }
@@ -794,7 +801,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Helper functions
     const parseNumber = (val) => {
       if (typeof val === 'number') return val;
-      if (!val) return 0;
+      if (!val || val === '') return 0;
       return parseFloat((val + '').replace(/,/g, '')) || 0;
     };
     
@@ -802,18 +809,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const element = getElement(id);
       return element ? element.value : '';
     };
-    
-    const getChecked = (id) => {
-      const element = getElement(id);
-      return element ? element.checked : false;
-    };
 
-    // Collect form data
+    // Collect form data - simplified to match backend expectations
     const params = {
       method: 'gross-to-net',
       grossSalary: parseNumber(getVal('gross-salary')),
-      // Simplified allowance handling - no checkboxes needed
-      isAllowanceEnabled: true, // Always true since we show all fields
+      taxResidentStatus: getVal('tax-resident-status') || 'local', // Default to 'local' if not selected
+      
+      // Allowance inputs (individual values and enabled flags)
       lunchAllowance: parseNumber(getVal('allowance-lunch')),
       lunchEnabled: parseNumber(getVal('allowance-lunch')) > 0,
       fuelAllowance: parseNumber(getVal('allowance-fuel')),
@@ -826,18 +829,18 @@ document.addEventListener('DOMContentLoaded', () => {
       uniformEnabled: parseNumber(getVal('allowance-uniform')) > 0,
       otherAllowance: parseNumber(getVal('allowance-other')),
       otherAllowanceEnabled: parseNumber(getVal('allowance-other')) > 0,
-      // Simplified bonus handling - single input
-      isBonusEnabled: parseNumber(getVal('total-bonus')) > 0,
+      
+      // Bonus input
       totalBonus: parseNumber(getVal('total-bonus')),
-      // Benefit handling
-      isBenefitEnabled: parseNumber(getVal('benefit-child-tuition')) > 0 || parseNumber(getVal('benefit-rental')) > 0 || parseNumber(getVal('benefit-health-insurance')) > 0,
+      isBonusEnabled: parseNumber(getVal('total-bonus')) > 0,
+      
+      // Benefit inputs
       childTuitionBenefit: parseNumber(getVal('benefit-child-tuition')),
       childTuitionEnabled: parseNumber(getVal('benefit-child-tuition')) > 0,
       rentalBenefit: parseNumber(getVal('benefit-rental')),
       rentalEnabled: parseNumber(getVal('benefit-rental')) > 0,
       healthInsuranceBenefit: parseNumber(getVal('benefit-health-insurance')),
-      healthInsuranceEnabled: parseNumber(getVal('benefit-health-insurance')) > 0,
-      taxResidentStatus: getVal('tax-resident-status'),
+      healthInsuranceEnabled: parseNumber(getVal('benefit-health-insurance')) > 0
     };
 
     // Simulate salary calculation
@@ -904,13 +907,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Generate content sections
     const employeeTypeLabel = getEmployeeTypeLabel(data.taxResidentStatus);
     const employeeTypeCell = `<div class="result-title"><u>${employeeTypeLabel}</u></div>`;
-    const grossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.sections.grossSalary}</div><div class="result-center-value">${data.grossSalary ? data.grossSalary.toLocaleString('en-US') + ' VND' : '-'}</div>`;
-    const adjustedGrossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.sections.adjustedGrossSalary}</div><div class="result-center-value">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('en-US') + ' VND' : '-'}</div>`;
+    const grossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.sections.grossSalary}</div><div class="result-center-value">${data.grossSalary ? data.grossSalary.toLocaleString('vi-VN') + ' VND' : '-'}</div>`;
+    const adjustedGrossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.sections.adjustedGrossSalary}</div><div class="result-center-value">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('vi-VN') + ' VND' : '-'}</div>`;
 
     const employerDetailsCell = generateEmployerDetailsCell(data);
     const employeeDetailsCell = generateEmployeeDetailsCell(data);
-    const employerTotalCell = `<div class="result-total"><span class="employer-total-value">${data.totalEmployerCost.toLocaleString('en-US')} VND</span></div>`;
-    const employeeTotalCell = `<div class="result-total"><span class="employee-total-value">${data.netSalary.toLocaleString('en-US')} VND</span></div>`;
+    const employerTotalCell = `<div class="result-total"><span class="employer-total-value">${data.totalEmployerCost.toLocaleString('vi-VN')} VND</span></div>`;
+    const employeeTotalCell = `<div class="result-total"><span class="employee-total-value">${data.netSalary.toLocaleString('vi-VN')} VND</span></div>`;
 
     // Render final result table
     DOM.resultDiv.innerHTML = html`
@@ -945,10 +948,10 @@ document.addEventListener('DOMContentLoaded', () => {
         <td colspan="2">
           <div class="result-title">${TEXT_CONFIG.results.sections.allowance}</div>
           <div class="result-list">
-            ${allowanceItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
+            ${allowanceItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('vi-VN')} VND</span></div>`).join('')}
           </div>
           <hr class="result-divider" />
-          <div class="result-total"><span>${totalAllowance.toLocaleString('en-US')} VND</span></div>
+          <div class="result-total"><span>${totalAllowance.toLocaleString('vi-VN')} VND</span></div>
         </td>
       </tr>
     `;
@@ -961,7 +964,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <tr>
         <td colspan="2">
           <div class="result-title">${TEXT_CONFIG.results.sections.bonus}</div>
-          <div class="result-center-value">${totalBonus.toLocaleString('en-US')} VND</div>
+          <div class="result-center-value">${totalBonus.toLocaleString('vi-VN')} VND</div>
         </td>
       </tr>
     `;
@@ -975,10 +978,10 @@ document.addEventListener('DOMContentLoaded', () => {
         <td colspan="2">
           <div class="result-title">${TEXT_CONFIG.results.sections.benefit}</div>
           <div class="result-list">
-            ${benefitItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
+            ${benefitItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('vi-VN')} VND</span></div>`).join('')}
           </div>
           <hr class="result-divider" />
-          <div class="result-total"><span>${totalBenefit ? totalBenefit.toLocaleString('en-US') : '0'} VND</span></div>
+          <div class="result-total"><span>${totalBenefit ? totalBenefit.toLocaleString('vi-VN') : '0'} VND</span></div>
         </td>
       </tr>
     `;
@@ -992,8 +995,8 @@ document.addEventListener('DOMContentLoaded', () => {
     return html`
       <div class="result-title">${TEXT_CONFIG.results.sections.employerCost}</div>
       <div class="result-list">
-        <div class="result-item">${TEXT_CONFIG.results.costBreakdown.socialInsurance}: <span>+${data.employerInsurance.toLocaleString('en-US')} VND</span></div>
-        <div class="result-item">${TEXT_CONFIG.results.costBreakdown.unionFee}: <span>+${data.employerUnionFee.toLocaleString('en-US')} VND</span></div>
+        <div class="result-item">${TEXT_CONFIG.results.costBreakdown.socialInsurance}: <span>+${data.employerInsurance.toLocaleString('vi-VN')} VND</span></div>
+        <div class="result-item">${TEXT_CONFIG.results.costBreakdown.unionFee}: <span>+${data.employerUnionFee.toLocaleString('vi-VN')} VND</span></div>
       </div>
     `;
   }
@@ -1002,8 +1005,8 @@ document.addEventListener('DOMContentLoaded', () => {
     return html`
       <div class="result-title">${TEXT_CONFIG.results.sections.employeeTakeHome}</div>
       <div class="result-list">
-        <div class="result-item">${TEXT_CONFIG.results.costBreakdown.socialInsurance}: <span>-${data.employeeInsurance.toLocaleString('en-US')} VND</span></div>
-        <div class="result-item">${TEXT_CONFIG.results.costBreakdown.personalIncomeTax}: <span>-${data.incomeTax.toLocaleString('en-US')} VND</span></div>
+        <div class="result-item">${TEXT_CONFIG.results.costBreakdown.socialInsurance}: <span>-${data.employeeInsurance.toLocaleString('vi-VN')} VND</span></div>
+        <div class="result-item">${TEXT_CONFIG.results.costBreakdown.personalIncomeTax}: <span>-${data.incomeTax.toLocaleString('vi-VN')} VND</span></div>
       </div>
     `;
   }

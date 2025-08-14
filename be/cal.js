@@ -38,7 +38,10 @@ const personalDeduction = 11000000;
 
 // Helper: parse value if enabled, else 0
 function getRoundedValue(value, enabled) {
-  return enabled ? (parseFloat((value + '').replace(/,/g, '')) || 0) : 0;
+  if (!enabled) return 0;
+  if (value === null || value === undefined || value === '') return 0;
+  const parsed = parseFloat((value + '').replace(/,/g, ''));
+  return isNaN(parsed) ? 0 : parsed;
 }
 
 // Helper: Calculate all values from gross salary
@@ -125,27 +128,23 @@ export function simulateSalary(params) {
   // Default to 'gross-to-net' if not provided
   const method = params.method || 'gross-to-net';
 
-  // Parse allowances and bonuses (same for both methods)
-  const isAllowanceEnabled = !!params.isAllowanceEnabled;
-  const lunchAllowance   = isAllowanceEnabled ? getRoundedValue(params.lunchAllowance,   !!params.lunchEnabled)   : 0;
-  const fuelAllowance    = isAllowanceEnabled ? getRoundedValue(params.fuelAllowance,    !!params.fuelEnabled)    : 0;
-  const phoneAllowance   = isAllowanceEnabled ? getRoundedValue(params.phoneAllowance,   !!params.phoneEnabled)   : 0;
-  const travelAllowance  = isAllowanceEnabled ? getRoundedValue(params.travelAllowance,  !!params.travelEnabled)  : 0;
-  const uniformAllowance = isAllowanceEnabled ? getRoundedValue(params.uniformAllowance, !!params.uniformEnabled) : 0;
-  const otherAllowance   = isAllowanceEnabled ? getRoundedValue(params.otherAllowance,   !!params.otherAllowanceEnabled) : 0;
+  // Parse allowances - simplified since we always show all fields
+  const lunchAllowance   = getRoundedValue(params.lunchAllowance,   !!params.lunchEnabled);
+  const fuelAllowance    = getRoundedValue(params.fuelAllowance,    !!params.fuelEnabled);
+  const phoneAllowance   = getRoundedValue(params.phoneAllowance,   !!params.phoneEnabled);
+  const travelAllowance  = getRoundedValue(params.travelAllowance,  !!params.travelEnabled);
+  const uniformAllowance = getRoundedValue(params.uniformAllowance, !!params.uniformEnabled);
+  const otherAllowance   = getRoundedValue(params.otherAllowance,   !!params.otherAllowanceEnabled);
 
-  const isBonusEnabled = !!params.isBonusEnabled;
-  
-  // Simplified bonus structure - single total bonus input
-  const totalBonus = isBonusEnabled ? getRoundedValue(params.totalBonus, true) : 0;
+  // Parse bonus - simplified to single total bonus
+  const totalBonus = getRoundedValue(params.totalBonus, !!params.isBonusEnabled);
 
   // Parse benefits
-  const isBenefitEnabled = !!params.isBenefitEnabled;
-  const childTuitionBenefit    = isBenefitEnabled ? getRoundedValue(params.childTuitionBenefit,    !!params.childTuitionEnabled)    : 0;
-  const rentalBenefit          = isBenefitEnabled ? getRoundedValue(params.rentalBenefit,          !!params.rentalEnabled)          : 0;
-  const healthInsuranceBenefit = isBenefitEnabled ? getRoundedValue(params.healthInsuranceBenefit, !!params.healthInsuranceEnabled) : 0;
+  const childTuitionBenefit    = getRoundedValue(params.childTuitionBenefit,    !!params.childTuitionEnabled);
+  const rentalBenefit          = getRoundedValue(params.rentalBenefit,          !!params.rentalEnabled);
+  const healthInsuranceBenefit = getRoundedValue(params.healthInsuranceBenefit, !!params.healthInsuranceEnabled);
 
-  const taxResidentStatus = params.taxResidentStatus;
+  const taxResidentStatus = params.taxResidentStatus || 'local';
 
   // Calculate totals
   const totalAllowance = lunchAllowance + fuelAllowance + phoneAllowance + travelAllowance + uniformAllowance + otherAllowance;
@@ -156,8 +155,8 @@ export function simulateSalary(params) {
 
   if (method === 'gross-to-net') {
     // Parse and validate gross salary
-    grossSalary = parseFloat((params.grossSalary + '').replace(/,/g, ''));
-    if (isNaN(grossSalary) || grossSalary < 5000000) {
+    grossSalary = getRoundedValue(params.grossSalary, true);
+    if (grossSalary < 5000000) {
       return { error: 'Please enter a valid gross salary (minimum 5,000,000 VND).' };
     }
 
@@ -165,8 +164,8 @@ export function simulateSalary(params) {
 
   } else if (method === 'net-to-gross') {
     // Parse and validate net salary
-    const targetNetSalary = parseFloat((params.netSalary + '').replace(/,/g, ''));
-    if (isNaN(targetNetSalary) || targetNetSalary < 4475000) {
+    const targetNetSalary = getRoundedValue(params.netSalary, true);
+    if (targetNetSalary < 4475000) {
       return { error: 'Please enter a valid net salary (minimum 4,475,000 VND).' };
     }
 
@@ -186,7 +185,7 @@ export function simulateSalary(params) {
     // First, check if the target is achievable
     const maxPossibleNet = computeNetFromGross(high);
     if (targetNetSalary > maxPossibleNet) {
-      return { error: `Target net salary too high. Maximum achievable net salary is approximately ${Math.round(maxPossibleNet).toLocaleString()} VND.` };
+      return { error: `Target net salary too high. Maximum achievable net salary is approximately ${Math.round(maxPossibleNet).toLocaleString('vi-VN')} VND.` };
     }
 
     for (let i = 0; i < 50; i++) { // Increased iterations for better precision
