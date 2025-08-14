@@ -40,7 +40,8 @@ const personalDeduction = 11000000;
 function getRoundedValue(value, enabled) {
   if (!enabled) return 0;
   if (value === null || value === undefined || value === '') return 0;
-  const parsed = parseFloat((value + '').replace(/,/g, ''));
+  // Handle both comma and period as thousands separators (Vietnamese uses periods)
+  const parsed = parseFloat((value + '').replace(/[,.]/g, ''));
   return isNaN(parsed) ? 0 : parsed;
 }
 
@@ -129,20 +130,20 @@ export function simulateSalary(params) {
   const method = params.method || 'gross-to-net';
 
   // Parse allowances - simplified since we always show all fields
-  const lunchAllowance   = getRoundedValue(params.lunchAllowance,   !!params.lunchEnabled);
-  const fuelAllowance    = getRoundedValue(params.fuelAllowance,    !!params.fuelEnabled);
-  const phoneAllowance   = getRoundedValue(params.phoneAllowance,   !!params.phoneEnabled);
-  const travelAllowance  = getRoundedValue(params.travelAllowance,  !!params.travelEnabled);
-  const uniformAllowance = getRoundedValue(params.uniformAllowance, !!params.uniformEnabled);
-  const otherAllowance   = getRoundedValue(params.otherAllowance,   !!params.otherAllowanceEnabled);
+  const lunchAllowance   = getRoundedValue(params.lunchAllowance, params.lunchAllowance > 0);
+  const fuelAllowance    = getRoundedValue(params.fuelAllowance, params.fuelAllowance > 0);
+  const phoneAllowance   = getRoundedValue(params.phoneAllowance, params.phoneAllowance > 0);
+  const travelAllowance  = getRoundedValue(params.travelAllowance, params.travelAllowance > 0);
+  const uniformAllowance = getRoundedValue(params.uniformAllowance, params.uniformAllowance > 0);
+  const otherAllowance   = getRoundedValue(params.otherAllowance, params.otherAllowance > 0);
 
   // Parse bonus - simplified to single total bonus
-  const totalBonus = getRoundedValue(params.totalBonus, !!params.isBonusEnabled);
+  const totalBonus = getRoundedValue(params.totalBonus, params.totalBonus > 0);
 
   // Parse benefits
-  const childTuitionBenefit    = getRoundedValue(params.childTuitionBenefit,    !!params.childTuitionEnabled);
-  const rentalBenefit          = getRoundedValue(params.rentalBenefit,          !!params.rentalEnabled);
-  const healthInsuranceBenefit = getRoundedValue(params.healthInsuranceBenefit, !!params.healthInsuranceEnabled);
+  const childTuitionBenefit    = getRoundedValue(params.childTuitionBenefit, params.childTuitionBenefit > 0);
+  const rentalBenefit          = getRoundedValue(params.rentalBenefit, params.rentalBenefit > 0);
+  const healthInsuranceBenefit = getRoundedValue(params.healthInsuranceBenefit, params.healthInsuranceBenefit > 0);
 
   const taxResidentStatus = params.taxResidentStatus || 'local';
 
@@ -157,7 +158,7 @@ export function simulateSalary(params) {
     // Parse and validate gross salary
     grossSalary = getRoundedValue(params.grossSalary, true);
     if (grossSalary < 5000000) {
-      return { error: 'Please enter a valid gross salary (minimum 5,000,000 VND).' };
+      return { error: 'Please enter a valid gross salary (minimum 5.000.000 VND).' };
     }
 
     calculationResult = calculateFromGross(grossSalary, totalBonusAndAllowance, lunchAllowance, phoneAllowance, uniformAllowance, taxResidentStatus);
@@ -166,7 +167,7 @@ export function simulateSalary(params) {
     // Parse and validate net salary
     const targetNetSalary = getRoundedValue(params.netSalary, true);
     if (targetNetSalary < 4475000) {
-      return { error: 'Please enter a valid net salary (minimum 4,475,000 VND).' };
+      return { error: 'Please enter a valid net salary (minimum 4.475.000 VND).' };
     }
 
     // Function to compute net salary from gross salary

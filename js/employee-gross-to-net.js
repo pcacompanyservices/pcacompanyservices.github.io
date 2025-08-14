@@ -132,7 +132,7 @@ function createStep2() {
         <span class="info-box">Enter the employee's gross (contract) salary.</span>
       </span>
     </div>
-    <input type="text" class="number-input" id="gross-salary" placeholder="Min 5,000,000 VND" />
+    <input type="text" class="number-input" id="gross-salary" placeholder="Min 5.000.000 VND" />
     <div id="gross-salary-warning" class="input-warning" style="display:none;">Maximum 9 digits allowed.</div>
     <button type="button" id="continue-step2" class="simulation-button unavailable" disabled>Continue</button>
   `;

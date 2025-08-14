@@ -802,7 +802,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const parseNumber = (val) => {
       if (typeof val === 'number') return val;
       if (!val || val === '') return 0;
-      return parseFloat((val + '').replace(/,/g, '')) || 0;
+      // Handle both comma and period as thousands separators (Vietnamese uses periods)
+      return parseFloat((val + '').replace(/[,.]/g, '')) || 0;
     };
     
     const getVal = (id) => {
@@ -816,31 +817,21 @@ document.addEventListener('DOMContentLoaded', () => {
       grossSalary: parseNumber(getVal('gross-salary')),
       taxResidentStatus: getVal('tax-resident-status') || 'local', // Default to 'local' if not selected
       
-      // Allowance inputs (individual values and enabled flags)
+      // Allowance inputs
       lunchAllowance: parseNumber(getVal('allowance-lunch')),
-      lunchEnabled: parseNumber(getVal('allowance-lunch')) > 0,
       fuelAllowance: parseNumber(getVal('allowance-fuel')),
-      fuelEnabled: parseNumber(getVal('allowance-fuel')) > 0,
       phoneAllowance: parseNumber(getVal('allowance-phone')),
-      phoneEnabled: parseNumber(getVal('allowance-phone')) > 0,
       travelAllowance: parseNumber(getVal('allowance-travel')),
-      travelEnabled: parseNumber(getVal('allowance-travel')) > 0,
       uniformAllowance: parseNumber(getVal('allowance-uniform')),
-      uniformEnabled: parseNumber(getVal('allowance-uniform')) > 0,
       otherAllowance: parseNumber(getVal('allowance-other')),
-      otherAllowanceEnabled: parseNumber(getVal('allowance-other')) > 0,
       
       // Bonus input
       totalBonus: parseNumber(getVal('total-bonus')),
-      isBonusEnabled: parseNumber(getVal('total-bonus')) > 0,
       
       // Benefit inputs
       childTuitionBenefit: parseNumber(getVal('benefit-child-tuition')),
-      childTuitionEnabled: parseNumber(getVal('benefit-child-tuition')) > 0,
       rentalBenefit: parseNumber(getVal('benefit-rental')),
-      rentalEnabled: parseNumber(getVal('benefit-rental')) > 0,
-      healthInsuranceBenefit: parseNumber(getVal('benefit-health-insurance')),
-      healthInsuranceEnabled: parseNumber(getVal('benefit-health-insurance')) > 0
+      healthInsuranceBenefit: parseNumber(getVal('benefit-health-insurance'))
     };
 
     // Simulate salary calculation
