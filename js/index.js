@@ -1,4 +1,10 @@
-import { html } from '../util/html-parser.js';
+// ============================================================================
+// UTILITY FUNCTIONS (formerly from util/ directory)
+// ============================================================================
+
+// HTML template literal utility
+const html = (strings, ...values) =>
+  strings.reduce((acc, str, i) => acc + str + (values[i] || ''), '');
 
 document.addEventListener('DOMContentLoaded', () => {
   const main = document.getElementById('simulation-root');
@@ -53,9 +59,9 @@ document.addEventListener('DOMContentLoaded', () => {
       value: 'employee',
       text: `I'm an employee`,
       info: 'You have a job.',
-      enabled: true,
+      enabled: false,
       onClick: employeeHandler,
-      extraClass: ''
+      extraClass: 'unavailable' // off
     }));
 
     main.appendChild(createButton({
@@ -113,9 +119,9 @@ document.addEventListener('DOMContentLoaded', () => {
       value: 'from-net',
       text: 'Calculate from Net Salary',
       info: 'Calculate your cost from take-home salary.',
-      enabled: true,
+      enabled: false,
       onClick: () => { window.location.href = 'employer-net-to-gross.html'; },
-      extraClass: 'employer-choice'
+      extraClass: 'employer-choice unavailable' // off
     }));
     main.appendChild(createBackButton(renderInitialButtons));
   }

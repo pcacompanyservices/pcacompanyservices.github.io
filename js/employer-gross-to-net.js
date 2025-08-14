@@ -1,31 +1,266 @@
 
 
 import { simulateSalary } from '../be/cal.js';
-import { html } from '../util/html-parser.js';
-import { exportResultToPdf } from '../util/pdf-exporter.js';
-import { getElement, createAndAppend } from '../util/dom-utils.js';
 
+// ============================================================================
+// TEXT CONFIGURATION - Centralized static text management
+// ============================================================================
 
+const TEXT_CONFIG = {
+  // Page title and main headers
+  pageTitle: "Calculate from Employee's Gross Salary",
+  payslipTitle: "PAYSLIP",
+  
+  // Progress bar steps
+  progressSteps: {
+    taxResidentStatus: "Status",
+    grossSalary: "Base Salary", 
+    allowance: "Allowance",
+    bonus: "Bonus",
+    benefit: "Benefit"
+  },
+  
+  // Step titles and descriptions
+  steps: {
+    taxResidentStatus: {
+      title: "Tax Resident Status",
+      selectPlaceholder: "Select your tax resident status",
+      options: {
+        local: "Local – Tax resident",
+        expat: "Expat – Tax resident"
+      }
+    },
+    grossSalary: {
+      title: "Gross Base Salary",
+      placeholder: "Min 5.000.000 VND"
+    },
+    allowance: {
+      title: "Allowance",
+      types: {
+        lunch: "Lunch",
+        fuel: "Fuel", 
+        phone: "Phone",
+        travel: "Traveling",
+        uniform: "Uniform",
+        other: "Other Allowance"
+      },
+      placeholders: {
+        lunch: "Lunch allowance (VND)",
+        fuel: "Fuel allowance (VND)",
+        phone: "Phone allowance (VND)",
+        travel: "Travel allowance (VND)",
+        uniform: "Uniform allowance (VND)",
+        other: "Other allowance (VND)"
+      }
+    },
+    bonus: {
+      title: "Bonus",
+      placeholder: "Total bonus (VND)"
+    },
+    benefit: {
+      title: "Benefit",
+      types: {
+        childTuition: "Child's Tuition Fee",
+        rental: "Rental",
+        healthInsurance: "Health Insurance"
+      },
+      placeholders: {
+        childTuition: "Child's tuition fee (VND)",
+        rental: "Rental benefit (VND)",
+        healthInsurance: "Health insurance benefit (VND)"
+      }
+    }
+  },
+  
+  // Buttons
+  buttons: {
+    continue: "Continue",
+    calculate: "Calculate",
+    return: "Return",
+    reset: "Reset",
+    modify: "Modify Information",
+    downloadPdf: "Download PDF"
+  },
+  
+  // Warnings and messages
+  warnings: {
+    maxDigits: "Maximum 9 digit allowed.",
+    noAllowanceOrBonus: "(There is no Allowance or Bonus in the Contract)"
+  },
+  
+  // Result labels
+  results: {
+    employeeTypes: {
+      local: "Local Employee – Tax Resident",
+      expat: "Expat Employee – Tax Resident",
+      default: "Employee"
+    },
+    sections: {
+      grossSalary: "Gross Base Salary",
+      adjustedGrossSalary: "Adjusted Gross Salary",
+      allowance: "Allowance",
+      bonus: "Bonus",
+      benefit: "Benefit",
+      employerCost: "Employer Cost",
+      employeeTakeHome: "Employee Take-home"
+    },
+    costBreakdown: {
+      socialInsurance: "Social Insurance",
+      unionFee: "Union Fee",
+      personalIncomeTax: "Personal Income Tax",
+      netSalary: "Employee Take-home (Net) Salary",
+      employerInsurance: "Employer Insurance",
+      employerUnionFee: "Employer Union Fee",
+      employeeInsurance: "Employee Insurance"
+    }
+  },
+  
+  // Info tooltips (placeholder text)
+  infoTooltips: {
+    taxResidentStatus: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.",
+    grossSalary: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.",
+    allowance: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.",
+    bonus: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.",
+    benefit: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.",
+    lunch: "Specify your monthly allowance for lunch in the contract.",
+    fuel: "Specify your monthly allowance for fuel in the contract.",
+    phone: "Specify your monthly allowance for phone in the contract.",
+    travel: "Specify your monthly allowance for traveling in the contract.",
+    uniform: "Specify your monthly allowance for uniform in the contract.",
+    otherAllowance: "Enter any other allowance in the contract that is not listed above.",
+    productivity: "Specify your monthly bonus for productivity in the contract.",
+    incentive: "Specify your monthly bonus for incentive in the contract.",
+    kpi: "Specify your monthly bonus for KPI in the contract.",
+    otherBonus: "Enter any other bonus in the contract that is not listed above.",
+    childTuition: "Specify your monthly child's tuition fee benefit in the contract.",
+    rental: "Specify your monthly rental benefit in the contract.",
+    healthInsurance: "Specify your monthly health insurance benefit in the contract."
+  },
 
-// --- UI creation functions ---
+  // Footer content
+  footer: {
+    importantNoteTitle: "IMPORTANT NOTE",
+    importantNoteText: "This simulation assumes a standard labor contract with a duration exceeding three months, " +
+                      "for a Vietnamese tax resident, applied in Region I (Zone I). It does not account for any " +
+                      "registered dependent deductions. For further information, please", //(contact us)
+    contactLinkText: "contact us",
+    contactUrl: "https://pca-cs.com/",
+    disclaimerTitle: "DISCLAIMER",
+    disclaimerText: "The information provided in this simulation is for general informational purposes only. " +
+                   "It does not constitute legal advice, nor does it create a service provider or client relationship. " +
+                   "While we make every effort to ensure the accuracy, no warranty is given, whether express or implied, " +
+                   "to its correctness or completeness. We accept no responsibility for any error or omission. " +
+                   "We are not liable for any loss or damage, including but not limited to loss of business or profits, " +
+                   "arising from the use of this simulation or reliance on its contents, whether in contract, tort, or otherwise."
+  }
+};
+
+// ============================================================================
+// UTILITY FUNCTIONS (formerly from util/ directory)
+// ============================================================================
+
+/**
+ * Get an element by its ID
+ * @param {string} id - The element ID
+ * @returns {HTMLElement|null} The element or null if not found
+ */
+function getElement(id) {
+  return document.getElementById(id);
+}
+
+/**
+ * Create an element and append it to parent with optional properties and innerHTML
+ * @param {HTMLElement} parent - Parent element to append to
+ * @param {string} tag - HTML tag name
+ * @param {Object} props - Properties to assign to the element
+ * @param {string} innerHTML - Inner HTML content
+ * @returns {HTMLElement} The created element
+ */
+function createAndAppend(parent, tag, props = {}, innerHTML = '') {
+  const el = document.createElement(tag);
+  Object.assign(el, props);
+  if (innerHTML) el.innerHTML = innerHTML;
+  parent.appendChild(el);
+  return el;
+}
+
+/**
+ * Template literal utility for HTML strings
+ * @param {Array<string>} strings - Template literal string parts
+ * @param {...any} values - Template literal values
+ * @returns {string} Concatenated HTML string
+ */
+const html = (strings, ...values) =>
+  strings.reduce((acc, str, i) => acc + str + (values[i] || ''), '');
+
+/**
+ * Export the result container to PDF
+ * @param {Object} options - Export options
+ * @param {HTMLElement} options.exportContainer - Container to export
+ * @param {string} options.filename - PDF filename
+ * @param {Function} options.onStart - Callback before export starts
+ * @param {Function} options.onComplete - Callback after export completes
+ */
+async function exportResultToPdf({
+  exportContainer,
+  filename = 'export.pdf',
+  onStart = () => {},
+  onComplete = () => {}
+}) {
+  if (!window.jspdf || !window.jspdf.jsPDF || !window.html2canvas) {
+    throw new Error('jsPDF and html2canvas must be loaded before calling exportResultToPdf');
+  }
+  onStart();
+  await document.fonts.ready;
+  window.html2canvas(exportContainer, {
+    backgroundColor: '#fff',
+    scale: 2,
+    useCORS: true
+  }).then(canvas => {
+    const imgData = canvas.toDataURL('image/png');
+    const jsPDF = window.jspdf.jsPDF;
+    const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
+    const pageWidth = 595.28;
+    const margin = 40;
+    const imgWidth = pageWidth - margin * 2;
+    const imgHeight = canvas.height * imgWidth / canvas.width;
+    let y = margin;
+    pdf.addImage(imgData, 'PNG', margin, y, imgWidth, imgHeight);
+    pdf.save(filename);
+    onComplete();
+  });
+}
+
+// ============================================================================
+// CONSTANTS AND CONFIGURATION
+// ============================================================================
+
+const MIN_SALARY = 5000000;
+const MAX_DIGITS = 9;
+
+// ============================================================================
+// UI CREATION FUNCTIONS
+// ============================================================================
 function createProgressBar(root) {
   const progressBar = createAndAppend(root, 'div', { id: 'progress-bar' });
   progressBar.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin:18px 0;width:100%;max-width:480px;margin-left:auto;margin-right:auto;user-select:none;';
   progressBar.innerHTML = html`
-    <div class="progress-step" data-step="0">Citizenship</div>
+    <div class="progress-step" data-step="0">${TEXT_CONFIG.progressSteps.taxResidentStatus}</div>
     <div class="progress-bar-line"></div>
-    <div class="progress-step" data-step="1">Gross Salary</div>
+    <div class="progress-step" data-step="1">${TEXT_CONFIG.progressSteps.grossSalary}</div>
     <div class="progress-bar-line"></div>
-    <div class="progress-step" data-step="2">Allowances</div>
+    <div class="progress-step" data-step="2">${TEXT_CONFIG.progressSteps.allowance}</div>
     <div class="progress-bar-line"></div>
-    <div class="progress-step" data-step="3">Bonuses</div>
+    <div class="progress-step" data-step="3">${TEXT_CONFIG.progressSteps.bonus}</div>
+    <div class="progress-bar-line"></div>
+    <div class="progress-step" data-step="4">${TEXT_CONFIG.progressSteps.benefit}</div>
   `;
   return progressBar;
 }
 
 function createTitleBlock(root) {
   const h1 = createAndAppend(root, 'h1');
-  h1.textContent = "Calculate from Employee's Gross Salary";
+  h1.textContent = TEXT_CONFIG.pageTitle;
   root.appendChild(document.createElement('hr'));
   return h1;
 }
@@ -41,18 +276,17 @@ function createStep1() {
   step1.id = 'step-1';
   step1.innerHTML = html`
     <div class="step-title-row">
-      <h2>Citizenship</h2>
+      <h2>${TEXT_CONFIG.steps.taxResidentStatus.title}</h2>
       <span class="question-icon" tabindex="0">
         <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
+        <span class="info-box">${TEXT_CONFIG.infoTooltips.taxResidentStatus}</span>
       </span>
     </div>
-    <select id="citizenship">
-      <option value="" disabled selected>Select your citizenship</option>
-      <option value="local">Local</option>
-      <option value="expat">Expat</option>
+    <select id="tax-resident-status">
+      <option value="" disabled selected>${TEXT_CONFIG.steps.taxResidentStatus.selectPlaceholder}</option>
+      <option value="local">${TEXT_CONFIG.steps.taxResidentStatus.options.local}</option>
+      <option value="expat">${TEXT_CONFIG.steps.taxResidentStatus.options.expat}</option>
     </select>
-    <button type="button" id="continue-step1" class="simulation-button unavailable" disabled>Continue</button>
   `;
   return step1;
 }
@@ -64,15 +298,14 @@ function createStep2() {
   step2.style.display = 'none';
   step2.innerHTML = html`
     <div class="step-title-row">
-      <h2>Gross Salary</h2>
+      <h2>${TEXT_CONFIG.steps.grossSalary.title}</h2>
       <span class="question-icon" tabindex="0">
         <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
+        <span class="info-box">${TEXT_CONFIG.infoTooltips.grossSalary}</span>
       </span>
     </div>
-    <input type="text" class="number-input" id="gross-salary" placeholder="Min 5,000,000 VND" />
-    <div id="gross-salary-warning" class="input-warning" style="display:none;">Maximum 9 digits allowed.</div>
-    <button type="button" id="continue-step2" class="simulation-button unavailable" disabled>Continue</button>
+    <input type="text" class="number-input" id="gross-salary" placeholder="${TEXT_CONFIG.steps.grossSalary.placeholder}" />
+    <div id="gross-salary-warning" class="input-warning" style="display:none;">${TEXT_CONFIG.warnings.maxDigits}</div>
   `;
   return step2;
 }
@@ -84,63 +317,65 @@ function createStep3() {
   step3.style.display = 'none';
   step3.innerHTML = html`
     <div class="step-title-row">
-      <h2>Allowances</h2>
+      <h2>${TEXT_CONFIG.steps.allowance.title}</h2>
       <span class="question-icon" tabindex="0">
         <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
+        <span class="info-box">${TEXT_CONFIG.infoTooltips.allowance}</span>
       </span>
     </div>
     <div id="allowance-container">
-      <label class="checkbox-item">
-        <input type="checkbox" id="allowance-checkbox" /> There are Allowances in the Contract
-      </label>
-      <div id="allowance-inputs" style="display: none;">
-        <div id="allowance-warning" class="input-warning" style="display:none;">Maximum 9 digits allowed.</div>
-        <label class="checkbox-item"><input type="checkbox" id="lunch-checkbox" /> Lunch
+      <div id="allowance-inputs">
+        <div id="allowance-warning" class="input-warning" style="display:none;">${TEXT_CONFIG.warnings.maxDigits}</div>
+        
+        <label class="input-label">${TEXT_CONFIG.steps.allowance.types.lunch}
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Specify your monthly allowance for lunch in the contract.</span>
+            <span class="info-box">${TEXT_CONFIG.infoTooltips.lunch}</span>
           </span>
         </label>
-        <div id="lunch-input" style="display: none;"><input type="text" class="number-input" id="allowance-lunch" placeholder="Lunch allowance (VND)" min="0" /></div>
-        <label class="checkbox-item"><input type="checkbox" id="fuel-checkbox" /> Fuel
+        <input type="text" class="number-input" id="allowance-lunch" placeholder="${TEXT_CONFIG.steps.allowance.placeholders.lunch}" min="0" />
+        
+        <label class="input-label">${TEXT_CONFIG.steps.allowance.types.fuel}
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Specify your monthly allowance for fuel in the contract.</span>
+            <span class="info-box">${TEXT_CONFIG.infoTooltips.fuel}</span>
           </span>
         </label>
-        <div id="fuel-input" style="display: none;"><input type="text" class="number-input" id="allowance-fuel" placeholder="Fuel allowance (VND)" min="0" /></div>
-        <label class="checkbox-item"><input type="checkbox" id="phone-checkbox" /> Phone
+        <input type="text" class="number-input" id="allowance-fuel" placeholder="${TEXT_CONFIG.steps.allowance.placeholders.fuel}" min="0" />
+        
+        <label class="input-label">${TEXT_CONFIG.steps.allowance.types.phone}
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Specify your monthly allowance for phone in the contract.</span>
+            <span class="info-box">${TEXT_CONFIG.infoTooltips.phone}</span>
           </span>
         </label>
-        <div id="phone-input" style="display: none;"><input type="text" class="number-input" id="allowance-phone" placeholder="Phone allowance (VND)" min="0" /></div>
-        <label class="checkbox-item"><input type="checkbox" id="travel-checkbox" /> Traveling
+        <input type="text" class="number-input" id="allowance-phone" placeholder="${TEXT_CONFIG.steps.allowance.placeholders.phone}" min="0" />
+        
+        <label class="input-label">${TEXT_CONFIG.steps.allowance.types.travel}
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Specify your monthly allowance for traveling in the contract.</span>
+            <span class="info-box">${TEXT_CONFIG.infoTooltips.travel}</span>
           </span>
         </label>
-        <div id="travel-input" style="display: none;"><input type="text" class="number-input" id="allowance-travel" placeholder="Travel allowance (VND)" min="0" /></div>
-        <label class="checkbox-item"><input type="checkbox" id="uniform-checkbox" /> Uniform
+        <input type="text" class="number-input" id="allowance-travel" placeholder="${TEXT_CONFIG.steps.allowance.placeholders.travel}" min="0" />
+        
+        <label class="input-label">${TEXT_CONFIG.steps.allowance.types.uniform}
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Specify your monthly allowance for uniform in the contract.</span>
+            <span class="info-box">${TEXT_CONFIG.infoTooltips.uniform}</span>
           </span>
         </label>
-        <div id="uniform-input" style="display: none;"><input type="text" class="number-input" id="allowance-uniform" placeholder="Uniform allowance (VND)" min="0" /></div>
-        <label class="checkbox-item"><input type="checkbox" id="other-allowance-checkbox" /> Other Allowances
+        <input type="text" class="number-input" id="allowance-uniform" placeholder="${TEXT_CONFIG.steps.allowance.placeholders.uniform}" min="0" />
+        
+        <label class="input-label">${TEXT_CONFIG.steps.allowance.types.other}
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Enter any other allowances in the contract that are not listed above.</span>
+            <span class="info-box">${TEXT_CONFIG.infoTooltips.otherAllowance}</span>
           </span>
         </label>
-        <div id="other-allowance-input" style="display: none;"><input type="text" class="number-input" id="allowance-other" placeholder="Other allowances (VND)" min="0" /></div>
+        <input type="text" class="number-input" id="allowance-other" placeholder="${TEXT_CONFIG.steps.allowance.placeholders.other}" min="0" />
       </div>
     </div>
-    <button type="button" id="continue-step3" class="simulation-button unavailable" disabled>Continue</button>
   `;
   return step3;
 }
@@ -152,168 +387,265 @@ function createStep4() {
   step4.style.display = 'none';
   step4.innerHTML = html`
     <div class="step-title-row">
-      <h2>Bonuses</h2>
+      <h2>${TEXT_CONFIG.steps.bonus.title}</h2>
       <span class="question-icon" tabindex="0">
         <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.</span>
+        <span class="info-box">${TEXT_CONFIG.infoTooltips.bonus}</span>
       </span>
     </div>
-    <div id="bonus-container">
-      <label class="checkbox-item">
-        <input type="checkbox" id="bonus-checkbox" /> There are Bonuses in the Contract
-      </label>
-      <div id="bonus-inputs" style="display: none;">
-        <div id="bonus-warning" class="input-warning" style="display:none;">Maximum 9 digits allowed.</div>
-        <label class="checkbox-item"><input type="checkbox" id="productivity-checkbox" /> Productivity
+    <input type="text" class="number-input" id="total-bonus" placeholder="${TEXT_CONFIG.steps.bonus.placeholder}" />
+    <div id="bonus-warning" class="input-warning" style="display:none;">${TEXT_CONFIG.warnings.maxDigits}</div>
+  `;
+  return step4;
+}
+
+function createStep5() {
+  const step5 = document.createElement('div');
+  step5.className = 'form-step';
+  step5.id = 'step-5';
+  step5.style.display = 'none';
+  step5.innerHTML = html`
+    <div class="step-title-row">
+      <h2>${TEXT_CONFIG.steps.benefit.title}</h2>
+      <span class="question-icon" tabindex="0">
+        <img src="asset/question_icon.webp" alt="info" />
+        <span class="info-box">${TEXT_CONFIG.infoTooltips.benefit}</span>
+      </span>
+    </div>
+    <div id="benefit-container">
+      <div id="benefit-inputs">
+        <div id="benefit-warning" class="input-warning" style="display:none;">${TEXT_CONFIG.warnings.maxDigits}</div>
+        
+        <label class="input-label">${TEXT_CONFIG.steps.benefit.types.childTuition}
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Specify your monthly bonus for productivity in the contract.</span>
+            <span class="info-box">${TEXT_CONFIG.infoTooltips.childTuition}</span>
           </span>
         </label>
-        <div id="productivity-input" style="display: none;"><input type="text" class="number-input" id="bonus-productivity" placeholder="Productivity bonus (VND)" min="0" /></div>
-        <label class="checkbox-item"><input type="checkbox" id="incentive-checkbox" /> Incentive
+        <input type="text" class="number-input" id="benefit-child-tuition" placeholder="${TEXT_CONFIG.steps.benefit.placeholders.childTuition}" min="0" />
+        
+        <label class="input-label">${TEXT_CONFIG.steps.benefit.types.rental}
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Specify your monthly bonus for incentive in the contract.</span>
+            <span class="info-box">${TEXT_CONFIG.infoTooltips.rental}</span>
           </span>
         </label>
-        <div id="incentive-input" style="display: none;"><input type="text" class="number-input" id="bonus-incentive" placeholder="Incentive bonus (VND)" min="0" /></div>
-        <label class="checkbox-item"><input type="checkbox" id="kpi-checkbox" /> KPI
+        <input type="text" class="number-input" id="benefit-rental" placeholder="${TEXT_CONFIG.steps.benefit.placeholders.rental}" min="0" />
+        
+        <label class="input-label">${TEXT_CONFIG.steps.benefit.types.healthInsurance}
           <span class="question-icon" tabindex="0">
             <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Specify your monthly bonus for KPI in the contract.</span>
+            <span class="info-box">${TEXT_CONFIG.infoTooltips.healthInsurance}</span>
           </span>
         </label>
-        <div id="kpi-input" style="display: none;"><input type="text" class="number-input" id="bonus-kpi" placeholder="KPI bonus (VND)" min="0" /></div>
-        <label class="checkbox-item"><input type="checkbox" id="other-bonus-checkbox" /> Other Bonuses
-          <span class="question-icon" tabindex="0">
-            <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">Enter any other bonuses in the contract that are not listed above.</span>
-          </span>
-        </label>
-        <div id="other-bonus-input" style="display: none;"><input type="text" class="number-input" id="bonus-other" placeholder="Other bonuses (VND)" min="0" /></div>
+        <input type="text" class="number-input" id="benefit-health-insurance" placeholder="${TEXT_CONFIG.steps.benefit.placeholders.healthInsurance}" min="0" />
       </div>
     </div>
   `;
-  return step4;
+  return step5;
 }
 
 function createNavButtons() {
   const navDiv = document.createElement('div');
   navDiv.className = 'form-navigation';
+  navDiv.style.cssText = `
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.5rem auto;
+    max-width: 55rem;
+    width: 100%;
+    flex-wrap: wrap;
+  `;
   navDiv.innerHTML = html`
-    <button type="submit" id="calculate-btn" class="simulation-button" style="display:none;">Calculate</button>
-    <button type="button" id="return-btn" class="simulation-button return-button" style="display:none;">Return</button>
+    <button type="button" id="return-btn" class="simulation-button return-button" style="display:none;flex:1;min-width:12rem;max-width:16rem;margin:0;">${TEXT_CONFIG.buttons.return}</button>
+    <button type="button" id="continue-btn" class="simulation-button" style="display:none;flex:1;min-width:12rem;max-width:16rem;margin:0;">${TEXT_CONFIG.buttons.continue}</button>
+    <button type="button" id="calculate-btn" class="simulation-button" style="display:none;flex:1;min-width:12rem;max-width:16rem;margin:0;">${TEXT_CONFIG.buttons.calculate}</button>
   `;
   return navDiv;
 }
 
-function createResultAndCharts(root) {
+function createResultSection(root) {
   const resultDiv = createAndAppend(root, 'div', { className: 'result', id: 'result', 'aria-live': 'polite' });
-  const pieChartContainer = createAndAppend(root, 'div', { className: 'pie-chart-container' });
-  pieChartContainer.innerHTML = html`
-    <div id="salary-chart-block">
-      <canvas id="salary-breakdown-chart" style="display: none;"></canvas>
-      <div id="salary-breakdown-chart-label" style="display: none;">Salary Breakdown</div>
-    </div>
-    <div id="cost-chart-block">
-      <canvas id="cost-breakdown-chart" style="display: none;"></canvas>
-      <div id="cost-breakdown-chart-label" style="display: none;">Cost Breakdown</div>
-    </div>
-  `;
-  return { resultDiv, pieChartContainer };
+  return { resultDiv };
 }
 
-function createDownloadButton(root) {
-  const downloadBtn = createAndAppend(root, 'button', {
-    className: 'simulation-button',
-    id: 'download-pdf-btn',
-    style: 'display:none;',
-    textContent: 'Download PDF'
+function createResultButtonsContainer(root) {
+  const buttonContainer = createAndAppend(root, 'div', {
+    className: 'result-buttons-container',
+    id: 'result-buttons-container',
+    style: 'display:none;'
   });
-  return downloadBtn;
-}
-
-function createResetButton(root) {
-  const resetBtn = createAndAppend(root, 'button', {
-    className: 'simulation-button return-button',
-    id: 'reset-btn',
-    style: 'display:none;',
-    textContent: 'Modify Information',
-    type: 'button'
-  });
-  return resetBtn;
-}
-
-function createHardResetButton(root) {
-  const hardResetBtn = createAndAppend(root, 'button', {
+  
+  // Reorganized order: Reset, Modify Information, Download PDF
+  const hardResetBtn = createAndAppend(buttonContainer, 'button', {
     className: 'simulation-button return-button',
     id: 'hard-reset-btn',
-    style: 'display:none;',
-    textContent: 'Reset',
+    textContent: TEXT_CONFIG.buttons.reset,
     type: 'button'
   });
-  return hardResetBtn;
+  
+  const resetBtn = createAndAppend(buttonContainer, 'button', {
+    className: 'simulation-button return-button',
+    id: 'reset-btn',
+    textContent: TEXT_CONFIG.buttons.modify,
+    type: 'button'
+  });
+  
+  const downloadBtn = createAndAppend(buttonContainer, 'button', {
+    className: 'simulation-button',
+    id: 'download-pdf-btn',
+    textContent: TEXT_CONFIG.buttons.downloadPdf
+  });
+  
+  return { buttonContainer, downloadBtn, resetBtn, hardResetBtn };
+}
+
+/**
+ * Create the footer with disclaimer and important notes
+ * @param {HTMLElement} root - Root element to append footer to
+ * @returns {HTMLElement} The created footer element
+ */
+function createFooter(root) {
+  const footer = createAndAppend(root, 'footer', { className: 'app-footer' });
+  footer.innerHTML = html`
+    <hr />
+    <span class="footer-title">${TEXT_CONFIG.footer.importantNoteTitle}</span>
+    <div class="footer-text">${TEXT_CONFIG.footer.importantNoteText} <a href="${TEXT_CONFIG.footer.contactUrl}" target="_blank">${TEXT_CONFIG.footer.contactLinkText}</a>.</div>
+    <span class="footer-title">${TEXT_CONFIG.footer.disclaimerTitle}</span>
+    <div class="footer-text">${TEXT_CONFIG.footer.disclaimerText}</div>
+  `;
+  
+  // Function to dynamically position footer
+  function positionFooter() {
+    const viewportHeight = window.innerHeight;
+    const bodyHeight = document.body.scrollHeight;
+    const footerHeight = footer.offsetHeight;
+    
+    // Check if content + footer fits in viewport
+    if (bodyHeight + footerHeight <= viewportHeight) {
+      // Fix footer at bottom of viewport (minimal positioning changes only)
+      footer.style.position = 'fixed';
+      footer.style.bottom = '0.5rem';
+      footer.style.left = '50%';
+      footer.style.transform = 'translateX(-50%)';
+      footer.style.zIndex = '1000';
+      footer.style.margin = '2rem auto';
+      footer.style.width = '70vw';
+      // Add padding to body to prevent content from being hidden behind footer
+      document.body.style.paddingBottom = `calc(2rem + ${footerHeight}px)`;
+    } else {
+      // Reset positioning to let CSS handle everything naturally
+      footer.style.position = '';
+      footer.style.bottom = '';
+      footer.style.left = '';
+      footer.style.transform = '';
+      footer.style.zIndex = '';
+      footer.style.marginTop = '12rem'; // Only this override for extra spacing
+      document.body.style.paddingBottom = '';
+    }
+  }
+  
+  // Position footer initially after a short delay to ensure DOM is ready
+  setTimeout(positionFooter, 100);
+  
+  // Reposition footer on window resize
+  window.addEventListener('resize', positionFooter);
+  
+  // Reposition footer when content changes (e.g., form to results)
+  const observer = new MutationObserver(() => {
+    setTimeout(positionFooter, 100);
+  });
+  
+  observer.observe(root, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['style']
+  });
+  
+  return footer;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // --- Dynamic UI creation ---
+  // ============================================================================
+  // INITIALIZATION
+  // ============================================================================
+  
   const root = getElement('gross-to-net-root');
   root.innerHTML = '';
 
-  // Title and header
+  // Create UI components
   createTitleBlock(root);
-  // Progress bar
   createProgressBar(root);
-  // Form
   const salaryForm = createSalaryForm(root);
-  // Steps
+  
+  // Create form steps
   const step1 = createStep1();
   const step2 = createStep2();
   const step3 = createStep3();
   const step4 = createStep4();
+  const step5 = createStep5();
+  
   salaryForm.appendChild(step1);
   salaryForm.appendChild(step2);
   salaryForm.appendChild(step3);
   salaryForm.appendChild(step4);
-  // Navigation buttons
-  const navDiv = createNavButtons();
-  salaryForm.appendChild(navDiv);
-  // Results and charts
-  const { resultDiv, pieChartContainer } = createResultAndCharts(root);
-  // Download button
-  const downloadBtn = createDownloadButton(root);
-  // Reset and hard reset
-  const resetBtn = createResetButton(root);
-  const hardResetBtn = createHardResetButton(root);
+  salaryForm.appendChild(step5);
+  salaryForm.appendChild(createNavButtons());
+  
+  // Create result containers and buttons
+  const { resultDiv } = createResultSection(root);
+  const { buttonContainer, downloadBtn, resetBtn, hardResetBtn } = createResultButtonsContainer(root);
 
-  // --- Multi-step form navigation logic ---
-  const steps = [step1, step2, step3, step4];
-  const continueBtns = [
-    getElement('continue-step1'),
-    getElement('continue-step2'),
-    getElement('continue-step3'),
-  ];
+  // Create footer
+  createFooter(root);
+
+  // ============================================================================
+  // FORM NAVIGATION
+  // ============================================================================
+  const steps = [step1, step2, step3, step4, step5];
   const returnBtn = getElement('return-btn');
+  const continueBtn = getElement('continue-btn');
   const calculateBtn = getElement('calculate-btn');
   let currentStep = 0;
 
-  // Show the current step and update navigation buttons and progress bar
   function showStep(idx) {
     steps.forEach((step, i) => {
       if (step) step.style.display = i === idx ? '' : 'none';
     });
-    returnBtn.style.display = idx > 0 ? '' : 'none';
-    calculateBtn.style.display = idx === steps.length - 1 ? '' : 'none';
-  // Auto-focus gross salary input on step 2
-  if (idx === 1) {
-    const grossSalaryInput = document.getElementById('gross-salary');
-    if (grossSalaryInput) {
-      grossSalaryInput.focus();
-      grossSalaryInput.select && grossSalaryInput.select();
+    
+    // Show/hide navigation buttons based on current step
+    // Always show return button, but disable it on first step
+    returnBtn.style.display = '';
+    if (idx === 0) {
+      returnBtn.disabled = true;
+      returnBtn.classList.add('disabled');
+    } else {
+      returnBtn.disabled = false;
+      returnBtn.classList.remove('disabled');
     }
+    
+    continueBtn.style.display = idx < steps.length - 1 ? '' : 'none';
+    calculateBtn.style.display = idx === steps.length - 1 ? '' : 'none';
+    
+    // Update continue button state based on step validation
+    updateContinueButtonState(idx);
+    
+    // Auto-focus gross base salary input on step 2
+    if (idx === 1) {
+      const grossSalaryInput = document.getElementById('gross-salary');
+      if (grossSalaryInput) {
+        grossSalaryInput.focus();
+        grossSalaryInput.select && grossSalaryInput.select();
+      }
+    }
+    
+    updateProgressBar(idx);
   }
-    // Update progress bar
+
+  function updateProgressBar(idx) {
     const stepsEls = document.querySelectorAll('#progress-bar .progress-step');
     stepsEls.forEach((el, i) => {
       if (i < idx) {
@@ -326,7 +658,7 @@ document.addEventListener('DOMContentLoaded', () => {
         el.classList.remove('active', 'completed');
       }
     });
-    // Update progress bar lines
+    
     const lines = document.querySelectorAll('#progress-bar .progress-bar-line');
     lines.forEach((line, i) => {
       if (i < idx) {
@@ -337,373 +669,254 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- Step 1: National Status ---
-  const citizenshipSelect = getElement('citizenship');
-  continueBtns[0].addEventListener('click', () => {
-    if (currentStep === 0 && citizenshipSelect.value) {
-      currentStep++;
-      showStep(currentStep);
+  function updateContinueButtonState(idx) {
+    if (!continueBtn) return;
+    
+    let isValid = false;
+    
+    switch (idx) {
+      case 0: // Tax Resident Status step
+        isValid = taxResidentStatusSelect.value;
+        break;
+      case 1: // Gross base salary step
+        const numericValue = parseInt(grossSalaryInput.value.replace(/\D/g, '')) || 0;
+        isValid = numericValue >= MIN_SALARY;
+        break;
+      case 2: // Allowance step (always valid, can skip)
+        isValid = true;
+        break;
+      case 3: // Bonus step (always valid, can skip)
+        isValid = true;
+        break;
+      case 4: // Benefit step (always valid, can skip)
+        isValid = true;
+        break;
+      default:
+        isValid = false;
     }
-  });
-  function updateStep1Btn() {
-    if (citizenshipSelect.value) {
-      continueBtns[0].classList.remove('unavailable');
-      continueBtns[0].disabled = false;
-    } else {
-      continueBtns[0].classList.add('unavailable');
-      continueBtns[0].disabled = true;
-    }
+    
+    continueBtn.classList.toggle('unavailable', !isValid);
+    continueBtn.disabled = !isValid;
   }
-  citizenshipSelect.addEventListener('change', updateStep1Btn);
-  updateStep1Btn();
 
-  // --- Step 2: Gross Salary ---
+  // ============================================================================
+  // STEP VALIDATION AND EVENT HANDLERS
+  // ============================================================================
+
+  // Step 1: Tax Resident Status Selection
+  const taxResidentStatusSelect = getElement('tax-resident-status');
+  taxResidentStatusSelect.addEventListener('change', () => updateContinueButtonState(currentStep));
+
+  // Step 2: Gross Base Salary Input
   const grossSalaryInput = getElement('gross-salary');
-  continueBtns[1].addEventListener('click', () => {
-    if (currentStep === 1 && grossSalaryInput.value && parseInt(grossSalaryInput.value.replace(/\D/g, '')) >= 5000000) {
+  grossSalaryInput.addEventListener('input', () => updateContinueButtonState(currentStep));
+
+  // Continue button handler
+  continueBtn.addEventListener('click', () => {
+    if (currentStep < steps.length - 1 && !continueBtn.disabled) {
       currentStep++;
       showStep(currentStep);
     }
   });
-  function updateStep2Btn() {
-    const val = grossSalaryInput.value.replace(/\D/g, '');
-    if (val && parseInt(val) >= 5000000) {
-      continueBtns[1].classList.remove('unavailable');
-      continueBtns[1].disabled = false;
-    } else {
-      continueBtns[1].classList.add('unavailable');
-      continueBtns[1].disabled = true;
-    }
-  }
-  grossSalaryInput.addEventListener('input', updateStep2Btn);
-  updateStep2Btn();
 
-  // --- Step 3: Allowance (always enabled, can skip) ---
-  continueBtns[2].addEventListener('click', () => {
-    if (currentStep === 2) {
-      currentStep++;
-      showStep(currentStep);
-    }
-  });
-  continueBtns[2].classList.remove('unavailable');
-  continueBtns[2].disabled = false;
-
-  // --- No continue button for step 4 ---
-
-  // --- Return button logic ---
+  // Return button handler
   returnBtn?.addEventListener('click', () => {
-    if (currentStep > 0) {
+    if (currentStep > 0 && !returnBtn.disabled) {
       currentStep--;
       showStep(currentStep);
     }
   });
 
-  // --- On load, show first step ---
+  // Initialize first step
   showStep(currentStep);
 
-  // --- Load Chart.js if not present ---
-  if (!window.Chart) {
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
-    document.head.appendChild(script);
-  }
-
-  // --- DOM references ---
+  // ============================================================================
+  // DOM REFERENCES
+  // ============================================================================
   const DOM = {
     salaryForm,
     calculateBtn,
     downloadPdfBtn: downloadBtn,
+    buttonContainer,
     resultDiv,
-    allowanceCheckbox: getElement('allowance-checkbox'),
     allowanceInputs: getElement('allowance-inputs'),
-    bonusCheckbox: getElement('bonus-checkbox'),
-    bonusInputs: getElement('bonus-inputs'),
-    costBreakdownChart: getElement('cost-breakdown-chart'),
-    salaryBreakdownChart: getElement('salary-breakdown-chart'),
-    costBreakdownChartLabel: getElement('cost-breakdown-chart-label'),
-    salaryBreakdownChartLabel: getElement('salary-breakdown-chart-label'),
+    benefitInputs: getElement('benefit-inputs')
   };
 
-  // --- Allowance and Bonus checkbox/input mapping ---
-  const allowanceMap = {
-    'lunch-checkbox': 'lunch-input',
-    'fuel-checkbox': 'fuel-input',
-    'phone-checkbox': 'phone-input',
-    'travel-checkbox': 'travel-input',
-    'uniform-checkbox': 'uniform-input',
-    'other-allowance-checkbox': 'other-allowance-input',
-  };
-  const bonusMap = {
-    'productivity-checkbox': 'productivity-input',
-    'incentive-checkbox': 'incentive-input',
-    'kpi-checkbox': 'kpi-input',
-    'other-bonus-checkbox': 'other-bonus-input',
-  };
+  // ============================================================================
+  // DYNAMIC FIELD MANAGEMENT
+  // ============================================================================
 
-  // --- Show/hide allowance/bonus input fields ---
-  function toggleVisibility(map, parentCheckbox, container) {
-    parentCheckbox.addEventListener('change', () => {
-      container.style.display = parentCheckbox.checked ? 'block' : 'none';
-      Object.entries(map).forEach(([cbId, inputId]) => {
-        const cb = getElement(cbId);
-        const div = getElement(inputId);
-        if (cb && div) {
-          div.style.display = cb.checked && parentCheckbox.checked ? 'block' : 'none';
-        }
-      });
-      // Auto-focus first visible input when parentCheckbox is checked
-      if (parentCheckbox.checked) {
-        setTimeout(() => {
-          const firstInput = container.querySelector('input[type="checkbox"]:checked');
-          if (firstInput) {
-            // Find the corresponding input field for the checked box
-            const inputDiv = getElement(map[firstInput.id]);
-            if (inputDiv) {
-              const textInput = inputDiv.querySelector('input[type="text"]');
-              if (textInput) {
-                textInput.focus();
-                textInput.select && textInput.select();
-              }
-            }
-          }
-        }, 0);
-      }
-    });
-    Object.entries(map).forEach(([cbId, inputId]) => {
-      const cb = getElement(cbId);
-      const div = getElement(inputId);
-      if (cb && div) {
-        cb.addEventListener('change', () => {
-          div.style.display = cb.checked && parentCheckbox.checked ? 'block' : 'none';
-          // Auto-focus the input when this box is checked and parent is checked
-          if (cb.checked && parentCheckbox.checked) {
-            setTimeout(() => {
-              const textInput = div.querySelector('input[type="text"]');
-              if (textInput) {
-                textInput.focus();
-                textInput.select && textInput.select();
-              }
-            }, 0);
-          }
-        });
-      }
-    });
-  }
-  toggleVisibility(allowanceMap, DOM.allowanceCheckbox, DOM.allowanceInputs);
-  toggleVisibility(bonusMap, DOM.bonusCheckbox, DOM.bonusInputs);
+  // No dynamic field management needed - all allowance inputs are always visible
+  // and bonus is now a single input field
 
-  // --- Format number input fields and restrict max value ---
+  // ============================================================================
+  // NUMBER FORMATTING
+  // ============================================================================
+
   function formatNumberInput(input) {
-    let raw = input.value.replace(/[^\d]/g, '');
-    let warning = null;
+    let rawValue = input.value.replace(/[^\d]/g, '');
+    let warningElement = null;
+    
+    // Get appropriate warning element
     if (input.id === 'gross-salary') {
-      warning = document.getElementById('gross-salary-warning');
+      warningElement = document.getElementById('gross-salary-warning');
     } else if (input.closest('#allowance-inputs')) {
-      warning = document.getElementById('allowance-warning');
+      warningElement = document.getElementById('allowance-warning');
     } else if (input.closest('#bonus-inputs')) {
-      warning = document.getElementById('bonus-warning');
+      warningElement = document.getElementById('bonus-warning');
+    } else if (input.closest('#benefit-inputs')) {
+      warningElement = document.getElementById('benefit-warning');
     }
-    if (raw.length > 9) {
-      if (warning) warning.style.display = '';
-      raw = raw.slice(0, 9);
+    
+    // Check max digits limit
+    if (rawValue.length > MAX_DIGITS) {
+      if (warningElement) warningElement.style.display = '';
+      rawValue = rawValue.slice(0, MAX_DIGITS);
     } else {
-      if (warning) warning.style.display = 'none';
+      if (warningElement) warningElement.style.display = 'none';
     }
-    if (raw) {
-      let num = parseInt(raw, 10);
-      input.value = num ? num.toLocaleString('en-US') : '';
+    
+    // Format with commas
+    if (rawValue) {
+      const numericValue = parseInt(rawValue, 10);
+      input.value = numericValue ? numericValue.toLocaleString('vi-VN') : '';
     } else {
       input.value = '';
     }
   }
+
+  // Apply number formatting to all number inputs
   document.addEventListener('input', (e) => {
     if (e.target.tagName === 'INPUT' && e.target.classList.contains('number-input')) {
       formatNumberInput(e.target);
     }
   });
 
-  // --- Chart.js destroy helper ---
-  function destroyChart(chartName) {
-    if (window[chartName] && typeof window[chartName].destroy === 'function') {
-      window[chartName].destroy();
-      window[chartName] = null;
-    }
-  }
-
-  // --- Calculation handler ---
+  // ============================================================================
+  // CALCULATION LOGIC
+  // ============================================================================
 
   function handleCalculation() {
-
-    // Helper to parse numbers (remove commas, parse to number)
+    // Helper functions
     const parseNumber = (val) => {
       if (typeof val === 'number') return val;
-      if (!val) return 0;
-      return parseFloat((val + '').replace(/,/g, '')) || 0;
+      if (!val || val === '') return 0;
+      // Handle both comma and period as thousands separators (Vietnamese uses periods)
+      return parseFloat((val + '').replace(/[,.]/g, '')) || 0;
     };
+    
     const getVal = (id) => {
-      const el = getElement(id);
-      return el ? el.value : '';
-    };
-    const getChecked = (id) => {
-      const el = getElement(id);
-      return el ? el.checked : false;
+      const element = getElement(id);
+      return element ? element.value : '';
     };
 
+    // Collect form data - simplified to match backend expectations
     const params = {
       method: 'gross-to-net',
       grossSalary: parseNumber(getVal('gross-salary')),
-      isAllowanceEnabled: getChecked('allowance-checkbox'),
+      taxResidentStatus: getVal('tax-resident-status') || 'local', // Default to 'local' if not selected
+      
+      // Allowance inputs
       lunchAllowance: parseNumber(getVal('allowance-lunch')),
-      lunchEnabled: getChecked('lunch-checkbox'),
       fuelAllowance: parseNumber(getVal('allowance-fuel')),
-      fuelEnabled: getChecked('fuel-checkbox'),
       phoneAllowance: parseNumber(getVal('allowance-phone')),
-      phoneEnabled: getChecked('phone-checkbox'),
       travelAllowance: parseNumber(getVal('allowance-travel')),
-      travelEnabled: getChecked('travel-checkbox'),
       uniformAllowance: parseNumber(getVal('allowance-uniform')),
-      uniformEnabled: getChecked('uniform-checkbox'),
       otherAllowance: parseNumber(getVal('allowance-other')),
-      otherAllowanceEnabled: getChecked('other-allowance-checkbox'),
-      isBonusEnabled: getChecked('bonus-checkbox'),
-      productivityBonus: parseNumber(getVal('bonus-productivity')),
-      productivityEnabled: getChecked('productivity-checkbox'),
-      incentiveBonus: parseNumber(getVal('bonus-incentive')),
-      incentiveEnabled: getChecked('incentive-checkbox'),
-      kpiBonus: parseNumber(getVal('bonus-kpi')),
-      kpiEnabled: getChecked('kpi-checkbox'),
-      otherBonus: parseNumber(getVal('bonus-other')),
-      otherBonusEnabled: getChecked('other-bonus-checkbox'),
-      citizenship: getVal('citizenship'),
+      
+      // Bonus input
+      totalBonus: parseNumber(getVal('total-bonus')),
+      
+      // Benefit inputs
+      childTuitionBenefit: parseNumber(getVal('benefit-child-tuition')),
+      rentalBenefit: parseNumber(getVal('benefit-rental')),
+      healthInsuranceBenefit: parseNumber(getVal('benefit-health-insurance'))
     };
 
+    // Simulate salary calculation
     const data = simulateSalary(params);
 
+    // Handle calculation errors
     if (data && data.error) {
       DOM.resultDiv.innerHTML = `<span style="color:red">${data.error}</span>`;
       DOM.downloadPdfBtn.style.display = 'none';
-      renderPieChart({});
       return;
     }
 
+    // Clean up form UI after successful calculation
+    cleanupFormAfterCalculation();
+    
+    // Render results
+    renderResults(data);
+    
+    // Show action buttons container
+    DOM.buttonContainer.style.display = 'flex';
+    
+    // Setup button handlers
+    setupResetHandlers();
+  }
 
-    // Destroy the form and navigation UI after calculation
+  function cleanupFormAfterCalculation() {
+    // Remove form and hide progress bar
     if (salaryForm && salaryForm.parentNode) {
       salaryForm.parentNode.removeChild(salaryForm);
     }
-    // Hide progress bar
     const progressBar = document.getElementById('progress-bar');
     if (progressBar) progressBar.style.display = 'none';
+  }
 
-    renderPieChart(data);
-
-    // --- Restructured result boxes ---
-
-    // Allowance and Bonus items
+  function renderResults(data) {
+    // Prepare allowance and bonus items
     const allowanceItems = [
-      { label: 'Lunch', value: data.lunchAllowance },
-      { label: 'Fuel', value: data.fuelAllowance },
-      { label: 'Phone', value: data.phoneAllowance },
-      { label: 'Traveling', value: data.travelAllowance },
-      { label: 'Uniform', value: data.uniformAllowance },
-      { label: 'Other', value: data.otherAllowance }
+      { label: TEXT_CONFIG.steps.allowance.types.lunch, value: data.lunchAllowance },
+      { label: TEXT_CONFIG.steps.allowance.types.fuel, value: data.fuelAllowance },
+      { label: TEXT_CONFIG.steps.allowance.types.phone, value: data.phoneAllowance },
+      { label: TEXT_CONFIG.steps.allowance.types.travel, value: data.travelAllowance },
+      { label: TEXT_CONFIG.steps.allowance.types.uniform, value: data.uniformAllowance },
+      { label: TEXT_CONFIG.steps.allowance.types.other, value: data.otherAllowance }
     ].filter(item => item.value && item.value > 0);
-    const bonusItems = [
-      { label: 'Productivity', value: data.productivityBonus },
-      { label: 'Incentive', value: data.incentiveBonus },
-      { label: 'KPI', value: data.kpiBonus },
-      { label: 'Other', value: data.otherBonus }
+    
+    // Prepare benefit items
+    const benefitItems = [
+      { label: TEXT_CONFIG.steps.benefit.types.childTuition, value: data.childTuitionBenefit },
+      { label: TEXT_CONFIG.steps.benefit.types.rental, value: data.rentalBenefit },
+      { label: TEXT_CONFIG.steps.benefit.types.healthInsurance, value: data.healthInsuranceBenefit }
     ].filter(item => item.value && item.value > 0);
+    
+    // Simplified bonus handling - just check if totalBonus exists
+    const hasBonuses = data.totalBonus && data.totalBonus > 0;
 
-    let allowanceRow = '';
-    let bonusRow = '';
-    let noAllowanceBonusRow = '';
+    // Generate table rows
+    const allowanceRow = generateAllowanceRow(allowanceItems, data.totalAllowance);
+    const bonusRow = generateBonusRow(hasBonuses, data.totalBonus);
+    const benefitRow = generateBenefitRow(benefitItems, data.totalBenefit);
+    const noAllowanceBonusBenefitRow = (allowanceItems.length === 0 && !hasBonuses && benefitItems.length === 0) 
+      ? `<tr><td colspan="2"><div class="result-center-value" style="font-size:1em; color:#888;">${TEXT_CONFIG.warnings.noAllowanceOrBonus}</div></td></tr>`
+      : '';
 
-    if (allowanceItems.length > 0) {
-      allowanceRow = `
-        <tr>
-          <td colspan="2">
-            <div class="result-title">Allowances</div>
-            <div class="result-list">
-              ${allowanceItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
-            </div>
-            <hr class="result-divider" />
-            <div class="result-total"><span>${data.totalAllowance.toLocaleString('en-US')} VND</span></div>
-          </td>
-        </tr>
-      `;
-    }
-    if (bonusItems.length > 0) {
-      bonusRow = `
-        <tr>
-          <td colspan="2">
-            <div class="result-title">Bonuses</div>
-            <div class="result-list">
-              ${bonusItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('en-US')} VND</span></div>`).join('')}
-            </div>
-            <hr class="result-divider" />
-            <div class="result-total"><span>${data.totalBonus.toLocaleString('en-US')} VND</span></div>
-          </td>
-        </tr>
-      `;
-    }
-    if (allowanceItems.length === 0 && bonusItems.length === 0) {
-      noAllowanceBonusRow = `
-        <tr><td colspan="2"><div class="result-center-value" style="font-size:1em; color:#888;">(There are no Allowances or Bonuses in the Contract)</div></td></tr>
-      `;
-    }
+    // Generate content sections
+    const employeeTypeLabel = getEmployeeTypeLabel(data.taxResidentStatus);
+    const employeeTypeCell = `<div class="result-title"><u>${employeeTypeLabel}</u></div>`;
+    const grossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.sections.grossSalary}</div><div class="result-center-value">${data.grossSalary ? data.grossSalary.toLocaleString('vi-VN') + ' VND' : '-'}</div>`;
+    const adjustedGrossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.sections.adjustedGrossSalary}</div><div class="result-center-value">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('vi-VN') + ' VND' : '-'}</div>`;
 
-    // Employee type box (local/expat)
-    let employeeTypeLabel = '';
-    if (data.citizenship === 'local') {
-      employeeTypeLabel = 'Local Employee';
-    } else if (data.citizenship === 'expat') {
-      employeeTypeLabel = 'Expat Employee';
-    } else {
-      employeeTypeLabel = 'Employee';
-    }
-    const employeeTypeCell = html`<div class="result-title"><u>${employeeTypeLabel}</u></div>`;
+    const employerDetailsCell = generateEmployerDetailsCell(data);
+    const employeeDetailsCell = generateEmployeeDetailsCell(data);
+    const employerTotalCell = `<div class="result-total"><span class="employer-total-value">${data.totalEmployerCost.toLocaleString('vi-VN')} VND</span></div>`;
+    const employeeTotalCell = `<div class="result-total"><span class="employee-total-value">${data.netSalary.toLocaleString('vi-VN')} VND</span></div>`;
 
-    // Gross Salary box
-    const grossSalaryCell = html`
-      <div class="result-title">Gross Salary</div>
-      <div class="result-center-value">${data.grossSalary ? data.grossSalary.toLocaleString('en-US') + ' VND' : '-'}</div>
-    `;
-
-    // Adjusted Gross Salary box
-    const adjustedGrossSalaryCell = html`
-      <div class="result-title">Adjusted Gross Salary</div>
-      <div class="result-center-value">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('en-US') + ' VND' : '-'}</div>
-    `;
-
-
-    // Employer and Employee details: details row, then total value in a new row below
-    const employerDetailsCell = html`
-      <div class="result-title">Employer Cost</div>
-      <div class="result-list">
-        <div class="result-item">Social Insurance: <span>+${data.employerInsurance.toLocaleString('en-US')} VND</span></div>
-        <div class="result-item">Union Fee: <span>+${data.employerUnionFee.toLocaleString('en-US')} VND</span></div>
-      </div>
-    `;
-    const employeeDetailsCell = html`
-      <div class="result-title">Employee Take-home</div>
-      <div class="result-list">
-        <div class="result-item">Social Insurance: <span>-${data.employeeInsurance.toLocaleString('en-US')} VND</span></div>
-        <div class="result-item">Personal Income Tax: <span>-${data.incomeTax.toLocaleString('en-US')} VND</span></div>
-      </div>
-    `;
-    const employerTotalCell = html`<div class="result-total"><span class="employer-total-value">${data.totalEmployerCost.toLocaleString('en-US')} VND</span></div>`;
-    const employeeTotalCell = html`<div class="result-total"><span class="employee-total-value">${data.netSalary.toLocaleString('en-US')} VND</span></div>`;
-
+    // Render final result table
     DOM.resultDiv.innerHTML = html`
-      <h1 style="text-align:center;margin-bottom:16px;font-size:30px">PAYSLIP</h1>
+      <h1 style="text-align:center;margin-bottom:16px;font-size:30px">${TEXT_CONFIG.payslipTitle}</h1>
       <div class="result-table-container">
         <table class="result-table result-table-vertical result-table-bordered employer-table-layout">
           <tr><td colspan="2">${employeeTypeCell}</td></tr>
           <tr><td colspan="2">${grossSalaryCell}</td></tr>
           ${allowanceRow}
           ${bonusRow}
-          ${!allowanceRow && !bonusRow ? noAllowanceBonusRow : ''}
+          ${benefitRow}
+          ${noAllowanceBonusBenefitRow}
           <tr><td colspan="2">${adjustedGrossSalaryCell}</td></tr>
           <tr>
             <td style="padding:0;vertical-align:top;">${employerDetailsCell}</td>
@@ -715,248 +928,193 @@ document.addEventListener('DOMContentLoaded', () => {
           </tr>
         </table>
       </div>
-      <div class="salary-visualization-heading" style="text-align:center;margin:24px 0 0 0;font-size:1.125em;font-weight:bold;">Salary Visualization</div>
     `;
-    DOM.downloadPdfBtn.style.display = 'block';
-    // Show reset and hard reset buttons
-    resetBtn.style.display = 'block';
-    hardResetBtn.style.display = 'block';
-    // --- Reset button logic ---
+  }
+
+  function generateAllowanceRow(allowanceItems, totalAllowance) {
+    if (allowanceItems.length === 0) return '';
+    
+    return `
+      <tr>
+        <td colspan="2">
+          <div class="result-title">${TEXT_CONFIG.results.sections.allowance}</div>
+          <div class="result-list">
+            ${allowanceItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('vi-VN')} VND</span></div>`).join('')}
+          </div>
+          <hr class="result-divider" />
+          <div class="result-total"><span>${totalAllowance.toLocaleString('vi-VN')} VND</span></div>
+        </td>
+      </tr>
+    `;
+  }
+
+  function generateBonusRow(hasBonuses, totalBonus) {
+    if (!hasBonuses) return '';
+    
+    return `
+      <tr>
+        <td colspan="2">
+          <div class="result-title">${TEXT_CONFIG.results.sections.bonus}</div>
+          <div class="result-center-value">${totalBonus.toLocaleString('vi-VN')} VND</div>
+        </td>
+      </tr>
+    `;
+  }
+
+  function generateBenefitRow(benefitItems, totalBenefit) {
+    if (benefitItems.length === 0) return '';
+    
+    return `
+      <tr>
+        <td colspan="2">
+          <div class="result-title">${TEXT_CONFIG.results.sections.benefit}</div>
+          <div class="result-list">
+            ${benefitItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('vi-VN')} VND</span></div>`).join('')}
+          </div>
+          <hr class="result-divider" />
+          <div class="result-total"><span>${totalBenefit ? totalBenefit.toLocaleString('vi-VN') : '0'} VND</span></div>
+        </td>
+      </tr>
+    `;
+  }
+
+  function getEmployeeTypeLabel(taxResidentStatus) {
+    return TEXT_CONFIG.results.employeeTypes[taxResidentStatus] || TEXT_CONFIG.results.employeeTypes.default;
+  }
+
+  function generateEmployerDetailsCell(data) {
+    return html`
+      <div class="result-title">${TEXT_CONFIG.results.sections.employerCost}</div>
+      <div class="result-list">
+        <div class="result-item">${TEXT_CONFIG.results.costBreakdown.socialInsurance}: <span>+${data.employerInsurance.toLocaleString('vi-VN')} VND</span></div>
+        <div class="result-item">${TEXT_CONFIG.results.costBreakdown.unionFee}: <span>+${data.employerUnionFee.toLocaleString('vi-VN')} VND</span></div>
+      </div>
+    `;
+  }
+
+  function generateEmployeeDetailsCell(data) {
+    return html`
+      <div class="result-title">${TEXT_CONFIG.results.sections.employeeTakeHome}</div>
+      <div class="result-list">
+        <div class="result-item">${TEXT_CONFIG.results.costBreakdown.socialInsurance}: <span>-${data.employeeInsurance.toLocaleString('vi-VN')} VND</span></div>
+        <div class="result-item">${TEXT_CONFIG.results.costBreakdown.personalIncomeTax}: <span>-${data.incomeTax.toLocaleString('vi-VN')} VND</span></div>
+      </div>
+    `;
+  }
+
+  function setupResetHandlers() {
     resetBtn.onclick = () => {
-      // Hide results
+      // Hide results and button container
       DOM.resultDiv.innerHTML = '';
-      DOM.downloadPdfBtn.style.display = 'none';
-      resetBtn.style.display = 'none';
-      hardResetBtn.style.display = 'none';
-      // Hide charts
-      if (DOM.salaryBreakdownChart) DOM.salaryBreakdownChart.style.display = 'none';
-      if (DOM.salaryBreakdownChartLabel) DOM.salaryBreakdownChartLabel.style.display = 'none';
-      if (DOM.costBreakdownChart) DOM.costBreakdownChart.style.display = 'none';
-      if (DOM.costBreakdownChartLabel) DOM.costBreakdownChartLabel.style.display = 'none';
-      // Re-insert the form at the top (before resultDiv)
+      DOM.buttonContainer.style.display = 'none';
+      
+      // Re-insert form
       if (!document.getElementById('salary-form')) {
         root.insertBefore(salaryForm, DOM.resultDiv);
       }
-      // Show progress bar again
+      
+      // Show progress bar and reset to first step
       const progressBar = document.getElementById('progress-bar');
       if (progressBar) progressBar.style.display = 'flex';
-      // Reset to the first step
       currentStep = 0;
       showStep(currentStep);
     };
 
-    // --- Hard Reset button logic ---
     hardResetBtn.onclick = () => {
       window.location.reload();
     };
   }
 
-  // --- Calculation triggers ---
+  // ============================================================================
+  // EVENT HANDLERS
+  // ============================================================================
+
+  // Calculation event handlers
   DOM.calculateBtn.addEventListener('click', (e) => {
     e.preventDefault();
     handleCalculation();
   });
-  salaryForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    handleCalculation();
-  });
 
-  // --- Per-step Enter key handling ---
-  steps.forEach((step, idx) => {
-    step.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        if (idx === steps.length - 1) {
-          handleCalculation();
-        } else if (continueBtns[idx]) {
-          if (idx === 2) {
-            continueBtns[idx].click();
-          } else if (idx === 1) {
-            if (!continueBtns[idx].disabled) continueBtns[idx].click();
-          } else if (!continueBtns[idx].disabled) {
-            continueBtns[idx].click();
-          }
-        }
-      }
-    });
-  });
+  // ============================================================================
+  // PDF EXPORT
+  // ============================================================================
 
-  // --- Chart rendering ---
-  function renderPieChart(data) {
-    // Helper: show/hide chart blocks and center if only one is visible
-    function updateChartBlockVisibility(showSalary, showCost) {
-      const salaryBlock = document.getElementById('salary-chart-block');
-      const costBlock = document.getElementById('cost-chart-block');
-      if (salaryBlock) salaryBlock.style.display = showSalary ? 'flex' : 'none';
-      if (costBlock) costBlock.style.display = showCost ? 'flex' : 'none';
-      // Center the only visible chart
-      const pieChartContainer = document.querySelector('.pie-chart-container');
-      if (pieChartContainer) {
-        if ((showSalary && !showCost) || (!showSalary && showCost)) {
-          pieChartContainer.style.justifyContent = 'center';
-        } else {
-          pieChartContainer.style.justifyContent = 'center';
-        }
-      }
-    }
-
-    if (!data.grossSalary) {
-      destroyChart('salaryChart');
-      destroyChart('costBreakdownChart');
-      DOM.salaryBreakdownChart.style.display = 'none';
-      DOM.salaryBreakdownChartLabel.style.display = 'none';
-      DOM.costBreakdownChart.style.display = 'none';
-      DOM.costBreakdownChartLabel.style.display = 'none';
-      updateChartBlockVisibility(false, false);
-      return;
-    }
-    const bonusAndAllowance = data.adjustedGrossSalary - data.grossSalary;
-    if (bonusAndAllowance === 0) {
-      destroyChart('salaryChart');
-      DOM.salaryBreakdownChart.style.display = 'none';
-      DOM.salaryBreakdownChartLabel.style.display = 'none';
-      updateChartBlockVisibility(false, true);
-    } else {
-      destroyChart('salaryChart');
-      window.salaryChart = new Chart(DOM.salaryBreakdownChart.getContext('2d'), {
-        type: 'doughnut',
-        data: {
-          labels: ['Bonus & Allowance', 'Gross Salary'],
-          datasets: [{
-            data: [bonusAndAllowance, data.grossSalary],
-            backgroundColor: ['#999999', '#666666'],
-            spacing: 5,
-          }]
-        },
-        options: {
-          responsive: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              bodyFont: { family: 'EB Garamond' },
-              callbacks: {
-                label: (ctx) => {
-                  const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                  const value = ctx.raw;
-                  const percent = ((value / total) * 100).toFixed(2);
-                  return `${ctx.label}: ${value.toLocaleString('en-US')} VND (${percent}%)`;
-                }
-              }
-            }
-          }
-        }
-      });
-      DOM.salaryBreakdownChart.style.display = 'block';
-      DOM.salaryBreakdownChartLabel.style.display = 'block';
-      updateChartBlockVisibility(true, true);
-    }
-    destroyChart('costBreakdownChart');
-    const breakdownData = [
-      data.employeeInsurance || 0,
-      data.incomeTax || 0,
-      data.employerInsurance || 0,
-      data.employerUnionFee || 0,
-      data.netSalary || 0
-    ];
-    const breakdownLabels = [
-      'Employee Insurance',
-      'Personal Income Tax',
-      'Employer Insurance',
-      'Employer Union Fee',
-      'Employee Take-home (Net) Salary'
-    ];
-    window.costBreakdownChart = new Chart(DOM.costBreakdownChart.getContext('2d'), {
-      type: 'doughnut',
-      data: {
-        labels: breakdownLabels,
-        datasets: [{
-          data: breakdownData,
-          backgroundColor: [
-            '#C1272D',
-            '#A72126',
-            '#C1272D',
-            '#A72126',
-            '#666666'
-          ],
-          spacing: 5,
-        }]
-      },
-      options: {
-        responsive: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            bodyFont: { family: 'EB Garamond' },
-            callbacks: {
-              label: (ctx) => {
-                const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                const value = ctx.raw;
-                const percent = total > 0 ? ((value / total) * 100).toFixed(2) : '0.00';
-                return `${ctx.label}: ${value.toLocaleString('en-US')} VND (${percent}%)`;
-              }
-            }
-          }
-        }
-      }
-    });
-    DOM.costBreakdownChart.style.display = 'block';
-    DOM.costBreakdownChartLabel.style.display = 'block';
-  }
-  // --- PDF Export logic (A4, Garamond, instant download) ---
-  // Ensure jsPDF and html2canvas are loaded
-  function ensureJsPdfAndHtml2Canvas(cb) {
+  function ensureJsPdfAndHtml2Canvas(callback) {
     let loaded = 0;
-    function check() { loaded++; if (loaded === 2) cb(); }
-    // Check jsPDF
+    const checkLoaded = () => { 
+      loaded++; 
+      if (loaded === 2) callback(); 
+    };
+    
+    // Load jsPDF
     if (!window.jspdf || !window.jspdf.jsPDF) {
-      const s = document.createElement('script');
-      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-      s.onload = check;
-      document.head.appendChild(s);
-    } else loaded++;
-    // Check html2canvas
+      const jsPdfScript = document.createElement('script');
+      jsPdfScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+      jsPdfScript.onload = checkLoaded;
+      document.head.appendChild(jsPdfScript);
+    } else {
+      loaded++;
+    }
+    
+    // Load html2canvas
     if (!window.html2canvas) {
-      const s = document.createElement('script');
-      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-      s.onload = check;
-      document.head.appendChild(s);
-    } else loaded++;
-    if ((window.jspdf && window.jspdf.jsPDF) && window.html2canvas) cb();
+      const html2canvasScript = document.createElement('script');
+      html2canvasScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      html2canvasScript.onload = checkLoaded;
+      document.head.appendChild(html2canvasScript);
+    } else {
+      loaded++;
+    }
+    
+    // If both are already loaded
+    if ((window.jspdf && window.jspdf.jsPDF) && window.html2canvas) {
+      callback();
+    }
   }
 
   function setupDownloadButton() {
     downloadBtn.addEventListener('click', async (e) => {
       e.preventDefault();
+      
       ensureJsPdfAndHtml2Canvas(async () => {
         const resultTableContainer = document.querySelector('.result-table-container');
         if (!resultTableContainer) return;
+        
+        // Create export container
         const exportContainer = document.createElement('div');
         exportContainer.className = 'pdf-export-container';
-        // Clone logo, hr, and result table, but use PAYSLIP h2 instead of h1
+        
+        // Add logo if exists
         const logo = document.querySelector('.logo');
-        const hr = root.querySelector('hr');
         if (logo) {
-          const logoClone = logo.cloneNode(true);
-          exportContainer.appendChild(logoClone);
+          exportContainer.appendChild(logo.cloneNode(true));
         }
-        // Add PAYSLIP h2
-        const payslipH2 = document.createElement('h1');
-        payslipH2.textContent = 'PAYSLIP';
-        payslipH2.style.textAlign = 'center';
-        payslipH2.style.marginBottom = '16px';
-        exportContainer.appendChild(payslipH2);
+        
+        // Add PAYSLIP title
+        const payslipTitle = document.createElement('h1');
+        payslipTitle.textContent = TEXT_CONFIG.payslipTitle;
+        payslipTitle.style.textAlign = 'center';
+        payslipTitle.style.marginBottom = '16px';
+        exportContainer.appendChild(payslipTitle);
+        
+        // Add hr if exists
+        const hr = root.querySelector('hr');
         if (hr) {
-          const hrClone = hr.cloneNode(true);
-          exportContainer.appendChild(hrClone);
+          exportContainer.appendChild(hr.cloneNode(true));
         }
+        
+        // Add result table
         exportContainer.appendChild(resultTableContainer.cloneNode(true));
         document.body.appendChild(exportContainer);
-        // Format date as dd/mm/yyyy
+        
+        // Generate filename with current date
         const now = new Date();
         const day = String(now.getDate()).padStart(2, '0');
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const year = now.getFullYear();
         const filename = `[PCA Salary Simulation]_${day}-${month}-${year}.pdf`;
+        
+        // Export to PDF
         await exportResultToPdf({
           exportContainer,
           filename,
