@@ -1,83 +1,10 @@
-/* ========================= */
-/* Step Title with Icon      */
-/* ========================= */
-.step-title-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.3125rem;
-  width: 100%;
-  margin-bottom: 0.625rem;
-}
-.step-title-row h2 {
-  margin: 0 0 0 1.0125rem;
-  padding: 0;
-  text-align: center;
-  font-size: 1.5em;
-  font-weight: 700;
-}
-.question-icon {
-  width: 0.7rem;
-  height: 0.7rem;
-  display: inline-block;
-  cursor: pointer;
-  position: relative;
-  flex-shrink: 0;
-}
-.question-icon img {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-.question-icon:hover .info-box,
-.question-icon:focus .info-box {
-  opacity: 0.95;
-  visibility: visible;
-  pointer-events: auto;
-}
-/* ========================= */
-/* PDF Export Container      */
-/* ========================= */
-.pdf-export-container {
-  font-family: 'EB Garamond', Garamond, serif;
-  background: #fff;
-  color: #222;
-  width: 794px; /* A4 width at 96dpi */
-  height: 1123px; /* A4 height at 96dpi */
-  margin: 0 auto;
-  position: fixed;
-  left: -9999px;
-  top: 0;
-  z-index: -1;
-  padding: 1.875rem;
-  box-sizing: border-box;
-}
-
-/* PDF Export: logo, h1, hr tweaks */
-.pdf-export-container .logo {
-  margin: 0 auto 0.5rem auto !important;
-}
-.pdf-export-container h1 {
-  margin: 0 0 0.375rem 0 !important;
-}
-.pdf-export-container hr {
-  border: none !important;
-  border-top: 1px solid #666 !important;
-  height: 0 !important;
-  margin: 0.375rem auto 1rem auto !important;
-  width: 100%;
-}
-
-/* ========================= */
-/* Reset & Global Styles     */
-/* ========================= */
-
+/* ============================================================================
+   GLOBAL STYLES AND RESET
+   ============================================================================ */
 
 *, *::before, *::after {
   box-sizing: border-box;
 }
-
 
 body {
   font-family: 'EB Garamond', serif;
@@ -86,16 +13,17 @@ body {
   padding: 0 0.625rem;
 }
 
-
-h1,
-h2 {
+h1, h2 {
   text-align: center;
 }
 
-/* ========================= */
-/* Layout & Utility Classes  */
-/* ========================= */
+hr {
+  max-width: 70vw;
+}
 
+/* ============================================================================
+   LAYOUT CONTAINERS
+   ============================================================================ */
 
 #salary-form {
   max-width: 26.25rem;
@@ -104,281 +32,21 @@ h2 {
   padding: 0 0.5rem;
 }
 
+/* ============================================================================
+   FORM STEP NAVIGATION
+   ============================================================================ */
 
-.result-divider {
-  border: none;
-  border-top: 1px solid #aaa;
-  width: 55%;
-  margin: 0.08em auto 0.05em auto;
+.form-step {
+  display: none;
 }
 
-.result-divider-insurance {
-  border: none;
-  border-top: 1px solid #aaa;
-  width: 90%;
-  margin: 0.08em auto 0.05em auto;
+.form-step.active {
+  display: block;
 }
 
-/* ========================= */
-/* Result Details Grid       */
-/* ========================= */
-
-
-.result-details-grid {
-  display: flex;
-  gap: 1.5rem;
-  justify-content: space-between;
-  margin: 1.1em 0 0.5em 0;
-}
-
-
-.result-details-col {
-  flex: 1 1 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.3em;
-  font-size: 1rem;
-  min-width: 0;
-}
-
-
-.result-details-col b {
-  font-size: 1.0625rem;
-  font-weight: 700;
-  color: #222;
-}
-
-
-.result-details-label {
-  color: #666;
-  font-weight: 500;
-}
-
-
-.result-details-value {
-  color: #222;
-  font-weight: 600;
-  margin-left: 0.2em;
-}
-
-/* ========================= */
-/* Result Titles             */
-/* ========================= */
-
-.payslip-title,
-.employer-cost-title {
-  text-align: center;
-  margin-bottom: 16px;
-  font-size: 30px;
-}
-
-.employer-cost-title {
-  margin-top: 32px;
-}
-
-.no-benefit-message {
-  font-size: 1em;
-  color: #888;
-}
-
-/* ========================= */
-/* Result Boxes & Tables     */
-/* ========================= */
-
-
-.result-table-container {
-  width: 100%;
-  max-width: 55vw;
-  margin: 0 auto;
-}
-
-
-.result-table {
-  width: 100%;
-  max-width: 80vw;
-  margin: 0 auto;
-  border-collapse: separate;
-  border-spacing: 0;
-  table-layout: fixed;
-  border-radius: 0.25rem;
-  overflow: hidden;
-  border: 1px solid #666;
-}
-
-
-.result-table-vertical tr {
-  width: 100%;
-}
-
-
-.result-table-vertical td {
-  vertical-align: top;
-}
-
-
-.result-table-bordered {
-  border: 1px solid #666;
-}
-
-
-.result-table-bordered td,
-.result-table-bordered th {
-  border: 1px solid #666;
-  padding: 4px 4px;
-}
-
-/* Light grey background for the national cell (first row), gross row, and last row */
-.employee-table-layout tr:first-child td,
-.employee-table-layout tr:nth-last-child(4) td,
-.employee-table-layout tr:nth-last-child(2) td,
-.employee-table-layout tr:last-child td {
-  background: #f3f3f3;
-}
-
-.employer-table-layout tr:first-child td,
-.employer-table-layout tr:nth-last-child(3) td,
-.employer-table-layout tr:last-child td {
-  background: #f3f3f3;
-}
-
-/* ========================= */
-/* Employer Cost Table       */
-/* ========================= */
-
-/* Employer cost table specific styling - separate from payslip */
-.employer-cost-table-layout .employer-cost-header-row,
-.employer-cost-table-layout .employer-cost-footer-row {
-  background-color: #f5f5f5;
-}
-
-/* Make all table headers in the result table bold and larger */
-
-.result-table th {
-  font-weight: 700;
-  font-size: 1.25rem;
-  text-align: center;
-}
-
-
-.result-box {
-  background: #fff;
-  border: 1px solid #aaa;
-  border-radius: 0.125rem;
-  padding: 0.18rem 0.3rem 0.15rem 0.3rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  font-size: 1.125rem;
-}
-
-
-.result-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 0.05em;
-  letter-spacing: 0.03125rem;
-}
-
-
-.result-list {
-  width: 100%;
-  max-width: 21.25rem;
-  margin: 0 auto 0.2rem auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.01em;
-}
-
-
-.result-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.01em;
-  padding: 0 0.75rem;
-  font-size: 1em;
-  width: 99%;
-  margin: 0 auto;
-}
-
-
-.result-total {
-  font-weight: 600;
-  text-align: center;
-  margin-top: 0.02em;
-  font-size: 1.25rem;
-}
-
-
-.employer-total-value {
-  color: #c1272d !important;
-}
-
-
-.employee-total-value {
-  color: #1a7f3c !important;
-}
-
-
-.result-center-value {
-  font-size: 1.25rem;
-  font-weight: 600;
-  text-align: center;
-  margin: 0.02em 0 0.02em 0;
-}
-
-
-.result {
-  font-size: 1.125rem;
-  color: #333;
-}
-
-/* ========================= */
-/* Form Navigation           */
-/* ========================= */
-
-.form-navigation {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-  margin: 1.5rem auto;
-  max-width: 55rem;
-  width: 100%;
-  flex-wrap: wrap;
-}
-
-.form-navigation .simulation-button,
-.form-navigation .return-button {
-  flex: 1;
-  min-width: 12rem;
-  max-width: 16rem;
-  margin: 0;
-}
-
-/* ========================= */
-/* Progress Bar Styles       */
-/* ========================= */
-
-
-/* ========================= */
-/* Progress Bar Styles       */
-/* ========================= */
-
-.progress-bar-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 18px 0;
-  width: 100%;
-  max-width: 480px;
-  margin-left: auto;
-  margin-right: auto;
-  user-select: none;
-}
+/* ============================================================================
+   PROGRESS BAR STYLES
+   ============================================================================ */
 
 #progress-bar {
   display: flex;
@@ -389,7 +57,6 @@ h2 {
   width: 100%;
   max-width: 26.25rem;
 }
-
 
 .progress-step {
   flex: 0 1 5rem;
@@ -408,7 +75,6 @@ h2 {
   margin: 0 0.0625rem;
 }
 
-
 .progress-step.active {
   color: #c1272d;
   background: #f8eaea;
@@ -416,13 +82,11 @@ h2 {
   box-shadow: 0 2px 8px rgba(193, 39, 45, 0.04);
 }
 
-
 .progress-step.completed {
   color: #1a7f3c;
   background: #eaf8ee;
   font-weight: 600;
 }
-
 
 .progress-bar-line {
   flex: 0 0 2rem;
@@ -436,206 +100,51 @@ h2 {
   align-self: center;
 }
 
-
 .progress-bar-line.completed {
   background: #1a7f3c;
 }
+/* ============================================================================
+   STEP TITLES AND QUESTION ICONS
+   ============================================================================ */
 
-/* ========================= */
-/* Form & Input Elements     */
-/* ========================= */
-
-
-/* ========================= */
-/* Form & Input Elements     */
-/* ========================= */
-
-.form-step {
-  display: none;
-}
-
-.form-step.active {
-  display: block;
-}
-
-label,
-input,
-select,
-button {
-  display: block;
+.step-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3125rem;
   width: 100%;
-  margin: 0px auto 0.3125rem auto;
-  padding: 0.5rem;
-  font-size: 1.125rem;
-  font-family: 'EB Garamond', serif;
+  margin-bottom: 0.625rem;
 }
 
-label.input-label {
-  padding-left: none;
-}
-
-input,
-select {
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  background: #fff;
-}
-
-
-input {
-  margin-bottom: 0.3175rem;
-}
-
-
-#base-salary.number-input,
-select#national {
-  margin: 0.9375rem 0;
-}
-
-
-hr {
-  max-width: 70vw;
-}
-
-/* ========================= */
-/* Buttons                   */
-/* ========================= */
-
-
-button,
-.simulation-button,
-.return-button {
-  display: block;
-  max-width: 25.625rem;
-  width: 100%;
-  padding: 0.75rem 0;
-  font-size: 1.125rem;
-  font-family: 'EB Garamond', serif;
+.step-title-row h2 {
+  margin: 0 0 0 1.0125rem;
+  padding: 0;
   text-align: center;
-  border-radius: 0.375rem;
+  font-size: 1.5em;
+  font-weight: 700;
+}
+
+.question-icon {
+  width: 0.7rem;
+  height: 0.7rem;
+  display: inline-block;
   cursor: pointer;
-  color: white;
-  border: 1px solid #a72126;
-  background-color: #c1272d;
   position: relative;
-  overflow: visible;
-  transition: background-color 0.2s ease;
+  flex-shrink: 0;
 }
 
-
-button:hover,
-.simulation-button:hover {
-  background-color: #a72126;
-}
-
-
-.return-button {
-  background: #999 !important;
-  border: none !important;
-  color: #fff;
-}
-
-
-.return-button:hover {
-  background: #666 !important;
-}
-
-/* Disabled return button style (same pattern as simulation button unavailable) */
-.return-button.disabled {
-  background-color: #e0e0e0 !important;
-  color: #aaa !important;
-  border: 1px solid #ccc !important;
-  cursor: not-allowed !important;
-  opacity: 0.6;
-  pointer-events: auto;
-  transition: background-color 0.2s, color 0.2s;
-}
-
-.return-button.disabled:hover,
-.return-button.disabled:focus {
-  background-color: #f0f0f0 !important;
-  color: #999 !important;
-}
-
-/* Unavailable simulation button style (lighter and not clickable) */
-
-.simulation-button.unavailable {
-  background-color: #f8cece !important;
-  color: #aaa !important;
-  border: 1px solid #f3dede !important;
-  cursor: not-allowed !important;
-  opacity: 1;
-  box-shadow: none;
-  pointer-events: auto;
-  transition: background-color 0.2s, color 0.2s;
-}
-
-
-.simulation-button.unavailable:hover,
-.simulation-button.unavailable:focus {
-  background-color: #fff8f8 !important;
-  color: #aaa !important;
-}
-
-/* Deactivated/unavailable simulation button style */
-
-.simulation-button.deactivated {
-  background-color: #e0e0e0 !important;
-  color: #aaa !important;
-  border: 1px solid #ccc !important;
-  cursor: not-allowed !important;
-  opacity: 0.6;
-  box-shadow: none;
-  pointer-events: none;
-  transition: background-color 0.2s, color 0.2s, opacity 0.2s;
-}
-
-/* ========================= */
-/* Checkbox & List Styles    */
-/* ========================= */
-
-
-.checkbox-group {
-  display: flex;
-  margin-top: 0.25rem;
-}
-
-
-.checkbox-item {
-  display: flex;
-  justify-content: left;
-  align-items: baseline;
-  gap: 0.375rem;
-  font-family: inherit;
-  width: fit-content;
-  margin-left: 0;
-  margin-top: 0.3125rem;
-  line-height: 1.2;
-  color: #333;
-  flex-wrap: nowrap;
-  white-space: nowrap;
-}
-
-
-.simulation-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-top: 1.875rem;
-}
-
-/* ========================= */
-/* Logo & Info Box Styles    */
-/* ========================= */
-
-
-.logo {
+.question-icon img {
+  width: 100%;
+  height: 100%;
   display: block;
-  margin: 0 auto 1.25rem;
-  max-width: 11.25rem;
-  cursor: pointer;
 }
 
+.question-icon:hover .info-box,
+.question-icon:focus .info-box {
+  opacity: 0.95;
+  visibility: visible;
+  pointer-events: auto;
+}
 
 .info-box {
   opacity: 0;
@@ -664,6 +173,129 @@ button:hover,
   background-clip: padding-box;
 }
 
+/* ============================================================================
+   FORM INPUTS AND CONTROLS
+   ============================================================================ */
+
+label, input, select, button {
+  display: block;
+  width: 100%;
+  margin: 0px auto 0.3125rem auto;
+  padding: 0.5rem;
+  font-size: 1.125rem;
+  font-family: 'EB Garamond', serif;
+}
+
+label.input-label {
+  padding-left: none;
+}
+
+input, select {
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #fff;
+}
+
+input {
+  margin-bottom: 0.3175rem;
+}
+
+#base-salary.number-input,
+select#national {
+  margin: 0.9375rem 0;
+}
+
+.input-warning {
+  color: #C1272D;
+  font-size: 0.9em;
+  margin: 4px auto;
+}
+
+/* ============================================================================
+   BUTTON STYLES
+   ============================================================================ */
+
+button,
+.simulation-button,
+.return-button {
+  display: block;
+  max-width: 25.625rem;
+  width: 100%;
+  padding: 0.75rem 0;
+  font-size: 1.125rem;
+  font-family: 'EB Garamond', serif;
+  text-align: center;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  color: white;
+  border: 1px solid #a72126;
+  background-color: #c1272d;
+  position: relative;
+  overflow: visible;
+  transition: background-color 0.2s ease;
+}
+
+button:hover,
+.simulation-button:hover {
+  background-color: #a72126;
+}
+
+.return-button {
+  background: #999 !important;
+  border: none !important;
+  color: #fff;
+}
+
+.return-button:hover {
+  background: #666 !important;
+}
+
+/* Disabled return button style */
+.return-button.disabled {
+  background-color: #e0e0e0 !important;
+  color: #aaa !important;
+  border: 1px solid #ccc !important;
+  cursor: not-allowed !important;
+  opacity: 0.6;
+  pointer-events: auto;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.return-button.disabled:hover,
+.return-button.disabled:focus {
+  background-color: #f0f0f0 !important;
+  color: #999 !important;
+}
+
+/* Unavailable simulation button style */
+.simulation-button.unavailable {
+  background-color: #f8cece !important;
+  color: #aaa !important;
+  border: 1px solid #f3dede !important;
+  cursor: not-allowed !important;
+  opacity: 1;
+  box-shadow: none;
+  pointer-events: auto;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.simulation-button.unavailable:hover,
+.simulation-button.unavailable:focus {
+  background-color: #fff8f8 !important;
+  color: #aaa !important;
+}
+
+/* Deactivated simulation button style */
+.simulation-button.deactivated {
+  background-color: #e0e0e0 !important;
+  color: #aaa !important;
+  border: 1px solid #ccc !important;
+  cursor: not-allowed !important;
+  opacity: 0.6;
+  box-shadow: none;
+  pointer-events: none;
+  transition: background-color 0.2s, color 0.2s, opacity 0.2s;
+}
 
 .simulation-button:hover .info-box,
 .simulation-button:focus .info-box {
@@ -672,20 +304,301 @@ button:hover,
   pointer-events: auto;
 }
 
-/* ========================= */
-/* Allowance & Bonus Inputs  */
-/* ========================= */
+/* ============================================================================
+   FORM NAVIGATION
+   ============================================================================ */
 
+.form-navigation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.5rem auto;
+  max-width: 55rem;
+  width: 100%;
+  flex-wrap: wrap;
+}
 
+.form-navigation .simulation-button,
+.form-navigation .return-button {
+  flex: 1;
+  min-width: 12rem;
+  max-width: 16rem;
+  margin: 0;
+}
+/* ============================================================================
+   RESULT CONTAINERS AND TABLES
+   ============================================================================ */
+
+.result {
+  font-size: 1.125rem;
+  color: #333;
+}
+
+.result-table-container {
+  width: 100%;
+  max-width: 55vw;
+  margin: 0 auto;
+}
+
+.result-table {
+  width: 100%;
+  max-width: 80vw;
+  margin: 0 auto;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  border-radius: 0.25rem;
+  overflow: hidden;
+  border: 1px solid #666;
+}
+
+.result-table-vertical tr {
+  width: 100%;
+}
+
+.result-table-vertical td {
+  vertical-align: top;
+}
+
+.result-table-bordered {
+  border: 1px solid #666;
+}
+
+.result-table-bordered td,
+.result-table-bordered th {
+  border: 1px solid #666;
+  padding: 4px 4px;
+}
+
+.result-table th {
+  font-weight: 700;
+  font-size: 1.25rem;
+  text-align: center;
+}
+
+/* Table layout styling */
+.employee-table-layout tr:first-child td,
+.employee-table-layout tr:nth-last-child(4) td,
+.employee-table-layout tr:nth-last-child(2) td,
+.employee-table-layout tr:last-child td {
+  background: #f3f3f3;
+}
+
+.employer-table-layout tr:first-child td,
+.employer-table-layout tr:nth-last-child(3) td,
+.employer-table-layout tr:last-child td {
+  background: #f3f3f3;
+}
+
+.employer-cost-table-layout .employer-cost-header-row,
+.employer-cost-table-layout .employer-cost-footer-row {
+  background-color: #f5f5f5;
+}
+
+/* ============================================================================
+   RESULT CONTENT STYLING
+   ============================================================================ */
+
+.result-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 0.05em;
+  letter-spacing: 0.03125rem;
+}
+
+.result-list {
+  width: 100%;
+  max-width: 21.25rem;
+  margin: 0 auto 0.2rem auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.01em;
+}
+
+.result-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.01em;
+  padding: 0 0.75rem;
+  font-size: 1em;
+  width: 99%;
+  margin: 0 auto;
+}
+
+.result-total {
+  font-weight: 600;
+  text-align: center;
+  margin-top: 0.02em;
+  font-size: 1.25rem;
+}
+
+.result-center-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-align: center;
+  margin: 0.02em 0 0.02em 0;
+}
+
+.result-box {
+  background: #fff;
+  border: 1px solid #aaa;
+  border-radius: 0.125rem;
+  padding: 0.18rem 0.3rem 0.15rem 0.3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  font-size: 1.125rem;
+}
+
+.result-divider {
+  border: none;
+  border-top: 1px solid #aaa;
+  width: 55%;
+  margin: 0.08em auto 0.05em auto;
+}
+
+.result-divider-insurance {
+  border: none;
+  border-top: 1px solid #aaa;
+  width: 90%;
+  margin: 0.08em auto 0.05em auto;
+}
+
+.employee-total-value {
+  color: #1a7f3c !important;
+}
+
+.employer-total-value {
+  color: #c1272d !important;
+}
+
+/* Result titles */
+.payslip-title,
+.employer-cost-title {
+  text-align: center;
+  margin-bottom: 16px;
+  font-size: 30px;
+}
+
+.employer-cost-title {
+  margin-top: 32px;
+}
+
+.no-benefit-message {
+  font-size: 1em;
+  color: #888;
+}
+
+/* ============================================================================
+   RESULT BUTTONS CONTAINER
+   ============================================================================ */
+
+.result-buttons-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.5rem auto;
+  max-width: 55rem;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.result-buttons-container .simulation-button {
+  flex: 1;
+  min-width: 12rem;
+  max-width: 16rem;
+  margin: 0;
+}
+
+/* ============================================================================
+   MISCELLANEOUS COMPONENTS
+   ============================================================================ */
+
+/* Checkbox and list styles */
+.checkbox-group {
+  display: flex;
+  margin-top: 0.25rem;
+}
+
+.checkbox-item {
+  display: flex;
+  justify-content: left;
+  align-items: baseline;
+  gap: 0.375rem;
+  font-family: inherit;
+  width: fit-content;
+  margin-left: 0;
+  margin-top: 0.3125rem;
+  line-height: 1.2;
+  color: #333;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.simulation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.875rem;
+}
+
+/* Logo styling */
+.logo {
+  display: block;
+  margin: 0 auto 1.25rem;
+  max-width: 11.25rem;
+  cursor: pointer;
+}
+
+/* Allowance and bonus input containers */
 #allowance-inputs,
 #bonus-inputs {
   margin-bottom: 1.25rem;
 }
 
-/* ========================= */
-/* Chart Styles              */
-/* ========================= */
+/* Result details grid */
+.result-details-grid {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: space-between;
+  margin: 1.1em 0 0.5em 0;
+}
 
+.result-details-col {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+  font-size: 1rem;
+  min-width: 0;
+}
+
+.result-details-col b {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: #222;
+}
+
+.result-details-label {
+  color: #666;
+  font-weight: 500;
+}
+
+.result-details-value {
+  color: #222;
+  font-weight: 600;
+  margin-left: 0.2em;
+}
+
+/* ============================================================================
+   CHART STYLES
+   ============================================================================ */
 
 .pie-chart-container {
   display: flex;
@@ -698,14 +611,12 @@ button:hover,
   max-width: 37.5rem;
 }
 
-
 .pie-chart-container > div {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
 }
-
 
 #salary-breakdown-chart,
 #cost-breakdown-chart {
@@ -715,7 +626,6 @@ button:hover,
   max-height: 14.375rem;
   border-radius: 0.5rem;
 }
-
 
 #salary-breakdown-chart-label,
 #cost-breakdown-chart-label {
@@ -727,6 +637,9 @@ button:hover,
   color: #333;
 }
 
+/* ============================================================================
+   FOOTER STYLES
+   ============================================================================ */
 
 .app-footer {
   width: 80%;
@@ -754,32 +667,41 @@ button:hover,
 }
 
 .footer-text {
-  text-align:justify;
+  text-align: justify;
 }
 
-.input-warning {
-  color: #C1272D;
-  font-size: 0.9em;
-  margin: 4px auto;
+/* ============================================================================
+   PDF EXPORT CONTAINER
+   ============================================================================ */
+
+.pdf-export-container {
+  font-family: 'EB Garamond', Garamond, serif;
+  background: #fff;
+  color: #222;
+  width: 794px; /* A4 width at 96dpi */
+  height: 1123px; /* A4 height at 96dpi */
+  margin: 0 auto;
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  z-index: -1;
+  padding: 1.875rem;
+  box-sizing: border-box;
 }
 
-/* ========================= */
-/* Result Buttons Container  */
-/* ========================= */
-.result-buttons-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-  margin: 1.5rem auto;
-  max-width: 55rem;
+/* PDF Export specific adjustments */
+.pdf-export-container .logo {
+  margin: 0 auto 0.5rem auto !important;
+}
+
+.pdf-export-container h1 {
+  margin: 0 0 0.375rem 0 !important;
+}
+
+.pdf-export-container hr {
+  border: none !important;
+  border-top: 1px solid #666 !important;
+  height: 0 !important;
+  margin: 0.375rem auto 1rem auto !important;
   width: 100%;
-  flex-wrap: wrap;
-}
-
-.result-buttons-container .simulation-button {
-  flex: 1;
-  min-width: 12rem;
-  max-width: 16rem;
-  margin: 0;
 }

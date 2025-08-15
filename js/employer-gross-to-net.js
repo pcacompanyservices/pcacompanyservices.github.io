@@ -1,10 +1,22 @@
 
+/**
+ * Employer Gross-to-Net Salary Calculator
+ * 
+ * This module provides a multi-step form interface for calculating employee net salary
+ * and employer costs from gross salary input, including allowances, bonuses, and benefits.
+ * 
+ * @version 1.0.0
+ * @author PCA Team
+ */
 
 import { simulateSalary } from '../be/cal.js';
 
 // ============================================================================
-// TEXT CONFIGURATION - Centralized static text management
+// CONSTANTS AND CONFIGURATION
 // ============================================================================
+
+const MIN_SALARY = 5000000;
+const MAX_DIGITS = 9;
 
 const TEXT_CONFIG = {
   // Page title and main headers
@@ -127,7 +139,7 @@ const TEXT_CONFIG = {
     }
   },
   
-  // Info tooltips (placeholder text)
+  // Info tooltips
   infoTooltips: {
     taxResidentStatus: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.",
     grossSalary: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.",
@@ -140,10 +152,6 @@ const TEXT_CONFIG = {
     travel: "Specify your monthly allowance for traveling in the contract.",
     uniform: "Specify your monthly allowance for uniform in the contract.",
     otherAllowance: "Enter any other allowance in the contract that is not listed above.",
-    productivity: "Specify your monthly bonus for productivity in the contract.",
-    incentive: "Specify your monthly bonus for incentive in the contract.",
-    kpi: "Specify your monthly bonus for KPI in the contract.",
-    otherBonus: "Enter any other bonus in the contract that is not listed above.",
     childTuition: "Specify your monthly child's tuition fee benefit in the contract.",
     rental: "Specify your monthly rental benefit in the contract.",
     healthInsurance: "Specify your monthly health insurance benefit in the contract."
@@ -154,7 +162,7 @@ const TEXT_CONFIG = {
     importantNoteTitle: "IMPORTANT NOTE",
     importantNoteText: "This simulation assumes a standard labor contract with a duration exceeding three months, " +
                       "for a Vietnamese tax resident, applied in Region I (Zone I). It does not account for any " +
-                      "registered dependent deductions. For further information, please", //(contact us)
+                      "registered dependent deductions. For further information, please",
     contactLinkText: "contact us",
     contactUrl: "https://pca-cs.com/",
     disclaimerTitle: "DISCLAIMER",
@@ -168,13 +176,11 @@ const TEXT_CONFIG = {
 };
 
 // ============================================================================
-// UTILITY FUNCTIONS (formerly from util/ directory)
+// UTILITY FUNCTIONS
 // ============================================================================
 
 /**
  * Get an element by its ID
- * @param {string} id - The element ID
- * @returns {HTMLElement|null} The element or null if not found
  */
 function getElement(id) {
   return document.getElementById(id);
@@ -182,11 +188,6 @@ function getElement(id) {
 
 /**
  * Create an element and append it to parent with optional properties and innerHTML
- * @param {HTMLElement} parent - Parent element to append to
- * @param {string} tag - HTML tag name
- * @param {Object} props - Properties to assign to the element
- * @param {string} innerHTML - Inner HTML content
- * @returns {HTMLElement} The created element
  */
 function createAndAppend(parent, tag, props = {}, innerHTML = '') {
   const el = document.createElement(tag);
@@ -198,20 +199,12 @@ function createAndAppend(parent, tag, props = {}, innerHTML = '') {
 
 /**
  * Template literal utility for HTML strings
- * @param {Array<string>} strings - Template literal string parts
- * @param {...any} values - Template literal values
- * @returns {string} Concatenated HTML string
  */
 const html = (strings, ...values) =>
   strings.reduce((acc, str, i) => acc + str + (values[i] || ''), '');
 
 /**
  * Export the result container to PDF
- * @param {Object} options - Export options
- * @param {HTMLElement} options.exportContainer - Container to export
- * @param {string} options.filename - PDF filename
- * @param {Function} options.onStart - Callback before export starts
- * @param {Function} options.onComplete - Callback after export completes
  */
 async function exportResultToPdf({
   exportContainer,
@@ -244,15 +237,14 @@ async function exportResultToPdf({
 }
 
 // ============================================================================
-// CONSTANTS AND CONFIGURATION
-// ============================================================================
-
-const MIN_SALARY = 5000000;
-const MAX_DIGITS = 9;
-
-// ============================================================================
 // UI CREATION FUNCTIONS
 // ============================================================================
+
+/**
+ * Create the progress bar showing form navigation steps
+ * @param {HTMLElement} root - Root element to append progress bar to
+ * @returns {HTMLElement} The created progress bar element
+ */
 function createProgressBar(root) {
   const progressBar = createAndAppend(root, 'div', { id: 'progress-bar' });
   progressBar.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin:18px 0;width:100%;max-width:480px;margin-left:auto;margin-right:auto;user-select:none;';
@@ -270,6 +262,11 @@ function createProgressBar(root) {
   return progressBar;
 }
 
+/**
+ * Create the main title block with heading and horizontal rule
+ * @param {HTMLElement} root - Root element to append title to
+ * @returns {HTMLElement} The created h1 element
+ */
 function createTitleBlock(root) {
   const h1 = createAndAppend(root, 'h1');
   h1.textContent = TEXT_CONFIG.pageTitle;
@@ -277,11 +274,20 @@ function createTitleBlock(root) {
   return h1;
 }
 
+/**
+ * Create the main salary form container
+ * @param {HTMLElement} root - Root element to append form to
+ * @returns {HTMLElement} The created form element
+ */
 function createSalaryForm(root) {
   const salaryForm = createAndAppend(root, 'form', { id: 'salary-form' });
   return salaryForm;
 }
 
+/**
+ * Create Step 1: Tax Resident Status Selection
+ * @returns {HTMLElement} The created step element
+ */
 function createStep1() {
   const step1 = document.createElement('div');
   step1.className = 'form-step';
@@ -303,6 +309,10 @@ function createStep1() {
   return step1;
 }
 
+/**
+ * Create Step 2: Gross Salary Input
+ * @returns {HTMLElement} The created step element
+ */
 function createStep2() {
   const step2 = document.createElement('div');
   step2.className = 'form-step';
@@ -321,6 +331,10 @@ function createStep2() {
   return step2;
 }
 
+/**
+ * Create Step 3: Allowance Inputs
+ * @returns {HTMLElement} The created step element
+ */
 function createStep3() {
   const step3 = document.createElement('div');
   step3.className = 'form-step';
@@ -390,6 +404,10 @@ function createStep3() {
   return step3;
 }
 
+/**
+ * Create Step 4: Bonus Input
+ * @returns {HTMLElement} The created step element
+ */
 function createStep4() {
   const step4 = document.createElement('div');
   step4.className = 'form-step';
@@ -408,6 +426,10 @@ function createStep4() {
   return step4;
 }
 
+/**
+ * Create Step 5: Benefit Inputs
+ * @returns {HTMLElement} The created step element
+ */
 function createStep5() {
   const step5 = document.createElement('div');
   step5.className = 'form-step';
@@ -453,6 +475,10 @@ function createStep5() {
   return step5;
 }
 
+/**
+ * Create navigation buttons container with continue, return, and calculate buttons
+ * @returns {HTMLElement} The created navigation container
+ */
 function createNavButtons() {
   const navDiv = document.createElement('div');
   navDiv.className = 'form-navigation';
@@ -474,11 +500,21 @@ function createNavButtons() {
   return navDiv;
 }
 
+/**
+ * Create the result section container
+ * @param {HTMLElement} root - Root element to append result section to
+ * @returns {Object} Object containing resultDiv reference
+ */
 function createResultSection(root) {
   const resultDiv = createAndAppend(root, 'div', { className: 'result', id: 'result', 'aria-live': 'polite' });
   return { resultDiv };
 }
 
+/**
+ * Create the result buttons container with reset, modify, and download PDF buttons
+ * @param {HTMLElement} root - Root element to append button container to
+ * @returns {Object} Object containing button references
+ */
 function createResultButtonsContainer(root) {
   const buttonContainer = createAndAppend(root, 'div', {
     className: 'result-buttons-container',
@@ -588,11 +624,11 @@ function createFooter(root) {
   return footer;
 }
 
+// ============================================================================
+// INITIALIZATION AND DOM SETUP
+// ============================================================================
+
 document.addEventListener('DOMContentLoaded', () => {
-  // ============================================================================
-  // INITIALIZATION
-  // ============================================================================
-  
   const root = getElement('gross-to-net-root');
   root.innerHTML = '';
 
@@ -623,8 +659,9 @@ document.addEventListener('DOMContentLoaded', () => {
   createFooter(root);
 
   // ============================================================================
-  // FORM NAVIGATION
+  // FORM NAVIGATION SYSTEM
   // ============================================================================
+  
   const steps = [step1, step2, step3, step4, step5];
   let currentStep = 0;
 
@@ -633,6 +670,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const continueBtn = getElement('continue-btn');
   const calculateBtn = getElement('calculate-btn');
 
+  /**
+   * Show the specified step and update navigation buttons
+   * @param {number} idx - Step index to show
+   */
   function showStep(idx) {
     steps.forEach((step, i) => {
       if (step) {
@@ -679,6 +720,10 @@ document.addEventListener('DOMContentLoaded', () => {
     updateProgressBar(idx);
   }
 
+  /**
+   * Update progress bar visual state
+   * @param {number} idx - Current step index
+   */
   function updateProgressBar(idx) {
     const stepsEls = document.querySelectorAll('#progress-bar .progress-step');
     stepsEls.forEach((el, i) => {
@@ -703,6 +748,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  /**
+   * Update continue button state based on current step validation
+   * @param {number} idx - Current step index
+   */
   function updateContinueButtonState(idx) {
     if (!continueBtn) return;
     
@@ -775,8 +824,9 @@ document.addEventListener('DOMContentLoaded', () => {
   showStep(currentStep);
 
   // ============================================================================
-  // DOM REFERENCES
+  // DOM REFERENCES AND INPUT HANDLING
   // ============================================================================
+  
   const DOM = {
     salaryForm,
     calculateBtn,
@@ -787,17 +837,10 @@ document.addEventListener('DOMContentLoaded', () => {
     benefitInputs: getElement('benefit-inputs')
   };
 
-  // ============================================================================
-  // DYNAMIC FIELD MANAGEMENT
-  // ============================================================================
-
-  // No dynamic field management needed - all allowance inputs are always visible
-  // and bonus is now a single input field
-
-  // ============================================================================
-  // NUMBER FORMATTING
-  // ============================================================================
-
+  /**
+   * Format number input with Vietnamese locale and handle max digits validation
+   * @param {HTMLInputElement} input - Input element to format
+   */
   function formatNumberInput(input) {
     let rawValue = input.value.replace(/[^\d]/g, '');
     let warningElement = null;
@@ -838,9 +881,12 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ============================================================================
-  // CALCULATION LOGIC
+  // CALCULATION AND RESULT HANDLING
   // ============================================================================
 
+  /**
+   * Handle the salary calculation process
+   */
   function handleCalculation() {
     // Helper functions
     const parseNumber = (val) => {
@@ -901,6 +947,9 @@ document.addEventListener('DOMContentLoaded', () => {
     setupResetHandlers();
   }
 
+  /**
+   * Clean up form interface after successful calculation
+   */
   function cleanupFormAfterCalculation() {
     // Remove form and hide progress bar
     if (salaryForm && salaryForm.parentNode) {
@@ -910,6 +959,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (progressBar) progressBar.style.display = 'none';
   }
 
+  /**
+   * Render calculation results in the result container
+   * @param {Object} data - Calculation result data
+   */
   function renderResults(data) {
     // Prepare allowance items using consistent field names
     const allowanceItems = [
@@ -983,6 +1036,16 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   }
 
+  // ============================================================================
+  // RESULT GENERATION HELPER FUNCTIONS
+  // ============================================================================
+
+  /**
+   * Generate allowance row for results table
+   * @param {Array} allowanceItems - Array of allowance items
+   * @param {number} totalAllowance - Total allowance amount
+   * @returns {string} HTML string for allowance row
+   */
   function generateAllowanceRow(allowanceItems, totalAllowance) {
     if (allowanceItems.length === 0) return '';
     
@@ -1000,6 +1063,12 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   }
 
+  /**
+   * Generate bonus row for results table
+   * @param {boolean} hasBonuses - Whether bonuses exist
+   * @param {number} totalBonus - Total bonus amount
+   * @returns {string} HTML string for bonus row
+   */
   function generateBonusRow(hasBonuses, totalBonus) {
     if (!hasBonuses) return '';
     
@@ -1013,6 +1082,12 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   }
 
+  /**
+   * Generate benefit row for results table
+   * @param {Array} benefitItems - Array of benefit items
+   * @param {number} totalBenefit - Total benefit amount
+   * @returns {string} HTML string for benefit row
+   */
   function generateBenefitRow(benefitItems, totalBenefit) {
     if (benefitItems.length === 0) return '';
     
@@ -1030,10 +1105,20 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   }
 
+  /**
+   * Get employee type label based on tax resident status
+   * @param {string} taxResidentStatus - Tax resident status
+   * @returns {string} Employee type label
+   */
   function getEmployeeTypeLabel(taxResidentStatus) {
     return TEXT_CONFIG.results.employeeTypes[taxResidentStatus] || TEXT_CONFIG.results.employeeTypes.default;
   }
 
+  /**
+   * Generate employee details cell content
+   * @param {Object} data - Calculation result data
+   * @returns {string} HTML string for employee details
+   */
   function generateEmployeeDetailsCell(data) {
     return html`
       <div class="result-title">${TEXT_CONFIG.results.sections.employeeTakeHome}</div>
@@ -1044,6 +1129,12 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   }
 
+  /**
+   * Generate employer cost benefit row
+   * @param {Array} benefitItems - Array of benefit items
+   * @param {number} totalBenefit - Total benefit amount
+   * @returns {string} HTML string for employer benefit row
+   */
   function generateEmployerCostBenefitRow(benefitItems, totalBenefit) {
     if (benefitItems.length === 0) {
       return `
@@ -1070,6 +1161,11 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   }
 
+  /**
+   * Generate employer cost statutory row
+   * @param {Object} data - Calculation result data
+   * @returns {string} HTML string for employer statutory row
+   */
   function generateEmployerCostStatutoryRow(data) {
     return `
       <tr>
@@ -1084,6 +1180,9 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   }
 
+  /**
+   * Setup reset button handlers
+   */
   function setupResetHandlers() {
     resetBtn.onclick = () => {
       // Hide results and button container
@@ -1118,9 +1217,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ============================================================================
-  // PDF EXPORT
+  // PDF EXPORT FUNCTIONALITY
   // ============================================================================
 
+  /**
+   * Ensure jsPDF and html2canvas libraries are loaded before export
+   * @param {Function} callback - Callback to execute when libraries are ready
+   */
   function ensureJsPdfAndHtml2Canvas(callback) {
     let loaded = 0;
     const checkLoaded = () => { 
@@ -1154,6 +1257,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  /**
+   * Setup the download PDF button functionality
+   */
   function setupDownloadButton() {
     downloadBtn.addEventListener('click', async (e) => {
       e.preventDefault();
