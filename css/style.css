@@ -476,8 +476,8 @@ button:hover,
   letter-spacing: 0.03125rem;
 }
 
-.result-title-inline {
-  font-size: 1.8rem !important;
+.result-table-title {
+  font-size: 1.55rem !important;
   color: #3c4043 !important;
   margin: 1rem 0 1rem 0 !important;
   text-align: center !important;
