@@ -431,6 +431,25 @@ button:hover,
   background: #f3f3f3;
 }
 
+/* Payslip table styling (maintains current behavior) */
+.payslip-table-layout tr:first-child td,
+.payslip-table-layout tr:nth-last-child(3) td,
+.payslip-table-layout tr:last-child td {
+  background: #f3f3f3;
+}
+
+/* Employer cost table styling (only first and last row) */
+.employer-cost-table-layout tr:first-child td,
+.employer-cost-table-layout tr:last-child td {
+  background: #f3f3f3 !important;
+}
+
+/* Override employer-table-layout styling for employer cost table middle rows */
+.employer-cost-table-layout tr:nth-last-child(3) td,
+.employer-cost-table-layout tr:nth-last-child(2) td {
+  background: transparent !important;
+}
+
 .employer-cost-table-layout .employer-cost-header-row,
 .employer-cost-table-layout .employer-cost-footer-row {
   background-color: #f5f5f5;

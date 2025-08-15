@@ -999,7 +999,7 @@ document.addEventListener('DOMContentLoaded', () => {
     DOM.resultDiv.innerHTML = html`
       <h1 class="result-title-inline">${TEXT_CONFIG.payslipTitle}</h1>
       <div class="result-table-container">
-        <table class="result-table result-table-vertical result-table-bordered employer-table-layout">
+        <table class="result-table result-table-vertical result-table-bordered employer-table-layout payslip-table-layout">
           <tr><td colspan="2">${employeeTypeCell}</td></tr>
           <tr><td colspan="2">${grossSalaryCell}</td></tr>
           ${allowanceRow}
@@ -1014,7 +1014,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       <h1 class="result-title-inline">${TEXT_CONFIG.results.employerCostTable.title}</h1>
       <div class="result-table-container">
-        <table class="result-table result-table-vertical result-table-bordered employer-table-layout">
+        <table class="result-table result-table-vertical result-table-bordered employer-table-layout employer-cost-table-layout">
           <tr><td colspan="2">${employerAdjustedGrossSalaryCell}</td></tr>
           ${employerStatutoryRow}
           ${employerBenefitRow}
