@@ -10,7 +10,7 @@
   margin-bottom: 0.625rem;
 }
 .step-title-row h2 {
-  margin: 0 0 0 1.4375rem;
+  margin: 0 0 0 1.0125rem;
   padding: 0;
   text-align: center;
   font-size: 1.5em;
@@ -162,6 +162,26 @@ h2 {
 }
 
 /* ========================= */
+/* Result Titles             */
+/* ========================= */
+
+.payslip-title,
+.employer-cost-title {
+  text-align: center;
+  margin-bottom: 16px;
+  font-size: 30px;
+}
+
+.employer-cost-title {
+  margin-top: 32px;
+}
+
+.no-benefit-message {
+  font-size: 1em;
+  color: #888;
+}
+
+/* ========================= */
 /* Result Boxes & Tables     */
 /* ========================= */
 
@@ -219,6 +239,16 @@ h2 {
 .employer-table-layout tr:nth-last-child(3) td,
 .employer-table-layout tr:last-child td {
   background: #f3f3f3;
+}
+
+/* ========================= */
+/* Employer Cost Table       */
+/* ========================= */
+
+/* Employer cost table specific styling - separate from payslip */
+.employer-cost-table-layout .employer-cost-header-row,
+.employer-cost-table-layout .employer-cost-footer-row {
+  background-color: #f5f5f5;
 }
 
 /* Make all table headers in the result table bold and larger */
@@ -307,9 +337,48 @@ h2 {
 }
 
 /* ========================= */
+/* Form Navigation           */
+/* ========================= */
+
+.form-navigation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.5rem auto;
+  max-width: 55rem;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.form-navigation .simulation-button,
+.form-navigation .return-button {
+  flex: 1;
+  min-width: 12rem;
+  max-width: 16rem;
+  margin: 0;
+}
+
+/* ========================= */
 /* Progress Bar Styles       */
 /* ========================= */
 
+
+/* ========================= */
+/* Progress Bar Styles       */
+/* ========================= */
+
+.progress-bar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 18px 0;
+  width: 100%;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+  user-select: none;
+}
 
 #progress-bar {
   display: flex;
@@ -376,6 +445,18 @@ h2 {
 /* Form & Input Elements     */
 /* ========================= */
 
+
+/* ========================= */
+/* Form & Input Elements     */
+/* ========================= */
+
+.form-step {
+  display: none;
+}
+
+.form-step.active {
+  display: block;
+}
 
 label,
 input,

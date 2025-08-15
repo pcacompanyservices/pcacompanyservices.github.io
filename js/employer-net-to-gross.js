@@ -614,29 +614,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const params = {
       method: 'net-to-gross',
       netSalary: parseNumber(getVal('net-salary')),
-      isAllowanceEnabled: getChecked('allowance-checkbox'),
-      lunchAllowance: parseNumber(getVal('allowance-lunch')),
-      lunchEnabled: getChecked('lunch-checkbox'),
-      fuelAllowance: parseNumber(getVal('allowance-fuel')),
-      fuelEnabled: getChecked('fuel-checkbox'),
-      phoneAllowance: parseNumber(getVal('allowance-phone')),
-      phoneEnabled: getChecked('phone-checkbox'),
-      travelAllowance: parseNumber(getVal('allowance-travel')),
-      travelEnabled: getChecked('travel-checkbox'),
-      uniformAllowance: parseNumber(getVal('allowance-uniform')),
-      uniformEnabled: getChecked('uniform-checkbox'),
-      otherAllowance: parseNumber(getVal('allowance-other')),
-      otherAllowanceEnabled: getChecked('other-allowance-checkbox'),
-      isBonusEnabled: getChecked('bonus-checkbox'),
-      productivityBonus: parseNumber(getVal('bonus-productivity')),
-      productivityEnabled: getChecked('productivity-checkbox'),
-      incentiveBonus: parseNumber(getVal('bonus-incentive')),
-      incentiveEnabled: getChecked('incentive-checkbox'),
-      kpiBonus: parseNumber(getVal('bonus-kpi')),
-      kpiEnabled: getChecked('kpi-checkbox'),
-      otherBonus: parseNumber(getVal('bonus-other')),
-      otherBonusEnabled: getChecked('other-bonus-checkbox'),
-      citizenship: getVal('citizenship'),
+      taxResidentStatus: getVal('citizenship') || 'local',
+      
+      // Net allowance inputs
+      netLunchAllowance: parseNumber(getVal('allowance-lunch')),
+      netFuelAllowance: parseNumber(getVal('allowance-fuel')),
+      netPhoneAllowance: parseNumber(getVal('allowance-phone')),
+      netTravelAllowance: parseNumber(getVal('allowance-travel')),
+      netUniformAllowance: parseNumber(getVal('allowance-uniform')),
+      netOtherAllowance: parseNumber(getVal('allowance-other')),
+      
+      // Net bonus input - simplified to single total bonus
+      netTotalBonus: parseNumber(getVal('bonus-productivity')) + parseNumber(getVal('bonus-incentive')) + parseNumber(getVal('bonus-kpi')) + parseNumber(getVal('bonus-other')),
+      
+      // Benefit inputs
+      childTuitionBenefit: parseNumber(getVal('benefit-child-tuition')),
+      rentalBenefit: parseNumber(getVal('benefit-rental')),
+      healthInsuranceBenefit: parseNumber(getVal('benefit-health-insurance'))
     };
 
     const data = simulateSalary(params);
@@ -663,18 +657,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Allowance and Bonus items
     const allowanceItems = [
-      { label: 'Lunch', value: data.lunchAllowance },
-      { label: 'Fuel', value: data.fuelAllowance },
-      { label: 'Phone', value: data.phoneAllowance },
-      { label: 'Traveling', value: data.travelAllowance },
-      { label: 'Uniform', value: data.uniformAllowance },
-      { label: 'Other', value: data.otherAllowance }
+      { label: 'Lunch', value: data.grossLunchAllowance },
+      { label: 'Fuel', value: data.grossFuelAllowance },
+      { label: 'Phone', value: data.grossPhoneAllowance },
+      { label: 'Traveling', value: data.grossTravelAllowance },
+      { label: 'Uniform', value: data.grossUniformAllowance },
+      { label: 'Other', value: data.grossOtherAllowance }
     ].filter(item => item.value && item.value > 0);
     const bonusItems = [
-      { label: 'Productivity', value: data.productivityBonus },
-      { label: 'Incentive', value: data.incentiveBonus },
-      { label: 'KPI', value: data.kpiBonus },
-      { label: 'Other', value: data.otherBonus }
+      { label: 'Productivity', value: data.grossProductivityBonus },
+      { label: 'Incentive', value: data.grossIncentiveBonus },
+      { label: 'KPI', value: data.grossKpiBonus },
+      { label: 'Other', value: data.grossOtherBonus }
     ].filter(item => item.value && item.value > 0);
 
     let allowanceRow = '';
@@ -704,7 +698,7 @@ document.addEventListener('DOMContentLoaded', () => {
               ${bonusItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('vi-VN')} VND</span></div>`).join('')}
             </div>
             <hr class="result-divider" />
-            <div class="result-total"><span>${data.totalBonus.toLocaleString('vi-VN')} VND</span></div>
+            <div class="result-total"><span>${data.grossTotalBonus.toLocaleString('vi-VN')} VND</span></div>
           </td>
         </tr>
       `;

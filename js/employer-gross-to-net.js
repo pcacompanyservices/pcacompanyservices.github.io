@@ -102,7 +102,7 @@ const TEXT_CONFIG = {
       bonus: "Bonus",
       benefit: "Benefit",
       employerCost: "Employer Cost",
-      employeeTakeHome: "Employee Take-home"
+      employeeTakeHome: "Statutory Contribution"
     },
     costBreakdown: {
       socialInsurance: "Social Insurance",
@@ -112,6 +112,18 @@ const TEXT_CONFIG = {
       employerInsurance: "Employer Insurance",
       employerUnionFee: "Employer Union Fee",
       employeeInsurance: "Employee Insurance"
+    },
+    
+    // Employer cost table
+    employerCostTable: {
+      title: "EMPLOYER'S COST",
+      sections: {
+        adjustedGrossSalary: "Adjusted Gross Salary",
+        statutoryContribution: "Statutory Contribution",
+        benefit: "Benefit",
+        totalEmployerCost: "Total Employer's Cost"
+      },
+      noBenefit: "(There is no Benefit in the Contract)"
     }
   },
   
@@ -295,7 +307,6 @@ function createStep2() {
   const step2 = document.createElement('div');
   step2.className = 'form-step';
   step2.id = 'step-2';
-  step2.style.display = 'none';
   step2.innerHTML = html`
     <div class="step-title-row">
       <h2>${TEXT_CONFIG.steps.grossSalary.title}</h2>
@@ -314,7 +325,6 @@ function createStep3() {
   const step3 = document.createElement('div');
   step3.className = 'form-step';
   step3.id = 'step-3';
-  step3.style.display = 'none';
   step3.innerHTML = html`
     <div class="step-title-row">
       <h2>${TEXT_CONFIG.steps.allowance.title}</h2>
@@ -384,7 +394,6 @@ function createStep4() {
   const step4 = document.createElement('div');
   step4.className = 'form-step';
   step4.id = 'step-4';
-  step4.style.display = 'none';
   step4.innerHTML = html`
     <div class="step-title-row">
       <h2>${TEXT_CONFIG.steps.bonus.title}</h2>
@@ -403,7 +412,6 @@ function createStep5() {
   const step5 = document.createElement('div');
   step5.className = 'form-step';
   step5.id = 'step-5';
-  step5.style.display = 'none';
   step5.innerHTML = html`
     <div class="step-title-row">
       <h2>${TEXT_CONFIG.steps.benefit.title}</h2>
@@ -520,23 +528,23 @@ function createFooter(root) {
   // Function to dynamically position footer
   function positionFooter() {
     const viewportHeight = window.innerHeight;
-    const bodyHeight = document.body.scrollHeight;
-    const footerHeight = footer.offsetHeight;
+    const documentHeight = document.documentElement.scrollHeight;
     
-    // Check if content + footer fits in viewport
-    if (bodyHeight + footerHeight <= viewportHeight) {
-      // Fix footer at bottom of viewport (minimal positioning changes only)
+    // Check if the entire document fits in the viewport
+    if (documentHeight <= viewportHeight) {
+      // Fix footer at bottom of viewport
       footer.style.position = 'fixed';
-      footer.style.bottom = '0.5rem';
+      footer.style.bottom = '1rem';
       footer.style.left = '50%';
       footer.style.transform = 'translateX(-50%)';
       footer.style.zIndex = '1000';
       footer.style.margin = '2rem auto';
       footer.style.width = '70vw';
       // Add padding to body to prevent content from being hidden behind footer
-      document.body.style.paddingBottom = `calc(2rem + ${footerHeight}px)`;
+      const footerHeight = footer.offsetHeight;
+      document.body.style.paddingBottom = `${footerHeight + 32}px`;
     } else {
-      // Reset positioning to let CSS handle everything naturally
+      // Reset to normal flow positioning
       footer.style.position = '';
       footer.style.bottom = '';
       footer.style.left = '';
@@ -547,23 +555,35 @@ function createFooter(root) {
     }
   }
   
-  // Position footer initially after a short delay to ensure DOM is ready
-  setTimeout(positionFooter, 100);
+  // Position footer initially after DOM is fully ready
+  setTimeout(positionFooter, 200);
   
   // Reposition footer on window resize
-  window.addEventListener('resize', positionFooter);
+  window.addEventListener('resize', () => {
+    setTimeout(positionFooter, 100);
+  });
   
   // Reposition footer when content changes (e.g., form to results)
   const observer = new MutationObserver(() => {
-    setTimeout(positionFooter, 100);
+    setTimeout(positionFooter, 150);
   });
   
   observer.observe(root, {
     childList: true,
-    subtree: true,
-    attributes: true,
-    attributeFilter: ['style']
+    subtree: true
   });
+  
+  // Also reposition when form steps change
+  const progressBar = document.querySelector('#progress-bar');
+  if (progressBar) {
+    const progressObserver = new MutationObserver(() => {
+      setTimeout(positionFooter, 100);
+    });
+    progressObserver.observe(progressBar, {
+      attributes: true,
+      subtree: true
+    });
+  }
   
   return footer;
 }
@@ -606,29 +626,43 @@ document.addEventListener('DOMContentLoaded', () => {
   // FORM NAVIGATION
   // ============================================================================
   const steps = [step1, step2, step3, step4, step5];
+  let currentStep = 0;
+
+  // Get button references after they're created and added to DOM
   const returnBtn = getElement('return-btn');
   const continueBtn = getElement('continue-btn');
   const calculateBtn = getElement('calculate-btn');
-  let currentStep = 0;
 
   function showStep(idx) {
     steps.forEach((step, i) => {
-      if (step) step.style.display = i === idx ? '' : 'none';
+      if (step) {
+        if (i === idx) {
+          step.classList.add('active');
+        } else {
+          step.classList.remove('active');
+        }
+      }
     });
     
     // Show/hide navigation buttons based on current step
     // Always show return button, but disable it on first step
-    returnBtn.style.display = '';
-    if (idx === 0) {
-      returnBtn.disabled = true;
-      returnBtn.classList.add('disabled');
-    } else {
-      returnBtn.disabled = false;
-      returnBtn.classList.remove('disabled');
+    if (returnBtn) {
+      returnBtn.style.display = 'block';
+      if (idx === 0) {
+        returnBtn.disabled = true;
+        returnBtn.classList.add('disabled');
+      } else {
+        returnBtn.disabled = false;
+        returnBtn.classList.remove('disabled');
+      }
     }
     
-    continueBtn.style.display = idx < steps.length - 1 ? '' : 'none';
-    calculateBtn.style.display = idx === steps.length - 1 ? '' : 'none';
+    if (continueBtn) {
+      continueBtn.style.display = idx < steps.length - 1 ? 'block' : 'none';
+    }
+    if (calculateBtn) {
+      calculateBtn.style.display = idx === steps.length - 1 ? 'block' : 'none';
+    }
     
     // Update continue button state based on step validation
     updateContinueButtonState(idx);
@@ -676,11 +710,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     switch (idx) {
       case 0: // Tax Resident Status step
-        isValid = taxResidentStatusSelect.value;
+        isValid = taxResidentStatusSelect && taxResidentStatusSelect.value;
         break;
       case 1: // Gross base salary step
-        const numericValue = parseInt(grossSalaryInput.value.replace(/\D/g, '')) || 0;
-        isValid = numericValue >= MIN_SALARY;
+        if (grossSalaryInput) {
+          const numericValue = parseInt(grossSalaryInput.value.replace(/\D/g, '')) || 0;
+          isValid = numericValue >= MIN_SALARY;
+        }
         break;
       case 2: // Allowance step (always valid, can skip)
         isValid = true;
@@ -705,27 +741,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Step 1: Tax Resident Status Selection
   const taxResidentStatusSelect = getElement('tax-resident-status');
-  taxResidentStatusSelect.addEventListener('change', () => updateContinueButtonState(currentStep));
+  if (taxResidentStatusSelect) {
+    taxResidentStatusSelect.addEventListener('change', () => updateContinueButtonState(currentStep));
+  }
 
   // Step 2: Gross Base Salary Input
   const grossSalaryInput = getElement('gross-salary');
-  grossSalaryInput.addEventListener('input', () => updateContinueButtonState(currentStep));
+  if (grossSalaryInput) {
+    grossSalaryInput.addEventListener('input', () => updateContinueButtonState(currentStep));
+  }
 
   // Continue button handler
-  continueBtn.addEventListener('click', () => {
-    if (currentStep < steps.length - 1 && !continueBtn.disabled) {
-      currentStep++;
-      showStep(currentStep);
-    }
-  });
+  if (continueBtn) {
+    continueBtn.addEventListener('click', () => {
+      if (currentStep < steps.length - 1 && !continueBtn.disabled) {
+        currentStep++;
+        showStep(currentStep);
+      }
+    });
+  }
 
   // Return button handler
-  returnBtn?.addEventListener('click', () => {
-    if (currentStep > 0 && !returnBtn.disabled) {
-      currentStep--;
-      showStep(currentStep);
-    }
-  });
+  if (returnBtn) {
+    returnBtn.addEventListener('click', () => {
+      if (currentStep > 0 && !returnBtn.disabled) {
+        currentStep--;
+        showStep(currentStep);
+      }
+    });
+  }
 
   // Initialize first step
   showStep(currentStep);
@@ -811,11 +855,11 @@ document.addEventListener('DOMContentLoaded', () => {
       return element ? element.value : '';
     };
 
-    // Collect form data - simplified to match backend expectations
+    // Collect form data - consistent with backend expectations
     const params = {
       method: 'gross-to-net',
       grossSalary: parseNumber(getVal('gross-salary')),
-      taxResidentStatus: getVal('tax-resident-status') || 'local', // Default to 'local' if not selected
+      taxResidentStatus: getVal('tax-resident-status') || 'local',
       
       // Allowance inputs
       lunchAllowance: parseNumber(getVal('allowance-lunch')),
@@ -867,14 +911,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderResults(data) {
-    // Prepare allowance and bonus items
+    // Prepare allowance items using consistent field names
     const allowanceItems = [
-      { label: TEXT_CONFIG.steps.allowance.types.lunch, value: data.lunchAllowance },
-      { label: TEXT_CONFIG.steps.allowance.types.fuel, value: data.fuelAllowance },
-      { label: TEXT_CONFIG.steps.allowance.types.phone, value: data.phoneAllowance },
-      { label: TEXT_CONFIG.steps.allowance.types.travel, value: data.travelAllowance },
-      { label: TEXT_CONFIG.steps.allowance.types.uniform, value: data.uniformAllowance },
-      { label: TEXT_CONFIG.steps.allowance.types.other, value: data.otherAllowance }
+      { label: TEXT_CONFIG.steps.allowance.types.lunch, value: data.grossLunchAllowance },
+      { label: TEXT_CONFIG.steps.allowance.types.fuel, value: data.grossFuelAllowance },
+      { label: TEXT_CONFIG.steps.allowance.types.phone, value: data.grossPhoneAllowance },
+      { label: TEXT_CONFIG.steps.allowance.types.travel, value: data.grossTravelAllowance },
+      { label: TEXT_CONFIG.steps.allowance.types.uniform, value: data.grossUniformAllowance },
+      { label: TEXT_CONFIG.steps.allowance.types.other, value: data.grossOtherAllowance }
     ].filter(item => item.value && item.value > 0);
     
     // Prepare benefit items
@@ -884,12 +928,12 @@ document.addEventListener('DOMContentLoaded', () => {
       { label: TEXT_CONFIG.steps.benefit.types.healthInsurance, value: data.healthInsuranceBenefit }
     ].filter(item => item.value && item.value > 0);
     
-    // Simplified bonus handling - just check if totalBonus exists
-    const hasBonuses = data.totalBonus && data.totalBonus > 0;
+    // Check if there are bonuses
+    const hasBonuses = data.grossTotalBonus && data.grossTotalBonus > 0;
 
     // Generate table rows
-    const allowanceRow = generateAllowanceRow(allowanceItems, data.totalAllowance);
-    const bonusRow = generateBonusRow(hasBonuses, data.totalBonus);
+    const allowanceRow = generateAllowanceRow(allowanceItems, data.grossTotalAllowance);
+    const bonusRow = generateBonusRow(hasBonuses, data.grossTotalBonus);
     const benefitRow = generateBenefitRow(benefitItems, data.totalBenefit);
     const noAllowanceBonusBenefitRow = (allowanceItems.length === 0 && !hasBonuses && benefitItems.length === 0) 
       ? `<tr><td colspan="2"><div class="result-center-value" style="font-size:1em; color:#888;">${TEXT_CONFIG.warnings.noAllowanceOrBonus}</div></td></tr>`
@@ -901,12 +945,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const grossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.sections.grossSalary}</div><div class="result-center-value">${data.grossSalary ? data.grossSalary.toLocaleString('vi-VN') + ' VND' : '-'}</div>`;
     const adjustedGrossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.sections.adjustedGrossSalary}</div><div class="result-center-value">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('vi-VN') + ' VND' : '-'}</div>`;
 
-    const employerDetailsCell = generateEmployerDetailsCell(data);
     const employeeDetailsCell = generateEmployeeDetailsCell(data);
-    const employerTotalCell = `<div class="result-total"><span class="employer-total-value">${data.totalEmployerCost.toLocaleString('vi-VN')} VND</span></div>`;
-    const employeeTotalCell = `<div class="result-total"><span class="employee-total-value">${data.netSalary.toLocaleString('vi-VN')} VND</span></div>`;
+    const employeeTotalCell = `<div class="result-title">Employee Take-home</div><div class="result-total"><span class="employee-total-value">${data.netSalary.toLocaleString('vi-VN')} VND</span></div>`;
 
-    // Render final result table
+    // Generate employer cost table rows
+    const employerBenefitRow = generateEmployerCostBenefitRow(benefitItems, data.totalBenefit);
+    const employerStatutoryRow = generateEmployerCostStatutoryRow(data);
+    const employerAdjustedGrossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.employerCostTable.sections.adjustedGrossSalary}</div><div class="result-center-value">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('vi-VN') + ' VND' : '-'}</div>`;
+    const employerTotalCell = `<div class="result-title">${TEXT_CONFIG.results.employerCostTable.sections.totalEmployerCost}</div><div class="result-total"><span class="employer-total-value">${data.totalEmployerCost.toLocaleString('vi-VN')} VND</span></div>`;
+
+    // Render both tables within the same result container
     DOM.resultDiv.innerHTML = html`
       <h1 style="text-align:center;margin-bottom:16px;font-size:30px">${TEXT_CONFIG.payslipTitle}</h1>
       <div class="result-table-container">
@@ -918,14 +966,18 @@ document.addEventListener('DOMContentLoaded', () => {
           ${benefitRow}
           ${noAllowanceBonusBenefitRow}
           <tr><td colspan="2">${adjustedGrossSalaryCell}</td></tr>
-          <tr>
-            <td style="padding:0;vertical-align:top;">${employerDetailsCell}</td>
-            <td style="padding:0;vertical-align:top;">${employeeDetailsCell}</td>
-          </tr>
-          <tr>
-            <td class="result-total">${employerTotalCell}</td>
-            <td class="result-total">${employeeTotalCell}</td>
-          </tr>
+          <tr><td colspan="2">${employeeDetailsCell}</td></tr>
+          <tr><td colspan="2">${employeeTotalCell}</td></tr>
+        </table>
+      </div>
+      
+      <h1 style="text-align:center;margin-bottom:16px;margin-top:32px;font-size:30px">${TEXT_CONFIG.results.employerCostTable.title}</h1>
+      <div class="result-table-container">
+        <table class="result-table result-table-vertical result-table-bordered employer-table-layout">
+          <tr><td colspan="2">${employerAdjustedGrossSalaryCell}</td></tr>
+          ${employerStatutoryRow}
+          ${employerBenefitRow}
+          <tr><td colspan="2">${employerTotalCell}</td></tr>
         </table>
       </div>
     `;
@@ -982,16 +1034,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return TEXT_CONFIG.results.employeeTypes[taxResidentStatus] || TEXT_CONFIG.results.employeeTypes.default;
   }
 
-  function generateEmployerDetailsCell(data) {
-    return html`
-      <div class="result-title">${TEXT_CONFIG.results.sections.employerCost}</div>
-      <div class="result-list">
-        <div class="result-item">${TEXT_CONFIG.results.costBreakdown.socialInsurance}: <span>+${data.employerInsurance.toLocaleString('vi-VN')} VND</span></div>
-        <div class="result-item">${TEXT_CONFIG.results.costBreakdown.unionFee}: <span>+${data.employerUnionFee.toLocaleString('vi-VN')} VND</span></div>
-      </div>
-    `;
-  }
-
   function generateEmployeeDetailsCell(data) {
     return html`
       <div class="result-title">${TEXT_CONFIG.results.sections.employeeTakeHome}</div>
@@ -999,6 +1041,46 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="result-item">${TEXT_CONFIG.results.costBreakdown.socialInsurance}: <span>-${data.employeeInsurance.toLocaleString('vi-VN')} VND</span></div>
         <div class="result-item">${TEXT_CONFIG.results.costBreakdown.personalIncomeTax}: <span>-${data.incomeTax.toLocaleString('vi-VN')} VND</span></div>
       </div>
+    `;
+  }
+
+  function generateEmployerCostBenefitRow(benefitItems, totalBenefit) {
+    if (benefitItems.length === 0) {
+      return `
+        <tr>
+          <td colspan="2">
+            <div class="result-title">${TEXT_CONFIG.results.employerCostTable.sections.benefit}</div>
+            <div class="result-center-value" style="font-size:1em; color:#888;">${TEXT_CONFIG.results.employerCostTable.noBenefit}</div>
+          </td>
+        </tr>
+      `;
+    }
+    
+    return `
+      <tr>
+        <td colspan="2">
+          <div class="result-title">${TEXT_CONFIG.results.employerCostTable.sections.benefit}</div>
+          <div class="result-list">
+            ${benefitItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('vi-VN')} VND</span></div>`).join('')}
+          </div>
+          <hr class="result-divider" />
+          <div class="result-total"><span>${totalBenefit ? totalBenefit.toLocaleString('vi-VN') : '0'} VND</span></div>
+        </td>
+      </tr>
+    `;
+  }
+
+  function generateEmployerCostStatutoryRow(data) {
+    return `
+      <tr>
+        <td colspan="2">
+          <div class="result-title">${TEXT_CONFIG.results.employerCostTable.sections.statutoryContribution}</div>
+          <div class="result-list">
+            <div class="result-item">${TEXT_CONFIG.results.costBreakdown.socialInsurance}: <span>+${data.employerInsurance.toLocaleString('vi-VN')} VND</span></div>
+            <div class="result-item">${TEXT_CONFIG.results.costBreakdown.unionFee}: <span>+${data.employerUnionFee.toLocaleString('vi-VN')} VND</span></div>
+          </div>
+        </td>
+      </tr>
     `;
   }
 
