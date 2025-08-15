@@ -136,7 +136,7 @@ export function simulateSalary(params) {
   // Parse benefits (same for both methods - employer costs only)
   const childTuitionBenefit    = getRoundedValue(params.childTuitionBenefit, params.childTuitionBenefit > 0);
   const rentalBenefit          = getRoundedValue(params.rentalBenefit, params.rentalBenefit > 0);
-  const healthInsuranceBenefit = getRoundedValue(params.healthInsuranceBenefit, params.healthInsuranceBenefit > 0);
+  const healthInsuranceBenefit = getRoundedValue(params.healthInsuranceBenefit, params.healthInsuranceBenefit > 0) / 12; // Convert annual to monthly
   const totalBenefit = childTuitionBenefit + rentalBenefit + healthInsuranceBenefit;
 
   const taxResidentStatus = params.taxResidentStatus || 'local';

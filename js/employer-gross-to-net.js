@@ -976,7 +976,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const allowanceRow = generateAllowanceRow(allowanceItems, data.grossTotalAllowance);
     const bonusRow = generateBonusRow(hasBonuses, data.grossTotalBonus);
     const benefitRow = generateBenefitRow(benefitItems, data.totalBenefit);
-    const noAllowanceBonusBenefitRow = (allowanceItems.length === 0 && !hasBonuses && benefitItems.length === 0) 
+    const noAllowanceBonusRow = (allowanceItems.length === 0 && !hasBonuses) 
       ? `<tr><td colspan="2"><div class="result-title result-title-muted">${TEXT_CONFIG.warnings.noAllowanceOrBonus}</div></td></tr>`
       : '';
 
@@ -1004,8 +1004,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <tr><td colspan="2">${grossSalaryCell}</td></tr>
           ${allowanceRow}
           ${bonusRow}
-          ${benefitRow}
-          ${noAllowanceBonusBenefitRow}
+          ${noAllowanceBonusRow}
           <tr><td colspan="2">${adjustedGrossSalaryCell}</td></tr>
           <tr><td colspan="2">${employeeDetailsCell}</td></tr>
           <tr><td colspan="2">${employeeTotalCell}</td></tr>
