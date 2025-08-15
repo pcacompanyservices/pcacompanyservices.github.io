@@ -50,12 +50,14 @@ hr {
 
 #progress-bar {
   display: flex;
-  justify-content: center !important;
+  justify-content: space-between;
   align-items: center;
-  margin: 0 auto 1rem auto;
-  user-select: none;
+  margin: 18px 0;
   width: 100%;
-  max-width: 26.25rem;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+  user-select: none;
 }
 
 .progress-step {
@@ -209,6 +211,22 @@ select#national {
   color: #C1272D;
   font-size: 0.9em;
   margin: 4px auto;
+  display: none;
+}
+
+.input-warning.show {
+  display: block;
+}
+
+.input-error-text {
+  color: red !important;
+  font-size: 0.875rem !important;
+  margin-top: 0.25rem !important;
+  display: none;
+}
+
+.input-error-text.show {
+  display: block;
 }
 
 /* ============================================================================
@@ -325,6 +343,12 @@ button:hover,
   min-width: 12rem;
   max-width: 16rem;
   margin: 0;
+  display: none;
+}
+
+.form-navigation .simulation-button.show,
+.form-navigation .return-button.show {
+  display: block;
 }
 /* ============================================================================
    RESULT CONTAINERS AND TABLES
@@ -400,12 +424,28 @@ button:hover,
    RESULT CONTENT STYLING
    ============================================================================ */
 
+.result-content {
+  display: none;
+  margin-top: 1.5rem;
+}
+
+.result-content.show {
+  display: block;
+}
+
 .result-title {
   font-size: 1.25rem;
   font-weight: 700;
   text-align: center;
   margin-bottom: 0.05em;
   letter-spacing: 0.03125rem;
+}
+
+.result-title-inline {
+  font-size: 1.8rem !important;
+  color: #3c4043 !important;
+  margin: 1rem 0 1rem 0 !important;
+  text-align: center !important;
 }
 
 .result-list {
@@ -429,6 +469,13 @@ button:hover,
   margin: 0 auto;
 }
 
+.result-title-muted {
+  font-size: 1em;
+  color: #888;
+  text-align: center;
+  font-weight: normal;
+}
+
 .result-total {
   font-weight: 600;
   text-align: center;
@@ -437,10 +484,15 @@ button:hover,
 }
 
 .result-center-value {
-  font-size: 1.25rem;
-  font-weight: 600;
   text-align: center;
-  margin: 0.02em 0 0.02em 0;
+  font-weight: 600;
+  color: #666;
+  padding: 0.5rem;
+}
+
+.result-center-value-muted {
+  font-size: 1em;
+  color: #888;
 }
 
 .result-box {
@@ -486,7 +538,7 @@ button:hover,
 }
 
 .employer-cost-title {
-  margin-top: 32px;
+  margin-top: 24px;
 }
 
 .no-benefit-message {
@@ -498,15 +550,35 @@ button:hover,
    RESULT BUTTONS CONTAINER
    ============================================================================ */
 
+.result-error-text {
+  color: red !important;
+  font-size: 1rem !important;
+  text-align: center !important;
+  margin: 1rem 0 !important;
+  display: block;
+}
+
 .result-buttons-container {
-  display: flex;
+  display: none;
   justify-content: center;
   align-items: center;
   gap: 1rem;
-  margin: 1.5rem auto;
+  margin: 2rem auto 1rem auto;
+  flex-wrap: wrap;
   max-width: 55rem;
   width: 100%;
-  flex-wrap: wrap;
+}
+
+.result-buttons-container.show {
+  display: flex;
+}
+
+.progress-bar-hidden {
+  display: none !important;
+}
+
+.progress-bar-visible {
+  display: flex !important;
 }
 
 .result-buttons-container .simulation-button {
@@ -673,6 +745,12 @@ button:hover,
 /* ============================================================================
    PDF EXPORT CONTAINER
    ============================================================================ */
+
+.pdf-export-title {
+  text-align: center;
+  margin-bottom: 16px;
+  font-size: 1.5rem;
+}
 
 .pdf-export-container {
   font-family: 'EB Garamond', Garamond, serif;

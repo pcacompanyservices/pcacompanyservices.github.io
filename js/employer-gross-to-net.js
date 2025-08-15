@@ -247,7 +247,6 @@ async function exportResultToPdf({
  */
 function createProgressBar(root) {
   const progressBar = createAndAppend(root, 'div', { id: 'progress-bar' });
-  progressBar.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin:18px 0;width:100%;max-width:480px;margin-left:auto;margin-right:auto;user-select:none;';
   progressBar.innerHTML = html`
     <div class="progress-step" data-step="0">${TEXT_CONFIG.progressSteps.taxResidentStatus}</div>
     <div class="progress-bar-line"></div>
@@ -326,7 +325,7 @@ function createStep2() {
       </span>
     </div>
     <input type="text" class="number-input" id="gross-salary" placeholder="${TEXT_CONFIG.steps.grossSalary.placeholder}" />
-    <div id="gross-salary-warning" class="input-warning" style="display:none;">${TEXT_CONFIG.warnings.maxDigits}</div>
+    <div id="gross-salary-warning" class="input-warning">${TEXT_CONFIG.warnings.maxDigits}</div>
   `;
   return step2;
 }
@@ -349,7 +348,7 @@ function createStep3() {
     </div>
     <div id="allowance-container">
       <div id="allowance-inputs">
-        <div id="allowance-warning" class="input-warning" style="display:none;">${TEXT_CONFIG.warnings.maxDigits}</div>
+        <div id="allowance-warning" class="input-warning">${TEXT_CONFIG.warnings.maxDigits}</div>
         
         <label class="input-label">${TEXT_CONFIG.steps.allowance.types.lunch}
           <span class="question-icon" tabindex="0">
@@ -421,7 +420,7 @@ function createStep4() {
       </span>
     </div>
     <input type="text" class="number-input" id="total-bonus" placeholder="${TEXT_CONFIG.steps.bonus.placeholder}" />
-    <div id="bonus-warning" class="input-warning" style="display:none;">${TEXT_CONFIG.warnings.maxDigits}</div>
+    <div id="bonus-warning" class="input-warning">${TEXT_CONFIG.warnings.maxDigits}</div>
   `;
   return step4;
 }
@@ -444,7 +443,7 @@ function createStep5() {
     </div>
     <div id="benefit-container">
       <div id="benefit-inputs">
-        <div id="benefit-warning" class="input-warning" style="display:none;">${TEXT_CONFIG.warnings.maxDigits}</div>
+        <div id="benefit-warning" class="input-warning">${TEXT_CONFIG.warnings.maxDigits}</div>
         
         <label class="input-label">${TEXT_CONFIG.steps.benefit.types.childTuition}
           <span class="question-icon" tabindex="0">
@@ -482,20 +481,10 @@ function createStep5() {
 function createNavButtons() {
   const navDiv = document.createElement('div');
   navDiv.className = 'form-navigation';
-  navDiv.style.cssText = `
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 1rem;
-    margin: 1.5rem auto;
-    max-width: 55rem;
-    width: 100%;
-    flex-wrap: wrap;
-  `;
   navDiv.innerHTML = html`
-    <button type="button" id="return-btn" class="simulation-button return-button" style="display:none;flex:1;min-width:12rem;max-width:16rem;margin:0;">${TEXT_CONFIG.buttons.return}</button>
-    <button type="button" id="continue-btn" class="simulation-button" style="display:none;flex:1;min-width:12rem;max-width:16rem;margin:0;">${TEXT_CONFIG.buttons.continue}</button>
-    <button type="button" id="calculate-btn" class="simulation-button" style="display:none;flex:1;min-width:12rem;max-width:16rem;margin:0;">${TEXT_CONFIG.buttons.calculate}</button>
+    <button type="button" id="return-btn" class="simulation-button return-button">${TEXT_CONFIG.buttons.return}</button>
+    <button type="button" id="continue-btn" class="simulation-button">${TEXT_CONFIG.buttons.continue}</button>
+    <button type="button" id="calculate-btn" class="simulation-button">${TEXT_CONFIG.buttons.calculate}</button>
   `;
   return navDiv;
 }
@@ -518,8 +507,7 @@ function createResultSection(root) {
 function createResultButtonsContainer(root) {
   const buttonContainer = createAndAppend(root, 'div', {
     className: 'result-buttons-container',
-    id: 'result-buttons-container',
-    style: 'display:none;'
+    id: 'result-buttons-container'
   });
   
   // Reorganized order: Reset, Modify Information, Download PDF
@@ -688,7 +676,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Show/hide navigation buttons based on current step
     // Always show return button, but disable it on first step
     if (returnBtn) {
-      returnBtn.style.display = 'block';
+      returnBtn.classList.add('show');
       if (idx === 0) {
         returnBtn.disabled = true;
         returnBtn.classList.add('disabled');
@@ -699,10 +687,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     if (continueBtn) {
-      continueBtn.style.display = idx < steps.length - 1 ? 'block' : 'none';
+      if (idx < steps.length - 1) {
+        continueBtn.classList.add('show');
+      } else {
+        continueBtn.classList.remove('show');
+      }
     }
     if (calculateBtn) {
-      calculateBtn.style.display = idx === steps.length - 1 ? 'block' : 'none';
+      if (idx === steps.length - 1) {
+        calculateBtn.classList.add('show');
+      } else {
+        calculateBtn.classList.remove('show');
+      }
     }
     
     // Update continue button state based on step validation
@@ -858,10 +854,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Check max digits limit
     if (rawValue.length > MAX_DIGITS) {
-      if (warningElement) warningElement.style.display = '';
+      if (warningElement) warningElement.classList.add('show');
       rawValue = rawValue.slice(0, MAX_DIGITS);
     } else {
-      if (warningElement) warningElement.style.display = 'none';
+      if (warningElement) warningElement.classList.remove('show');
     }
     
     // Format with commas
@@ -929,8 +925,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Handle calculation errors
     if (data && data.error) {
-      DOM.resultDiv.innerHTML = `<span style="color:red">${data.error}</span>`;
-      DOM.downloadPdfBtn.style.display = 'none';
+      DOM.resultDiv.innerHTML = `<span class="result-error-text">${data.error}</span>`;
+      DOM.buttonContainer.classList.remove('show');
       return;
     }
 
@@ -941,7 +937,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderResults(data);
     
     // Show action buttons container
-    DOM.buttonContainer.style.display = 'flex';
+    DOM.buttonContainer.classList.add('show');
     
     // Setup button handlers
     setupResetHandlers();
@@ -956,7 +952,7 @@ document.addEventListener('DOMContentLoaded', () => {
       salaryForm.parentNode.removeChild(salaryForm);
     }
     const progressBar = document.getElementById('progress-bar');
-    if (progressBar) progressBar.style.display = 'none';
+    if (progressBar) progressBar.classList.add('progress-bar-hidden');
   }
 
   /**
@@ -989,14 +985,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const bonusRow = generateBonusRow(hasBonuses, data.grossTotalBonus);
     const benefitRow = generateBenefitRow(benefitItems, data.totalBenefit);
     const noAllowanceBonusBenefitRow = (allowanceItems.length === 0 && !hasBonuses && benefitItems.length === 0) 
-      ? `<tr><td colspan="2"><div class="result-center-value" style="font-size:1em; color:#888;">${TEXT_CONFIG.warnings.noAllowanceOrBonus}</div></td></tr>`
+      ? `<tr><td colspan="2"><div class="result-title result-title-muted">${TEXT_CONFIG.warnings.noAllowanceOrBonus}</div></td></tr>`
       : '';
 
     // Generate content sections
     const employeeTypeLabel = getEmployeeTypeLabel(data.taxResidentStatus);
     const employeeTypeCell = `<div class="result-title"><u>${employeeTypeLabel}</u></div>`;
-    const grossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.sections.grossSalary}</div><div class="result-center-value">${data.grossSalary ? data.grossSalary.toLocaleString('vi-VN') + ' VND' : '-'}</div>`;
-    const adjustedGrossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.sections.adjustedGrossSalary}</div><div class="result-center-value">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('vi-VN') + ' VND' : '-'}</div>`;
+    const grossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.sections.grossSalary}</div><div class="result-title">${data.grossSalary ? data.grossSalary.toLocaleString('vi-VN') + ' VND' : '-'}</div>`;
+    const adjustedGrossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.sections.adjustedGrossSalary}</div><div class="result-title">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('vi-VN') + ' VND' : '-'}</div>`;
 
     const employeeDetailsCell = generateEmployeeDetailsCell(data);
     const employeeTotalCell = `<div class="result-title">Employee Take-home</div><div class="result-total"><span class="employee-total-value">${data.netSalary.toLocaleString('vi-VN')} VND</span></div>`;
@@ -1004,12 +1000,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Generate employer cost table rows
     const employerBenefitRow = generateEmployerCostBenefitRow(benefitItems, data.totalBenefit);
     const employerStatutoryRow = generateEmployerCostStatutoryRow(data);
-    const employerAdjustedGrossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.employerCostTable.sections.adjustedGrossSalary}</div><div class="result-center-value">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('vi-VN') + ' VND' : '-'}</div>`;
+    const employerAdjustedGrossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.employerCostTable.sections.adjustedGrossSalary}</div><div class="result-title">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('vi-VN') + ' VND' : '-'}</div>`;
     const employerTotalCell = `<div class="result-title">${TEXT_CONFIG.results.employerCostTable.sections.totalEmployerCost}</div><div class="result-total"><span class="employer-total-value">${data.totalEmployerCost.toLocaleString('vi-VN')} VND</span></div>`;
 
     // Render both tables within the same result container
     DOM.resultDiv.innerHTML = html`
-      <h1 style="text-align:center;margin-bottom:16px;font-size:30px">${TEXT_CONFIG.payslipTitle}</h1>
+      <h1 class="result-title-inline">${TEXT_CONFIG.payslipTitle}</h1>
       <div class="result-table-container">
         <table class="result-table result-table-vertical result-table-bordered employer-table-layout">
           <tr><td colspan="2">${employeeTypeCell}</td></tr>
@@ -1024,7 +1020,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </table>
       </div>
       
-      <h1 style="text-align:center;margin-bottom:16px;margin-top:32px;font-size:30px">${TEXT_CONFIG.results.employerCostTable.title}</h1>
+      <h1 class="result-title-inline">${TEXT_CONFIG.results.employerCostTable.title}</h1>
       <div class="result-table-container">
         <table class="result-table result-table-vertical result-table-bordered employer-table-layout">
           <tr><td colspan="2">${employerAdjustedGrossSalaryCell}</td></tr>
@@ -1076,7 +1072,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <tr>
         <td colspan="2">
           <div class="result-title">${TEXT_CONFIG.results.sections.bonus}</div>
-          <div class="result-center-value">${totalBonus.toLocaleString('vi-VN')} VND</div>
+          <div class="result-title">${totalBonus.toLocaleString('vi-VN')} VND</div>
         </td>
       </tr>
     `;
@@ -1140,8 +1136,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return `
         <tr>
           <td colspan="2">
-            <div class="result-title">${TEXT_CONFIG.results.employerCostTable.sections.benefit}</div>
-            <div class="result-center-value" style="font-size:1em; color:#888;">${TEXT_CONFIG.results.employerCostTable.noBenefit}</div>
+            <div class="result-title result-title-muted">${TEXT_CONFIG.results.employerCostTable.noBenefit}</div>
           </td>
         </tr>
       `;
@@ -1187,7 +1182,7 @@ document.addEventListener('DOMContentLoaded', () => {
     resetBtn.onclick = () => {
       // Hide results and button container
       DOM.resultDiv.innerHTML = '';
-      DOM.buttonContainer.style.display = 'none';
+      DOM.buttonContainer.classList.remove('show');
       
       // Re-insert form
       if (!document.getElementById('salary-form')) {
@@ -1196,7 +1191,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       // Show progress bar and reset to first step
       const progressBar = document.getElementById('progress-bar');
-      if (progressBar) progressBar.style.display = 'flex';
+      if (progressBar) progressBar.classList.remove('progress-bar-hidden');
       currentStep = 0;
       showStep(currentStep);
     };
@@ -1281,8 +1276,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add PAYSLIP title
         const payslipTitle = document.createElement('h1');
         payslipTitle.textContent = TEXT_CONFIG.payslipTitle;
-        payslipTitle.style.textAlign = 'center';
-        payslipTitle.style.marginBottom = '16px';
+        payslipTitle.className = 'pdf-export-title';
         exportContainer.appendChild(payslipTitle);
         
         // Add hr if exists
