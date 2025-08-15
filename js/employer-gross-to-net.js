@@ -953,7 +953,7 @@ document.addEventListener('DOMContentLoaded', () => {
    */
   function renderResults(data) {
     // Prepare allowance items using consistent field names
-    const allowanceItems = [
+    const allowanceItem = [
       { label: TEXT_CONFIG.steps.allowance.types.lunch, value: data.grossLunchAllowance },
       { label: TEXT_CONFIG.steps.allowance.types.fuel, value: data.grossFuelAllowance },
       { label: TEXT_CONFIG.steps.allowance.types.phone, value: data.grossPhoneAllowance },
@@ -963,20 +963,20 @@ document.addEventListener('DOMContentLoaded', () => {
     ].filter(item => item.value && item.value > 0);
     
     // Prepare benefit items
-    const benefitItems = [
+    const benefitItem = [
       { label: TEXT_CONFIG.steps.benefit.types.childTuition, value: data.childTuitionBenefit },
       { label: TEXT_CONFIG.steps.benefit.types.rental, value: data.rentalBenefit },
       { label: TEXT_CONFIG.steps.benefit.types.healthInsurance, value: data.healthInsuranceBenefit }
     ].filter(item => item.value && item.value > 0);
     
     // Check if there are bonuses
-    const hasBonuses = data.grossTotalBonus && data.grossTotalBonus > 0;
+    const hasBonus = data.grossTotalBonus && data.grossTotalBonus > 0;
 
     // Generate table rows
-    const allowanceRow = generateAllowanceRow(allowanceItems, data.grossTotalAllowance);
-    const bonusRow = generateBonusRow(hasBonuses, data.grossTotalBonus);
-    const benefitRow = generateBenefitRow(benefitItems, data.totalBenefit);
-    const noAllowanceBonusRow = (allowanceItems.length === 0 && !hasBonuses) 
+    const allowanceRow = generateAllowanceRow(allowanceItem, data.grossTotalAllowance);
+    const bonusRow = generateBonusRow(hasBonus, data.grossTotalBonus);
+    const benefitRow = generateBenefitRow(benefitItem, data.totalBenefit);
+    const noAllowanceBonusRow = (allowanceItem.length === 0 && !hasBonus) 
       ? `<tr><td colspan="2"><div class="result-title result-title-muted">${TEXT_CONFIG.warnings.noAllowanceOrBonus}</div></td></tr>`
       : '';
 
@@ -990,7 +990,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const employeeTotalCell = `<div class="result-title">Employee Take-home</div><div class="result-total"><span class="employee-total-value">${data.netSalary.toLocaleString('vi-VN')} VND</span></div>`;
 
     // Generate employer cost table rows
-    const employerBenefitRow = generateEmployerCostBenefitRow(benefitItems, data.totalBenefit);
+    const employerBenefitRow = generateEmployerCostBenefitRow(benefitItem, data.totalBenefit);
     const employerStatutoryRow = generateEmployerCostStatutoryRow(data);
     const employerAdjustedGrossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.employerCostTable.sections.adjustedGrossSalary}</div><div class="result-title">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('vi-VN') + ' VND' : '-'}</div>`;
     const employerTotalCell = `<div class="result-title">${TEXT_CONFIG.results.employerCostTable.sections.totalEmployerCost}</div><div class="result-total"><span class="employer-total-value">${data.totalEmployerCost.toLocaleString('vi-VN')} VND</span></div>`;
@@ -1029,19 +1029,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /**
    * Generate allowance row for results table
-   * @param {Array} allowanceItems - Array of allowance items
+   * @param {Array} allowanceItem - Array of allowance items
    * @param {number} totalAllowance - Total allowance amount
    * @returns {string} HTML string for allowance row
    */
-  function generateAllowanceRow(allowanceItems, totalAllowance) {
-    if (allowanceItems.length === 0) return '';
+  function generateAllowanceRow(allowanceItem, totalAllowance) {
+    if (allowanceItem.length === 0) return '';
     
     return `
       <tr>
         <td colspan="2">
           <div class="result-title">${TEXT_CONFIG.results.sections.allowance}</div>
           <div class="result-list">
-            ${allowanceItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('vi-VN')} VND</span></div>`).join('')}
+            ${allowanceItem.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('vi-VN')} VND</span></div>`).join('')}
           </div>
           <hr class="result-divider" />
           <div class="result-total"><span>${totalAllowance.toLocaleString('vi-VN')} VND</span></div>
@@ -1052,12 +1052,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /**
    * Generate bonus row for results table
-   * @param {boolean} hasBonuses - Whether bonuses exist
+   * @param {boolean} hasBonus - Whether bonus exists
    * @param {number} totalBonus - Total bonus amount
    * @returns {string} HTML string for bonus row
    */
-  function generateBonusRow(hasBonuses, totalBonus) {
-    if (!hasBonuses) return '';
+  function generateBonusRow(hasBonus, totalBonus) {
+    if (!hasBonus) return '';
     
     return `
       <tr>
@@ -1071,19 +1071,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /**
    * Generate benefit row for results table
-   * @param {Array} benefitItems - Array of benefit items
+   * @param {Array} benefitItem - Array of benefit items
    * @param {number} totalBenefit - Total benefit amount
    * @returns {string} HTML string for benefit row
    */
-  function generateBenefitRow(benefitItems, totalBenefit) {
-    if (benefitItems.length === 0) return '';
+  function generateBenefitRow(benefitItem, totalBenefit) {
+    if (benefitItem.length === 0) return '';
     
     return `
       <tr>
         <td colspan="2">
           <div class="result-title">${TEXT_CONFIG.results.sections.benefit}</div>
           <div class="result-list">
-            ${benefitItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('vi-VN')} VND</span></div>`).join('')}
+            ${benefitItem.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('vi-VN')} VND</span></div>`).join('')}
           </div>
           <hr class="result-divider" />
           <div class="result-total"><span>${totalBenefit ? totalBenefit.toLocaleString('vi-VN') : '0'} VND</span></div>
@@ -1118,12 +1118,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /**
    * Generate employer cost benefit row
-   * @param {Array} benefitItems - Array of benefit items
+   * @param {Array} benefitItem - Array of benefit items
    * @param {number} totalBenefit - Total benefit amount
    * @returns {string} HTML string for employer benefit row
    */
-  function generateEmployerCostBenefitRow(benefitItems, totalBenefit) {
-    if (benefitItems.length === 0) {
+  function generateEmployerCostBenefitRow(benefitItem, totalBenefit) {
+    if (benefitItem.length === 0) {
       return `
         <tr>
           <td colspan="2">
@@ -1138,7 +1138,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <td colspan="2">
           <div class="result-title">${TEXT_CONFIG.results.employerCostTable.sections.benefit}</div>
           <div class="result-list">
-            ${benefitItems.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('vi-VN')} VND</span></div>`).join('')}
+            ${benefitItem.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('vi-VN')} VND</span></div>`).join('')}
           </div>
           <hr class="result-divider" />
           <div class="result-total"><span>${totalBenefit ? totalBenefit.toLocaleString('vi-VN') : '0'} VND</span></div>
