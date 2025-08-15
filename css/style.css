@@ -315,6 +315,22 @@ button:hover,
   transition: background-color 0.2s, color 0.2s, opacity 0.2s;
 }
 
+/* Terms disabled simulation button style */
+.simulation-button.terms-disabled {
+  background-color: #f0f0f0 !important;
+  color: #888 !important;
+  border: 1px solid #ddd !important;
+  cursor: pointer !important;
+  opacity: 0.7;
+  box-shadow: none;
+  transition: background-color 0.2s, color 0.2s, opacity 0.2s;
+}
+
+.simulation-button.terms-disabled:hover {
+  background-color: #e8e8e8 !important;
+  color: #666 !important;
+}
+
 .simulation-button:hover .info-box,
 .simulation-button:focus .info-box {
   opacity: 0.85;
@@ -551,7 +567,7 @@ button:hover,
    ============================================================================ */
 
 .result-error-text {
-  color: red !important;
+  color: #c1272d !important;
   font-size: 1rem !important;
   text-align: center !important;
   margin: 1rem 0 !important;
@@ -740,6 +756,54 @@ button:hover,
 
 .footer-text {
   text-align: justify;
+  line-height: 1.2;
+}
+
+.terms-agreement {
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #333;
+  margin: 0 auto;
+  width: fit-content;
+  padding: 0.5rem 0;
+}
+
+.terms-checkbox {
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  cursor: pointer;
+  transform: scale(1.2);
+}
+
+.checkbox-text {
+  font-weight: 500;
+  user-select: none;
+}
+
+.terms-warning {
+  color: #c1272d;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: center;
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.terms-warning.show {
+  display: block;
+  opacity: 1;
 }
 
 /* ============================================================================
