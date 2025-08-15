@@ -847,3 +847,22 @@ button:hover,
   margin: 0.375rem auto 1rem auto !important;
   width: 100%;
 }
+
+/* ============================================================================
+   VERSION DISPLAY
+   ============================================================================ */
+
+.version-display {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  font-size: 0.75rem;
+  color: #888;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: 'EB Garamond', serif;
+  z-index: 1000;
+  user-select: none;
+  pointer-events: none;
+}

@@ -1,14 +1,3 @@
-
-/**
- * Employer Gross-to-Net Salary Calculator
- * 
- * This module provides a multi-step form interface for calculating employee net salary
- * and employer costs from gross salary input, including allowances, bonuses, and benefits.
- * 
- * @version 1.0.0
- * @author PCA Team
- */
-
 import { simulateSalary } from '../be/cal.js';
 
 // ============================================================================
@@ -172,7 +161,10 @@ const TEXT_CONFIG = {
                    "to its correctness or completeness. We accept no responsibility for any error or omission. " +
                    "We are not liable for any loss or damage, including but not limited to loss of business or profits, " +
                    "arising from the use of this simulation or reliance on its contents, whether in contract, tort, or otherwise."
-  }
+  },
+  
+  // Application metadata
+  version: "Version: 1.0.15"
 };
 
 // ============================================================================
@@ -1308,5 +1300,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  /**
+   * Create and display version information in bottom right corner
+   */
+  function createVersionDisplay() {
+    const versionDiv = document.createElement('div');
+    versionDiv.className = 'version-display';
+    versionDiv.textContent = TEXT_CONFIG.version;
+    document.body.appendChild(versionDiv);
+  }
+
   setupDownloadButton();
+  createVersionDisplay();
 });
