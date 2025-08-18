@@ -196,9 +196,9 @@ document.addEventListener('DOMContentLoaded', () => {
       value: 'from-net',
       text: 'Calculate from Net Salary',
       info: 'Calculate your cost from take-home salary.',
-      enabled: false,
+      enabled: true,
       onClick: () => { window.location.href = 'employer-net-to-gross.html'; },
-      extraClass: 'employer-choice unavailable' // off
+      extraClass: 'employer-choice'
     }));
     main.appendChild(createBackButton(renderInitialButtons));
   }

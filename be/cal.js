@@ -170,35 +170,64 @@ export function simulateSalary(params) {
     const netTotalBonusAndAllowance = netTotalAllowance + netTotalBonus;
     const targetTotalNet = netSalary + netTotalBonusAndAllowance;
 
-    function computeTotalNetFromGross(testGrossSalary, testGrossBonusAndAllowance, testGrossLunch, testGrossPhone, testGrossUniform) {
-      const result = calculateFromGross(testGrossSalary, testGrossBonusAndAllowance, testGrossLunch, testGrossPhone, testGrossUniform, rentalBenefit, totalBenefit, taxResidentStatus);
+    // Step 1: Handle tax-exempt allowances (phone is fully exempt, others have caps)
+    grossPhoneAllowance = netPhoneAllowance; // Phone allowance is fully tax-exempt
+    
+    // For lunch and uniform: if below cap, they're exempt (gross = net)
+    // If above cap, only the excess is taxable
+    grossLunchAllowance = netLunchAllowance <= lunchCap ? netLunchAllowance : netLunchAllowance;
+    grossUniformAllowance = netUniformAllowance <= uniformCap ? netUniformAllowance : netUniformAllowance;
+    
+    // Step 2: Calculate exempt portions
+    const exemptLunchAmount = Math.min(grossLunchAllowance, lunchCap);
+    const exemptUniformAmount = Math.min(grossUniformAllowance, uniformCap);
+    const exemptAllowanceTotal = grossPhoneAllowance + exemptLunchAmount + exemptUniformAmount;
+    
+    // Step 3: Calculate taxable net amounts (what needs gross calculation)
+    const taxableNetLunch = netLunchAllowance > lunchCap ? netLunchAllowance - lunchCap : 0;
+    const taxableNetUniform = netUniformAllowance > uniformCap ? netUniformAllowance - uniformCap : 0;
+    const taxableNetTotal = netSalary + netFuelAllowance + netTravelAllowance + netOtherAllowance + netTotalBonus + taxableNetLunch + taxableNetUniform;
+    
+    // Step 4: Use bisection to find the gross amount that yields the target taxable net
+    function computeNetFromGross(testGrossSalary, testGrossFuel, testGrossTravel, testGrossOther, testGrossBonus, testTaxableLunch, testTaxableUniform) {
+      const totalTestGrossLunch = exemptLunchAmount + testTaxableLunch;
+      const totalTestGrossUniform = exemptUniformAmount + testTaxableUniform;
+      const testGrossBonusAndAllowance = testGrossFuel + testGrossTravel + testGrossOther + testGrossBonus + totalTestGrossLunch + totalTestGrossUniform + grossPhoneAllowance;
+      
+      const result = calculateFromGross(testGrossSalary, testGrossBonusAndAllowance, totalTestGrossLunch, grossPhoneAllowance, totalTestGrossUniform, rentalBenefit, totalBenefit, taxResidentStatus);
       return result.netSalary;
     }
-
-    const estimatedGrossFactor = 1.2;
-    let testGrossSalary = netSalary * estimatedGrossFactor;
-    let testGrossLunch = netLunchAllowance * estimatedGrossFactor;
-    let testGrossPhone = netPhoneAllowance * estimatedGrossFactor;
-    let testGrossUniform = netUniformAllowance * estimatedGrossFactor;
-    let testGrossBonusAndAllowance = netTotalBonusAndAllowance * estimatedGrossFactor;
-
-    let low = 0.8, high = 2.0;
+    
+    // Initial estimate
+    let low = 1.0, high = 2.5;
     let found = false;
     const tolerance = 0.5;
-
+    
     for (let i = 0; i < 50; i++) {
       const mid = (low + high) / 2;
-      testGrossSalary = netSalary * mid;
-      testGrossLunch = netLunchAllowance * mid;
-      testGrossPhone = netPhoneAllowance * mid;
-      testGrossUniform = netUniformAllowance * mid;
-      testGrossBonusAndAllowance = netTotalBonusAndAllowance * mid;
-
-      const calculatedTotalNet = computeTotalNetFromGross(testGrossSalary, testGrossBonusAndAllowance, testGrossLunch, testGrossPhone, testGrossUniform);
+      
+      const testGrossSalary = netSalary * mid;
+      const testGrossFuel = netFuelAllowance * mid;
+      const testGrossTravel = netTravelAllowance * mid;
+      const testGrossOther = netOtherAllowance * mid;
+      const testGrossBonus = netTotalBonus * mid;
+      const testTaxableLunch = taxableNetLunch * mid;
+      const testTaxableUniform = taxableNetUniform * mid;
+      
+      const calculatedTotalNet = computeNetFromGross(testGrossSalary, testGrossFuel, testGrossTravel, testGrossOther, testGrossBonus, testTaxableLunch, testTaxableUniform);
       const difference = calculatedTotalNet - targetTotalNet;
 
       if (Math.abs(difference) <= tolerance) {
         found = true;
+        grossSalary = testGrossSalary;
+        grossFuelAllowance = testGrossFuel;
+        grossTravelAllowance = testGrossTravel;
+        grossOtherAllowance = testGrossOther;
+        grossTotalBonus = testGrossBonus;
+        
+        // Reconstruct final gross allowances
+        grossLunchAllowance = exemptLunchAmount + testTaxableLunch;
+        grossUniformAllowance = exemptUniformAmount + testTaxableUniform;
         break;
       }
 
@@ -208,15 +237,18 @@ export function simulateSalary(params) {
         low = mid;
       }
     }
-
-    grossSalary = testGrossSalary;
-    grossLunchAllowance = testGrossLunch;
-    grossFuelAllowance = netFuelAllowance * ((low + high) / 2);
-    grossPhoneAllowance = testGrossPhone;
-    grossTravelAllowance = netTravelAllowance * ((low + high) / 2);
-    grossUniformAllowance = testGrossUniform;
-    grossOtherAllowance = netOtherAllowance * ((low + high) / 2);
-    grossTotalBonus = netTotalBonus * ((low + high) / 2);
+    
+    if (!found) {
+      // Fallback to final calculated values
+      const finalMid = (low + high) / 2;
+      grossSalary = netSalary * finalMid;
+      grossFuelAllowance = netFuelAllowance * finalMid;
+      grossTravelAllowance = netTravelAllowance * finalMid;
+      grossOtherAllowance = netOtherAllowance * finalMid;
+      grossTotalBonus = netTotalBonus * finalMid;
+      grossLunchAllowance = exemptLunchAmount + (taxableNetLunch * finalMid);
+      grossUniformAllowance = exemptUniformAmount + (taxableNetUniform * finalMid);
+    }
 
     const grossTotalAllowance = grossLunchAllowance + grossFuelAllowance + grossPhoneAllowance + grossTravelAllowance + grossUniformAllowance + grossOtherAllowance;
     const grossTotalBonusAndAllowance = grossTotalAllowance + grossTotalBonus;
