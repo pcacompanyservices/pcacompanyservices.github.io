@@ -1,8 +1,6 @@
-// Constants
 const baseWage = 2340000;
-const regionalMinimum = 4960000; // Region 1
+const regionalMinimum = 4960000;
 
-// Insurance rates
 const insuranceRate = {
   employee: {
     social:      0.08,
@@ -16,13 +14,10 @@ const insuranceRate = {
   }
 };
 
-// Salary caps for insurance calculations
 const socialHealthCapSalaryForInsurance   = 20 * baseWage; 
 const unemploymentCapSalaryForInsurance   = 20 * regionalMinimum; 
 const lunchCap                            = 730000; 
 const uniformCap                          = 5000000 / 12;
-
-// Tax brackets
 const taxRate = [
   { max: 5000000,   rate: 0.05, reduce:       0 },
   { max: 10000000,  rate: 0.10, reduce:  250000 },
@@ -36,45 +31,37 @@ const taxRate = [
 const unionFee = 0.02;
 const personalDeduction = 11000000;
 
-// Helper: parse value if enabled, else 0
 function getRoundedValue(value, enabled) {
   if (!enabled) return 0;
   if (value === null || value === undefined || value === '') return 0;
-  // Handle both comma and period as thousands separators (Vietnamese uses periods)
   const parsed = parseFloat((value + '').replace(/[,.]/g, ''));
   return isNaN(parsed) ? 0 : parsed;
 }
 
-// Helper: Calculate all values from gross salary
 function calculateFromGross(grossSalary, totalBonusAndAllowance, lunchAllowance, phoneAllowance, uniformAllowance, rentalBenefit, totalBenefit, taxResidentStatus) {
   const adjustedGrossSalary = grossSalary + totalBonusAndAllowance;
 
-  // Employee Insurance contributions (detailed)
   const employeeSocialInsurance = Math.min(grossSalary, socialHealthCapSalaryForInsurance) * insuranceRate.employee.social;
   const employeeHealthInsurance = Math.min(grossSalary, socialHealthCapSalaryForInsurance) * insuranceRate.employee.health;
   const employeeUnemploymentInsurance =
     taxResidentStatus === 'local' ? Math.min(grossSalary, unemploymentCapSalaryForInsurance) * insuranceRate.employee.unemployment : 0;
   const employeeInsurance = employeeSocialInsurance + employeeHealthInsurance + employeeUnemploymentInsurance;
 
-  // Employer Insurance contributions (detailed)
   const employerSocialInsurance = Math.min(grossSalary, socialHealthCapSalaryForInsurance) * insuranceRate.employer.social;
   const employerHealthInsurance = Math.min(grossSalary, socialHealthCapSalaryForInsurance) * insuranceRate.employer.health;
   const employerUnemploymentInsurance =
     taxResidentStatus === 'local' ? Math.min(grossSalary, unemploymentCapSalaryForInsurance) * insuranceRate.employer.unemployment : 0;
   const employerInsurance = employerSocialInsurance + employerHealthInsurance + employerUnemploymentInsurance;
 
-  // Step 1: Taxable Income calculation (before rental and other deductions)
   const taxableIncome =
     adjustedGrossSalary -
     phoneAllowance -
     Math.min(lunchAllowance, lunchCap) -
     Math.min(uniformAllowance, uniformCap);
 
-  // Step 2: Assessable Income calculation (what goes into tax brackets)
   const rentalTaxableAmount = Math.min(taxableIncome * 0.15, rentalBenefit);
   const assessableIncome = taxableIncome + rentalTaxableAmount - employeeInsurance - personalDeduction;
 
-  // Income Tax calculation (using assessable income)
   let incomeTax = 0;
   if (assessableIncome > 0) {
     for (const bracket of taxRate) {
@@ -85,22 +72,17 @@ function calculateFromGross(grossSalary, totalBonusAndAllowance, lunchAllowance,
     }
   }
 
-  // Net Salary calculation
   const netSalary = adjustedGrossSalary - employeeInsurance - incomeTax;
   
-  // Employer Union Fee
   const unionFeeAmount = Math.min(grossSalary, socialHealthCapSalaryForInsurance) * unionFee;
   
-  // Total Employer Cost (includes all benefits)
   const totalEmployerCost = adjustedGrossSalary + employerInsurance + unionFeeAmount + totalBenefit;
 
-  // Employee and Employer Contributions
   const employeeContribution = employeeInsurance + incomeTax;
   const employerContribution = employerInsurance + unionFeeAmount;
 
   return {
     adjustedGrossSalary,
-    // Insurance breakdowns
     employeeSocialInsurance,
     employeeHealthInsurance,
     employeeUnemploymentInsurance,
@@ -109,10 +91,8 @@ function calculateFromGross(grossSalary, totalBonusAndAllowance, lunchAllowance,
     employerHealthInsurance,
     employerUnemploymentInsurance,
     employerInsurance,
-    // Contributions
     employeeContribution,
     employerContribution,
-    // Tax calculation values
     taxableIncome,
     rentalTaxableAmount,
     assessableIncome,
@@ -125,18 +105,13 @@ function calculateFromGross(grossSalary, totalBonusAndAllowance, lunchAllowance,
 
 /**
  * Calculate payroll (gross-to-net or net-to-gross).
- * @param {Object} params - All input values and flags
- * @param {string} params.method - 'gross-to-net' or 'net-to-gross'
- * @returns {Object} Calculation result or error
  */
 export function simulateSalary(params) {
-  // Default to 'gross-to-net' if not provided
   const method = params.method || 'gross-to-net';
 
-  // Parse benefits (same for both methods - employer costs only)
   const childTuitionBenefit    = getRoundedValue(params.childTuitionBenefit, params.childTuitionBenefit > 0);
   const rentalBenefit          = getRoundedValue(params.rentalBenefit, params.rentalBenefit > 0);
-  const healthInsuranceBenefit = getRoundedValue(params.healthInsuranceBenefit, params.healthInsuranceBenefit > 0) / 12; // Convert annual to monthly
+  const healthInsuranceBenefit = getRoundedValue(params.healthInsuranceBenefit, params.healthInsuranceBenefit > 0) / 12;
   const totalBenefit = childTuitionBenefit + rentalBenefit + healthInsuranceBenefit;
 
   const taxResidentStatus = params.taxResidentStatus || 'local';
@@ -146,7 +121,6 @@ export function simulateSalary(params) {
   let calculationResult;
 
   if (method === 'gross-to-net') {
-    // Parse gross inputs
     grossSalary = getRoundedValue(params.grossSalary, true);
     grossLunchAllowance   = getRoundedValue(params.lunchAllowance, params.lunchAllowance > 0);
     grossFuelAllowance    = getRoundedValue(params.fuelAllowance, params.fuelAllowance > 0);
@@ -165,8 +139,6 @@ export function simulateSalary(params) {
 
     calculationResult = calculateFromGross(grossSalary, grossTotalBonusAndAllowance, grossLunchAllowance, grossPhoneAllowance, grossUniformAllowance, rentalBenefit, totalBenefit, taxResidentStatus);
 
-    // The old way was working correctly - just get the calculated values directly
-    // Calculate net amounts using effective tax rate (as before my changes)
     const totalGross = calculationResult.adjustedGrossSalary;
     const totalNet = calculationResult.netSalary;
     const effectiveTaxRate = totalGross > 0 ? (totalGross - totalNet) / totalGross : 0;
@@ -181,7 +153,6 @@ export function simulateSalary(params) {
     netTotalBonus = grossTotalBonus * (1 - effectiveTaxRate);
 
   } else if (method === 'net-to-gross') {
-    // Parse net inputs
     netSalary = getRoundedValue(params.netSalary || params.grossSalary, true);
     netLunchAllowance   = getRoundedValue(params.netLunchAllowance || params.lunchAllowance, (params.netLunchAllowance || params.lunchAllowance) > 0);
     netFuelAllowance    = getRoundedValue(params.netFuelAllowance || params.fuelAllowance, (params.netFuelAllowance || params.fuelAllowance) > 0);
@@ -199,22 +170,19 @@ export function simulateSalary(params) {
     const netTotalBonusAndAllowance = netTotalAllowance + netTotalBonus;
     const targetTotalNet = netSalary + netTotalBonusAndAllowance;
 
-    // Function to compute total net from gross amounts
     function computeTotalNetFromGross(testGrossSalary, testGrossBonusAndAllowance, testGrossLunch, testGrossPhone, testGrossUniform) {
       const result = calculateFromGross(testGrossSalary, testGrossBonusAndAllowance, testGrossLunch, testGrossPhone, testGrossUniform, rentalBenefit, totalBenefit, taxResidentStatus);
       return result.netSalary;
     }
 
-    // First, estimate gross amounts using a simple multiplier
-    const estimatedGrossFactor = 1.2; // Starting estimate
+    const estimatedGrossFactor = 1.2;
     let testGrossSalary = netSalary * estimatedGrossFactor;
     let testGrossLunch = netLunchAllowance * estimatedGrossFactor;
     let testGrossPhone = netPhoneAllowance * estimatedGrossFactor;
     let testGrossUniform = netUniformAllowance * estimatedGrossFactor;
     let testGrossBonusAndAllowance = netTotalBonusAndAllowance * estimatedGrossFactor;
 
-    // Bisection method to find the correct gross amounts
-    let low = 0.8, high = 2.0; // Multiplier range
+    let low = 0.8, high = 2.0;
     let found = false;
     const tolerance = 0.5;
 
@@ -241,7 +209,6 @@ export function simulateSalary(params) {
       }
     }
 
-    // Set the calculated gross amounts
     grossSalary = testGrossSalary;
     grossLunchAllowance = testGrossLunch;
     grossFuelAllowance = netFuelAllowance * ((low + high) / 2);
@@ -260,21 +227,16 @@ export function simulateSalary(params) {
     return { error: 'Unknown calculation method.' };
   }
 
-  // Calculate totals for consistency
   const grossTotalAllowance = grossLunchAllowance + grossFuelAllowance + grossPhoneAllowance + grossTravelAllowance + grossUniformAllowance + grossOtherAllowance;
   const grossTotalBonusAndAllowance = grossTotalAllowance + grossTotalBonus;
   const netTotalAllowance = netLunchAllowance + netFuelAllowance + netPhoneAllowance + netTravelAllowance + netUniformAllowance + netOtherAllowance;
   const netTotalBonusAndAllowance = netTotalAllowance + netTotalBonus;
 
-  // Calculate percentage breakdown
   const percentGrossSalary = (grossSalary / calculationResult.adjustedGrossSalary) * 100;
   const percentBonusAndAllowance = (grossTotalBonusAndAllowance / calculationResult.adjustedGrossSalary) * 100;
 
-  // Return consistent results for both methods
   return {
-    // Tax Resident Status
     taxResidentStatus: taxResidentStatus,
-    // Gross amounts
     adjustedGrossSalary: Math.round(calculationResult.adjustedGrossSalary),
     grossSalary:         Math.round(grossSalary),
     grossLunchAllowance:   Math.round(grossLunchAllowance),
@@ -286,9 +248,8 @@ export function simulateSalary(params) {
     grossTotalAllowance:   Math.round(grossTotalAllowance),
     grossTotalBonus:       Math.round(grossTotalBonus),
     grossTotalBonusAndAllowance: Math.round(grossTotalBonusAndAllowance),
-    // Net amounts  
-    netSalary:         Math.round(calculationResult.netSalary), // Total net amount (what employee takes home)
-    netBaseSalary:     Math.round(netSalary), // Individual base salary component
+    netSalary:         Math.round(calculationResult.netSalary),
+    netBaseSalary:     Math.round(netSalary),
     netLunchAllowance:   Math.round(netLunchAllowance),
     netFuelAllowance:    Math.round(netFuelAllowance),
     netPhoneAllowance:   Math.round(netPhoneAllowance),
@@ -298,7 +259,6 @@ export function simulateSalary(params) {
     netTotalAllowance:   Math.round(netTotalAllowance),
     netTotalBonus:       Math.round(netTotalBonus),
     netTotalBonusAndAllowance: Math.round(netTotalBonusAndAllowance),
-    // Legacy field names for backward compatibility
     lunchAllowance:   Math.round(grossLunchAllowance),
     fuelAllowance:    Math.round(grossFuelAllowance),
     phoneAllowance:   Math.round(grossPhoneAllowance),
@@ -308,34 +268,26 @@ export function simulateSalary(params) {
     totalAllowance:   Math.round(grossTotalAllowance),
     totalBonus:       Math.round(grossTotalBonus),
     totalBonusAndAllowance: Math.round(grossTotalBonusAndAllowance),
-    // Benefits (employer costs)
     childTuitionBenefit:    Math.round(childTuitionBenefit),
     rentalBenefit:          Math.round(rentalBenefit),
     healthInsuranceBenefit: Math.round(healthInsuranceBenefit),
     totalBenefit:           Math.round(totalBenefit),
-    // Total Allowance and Bonus
-    // Adjusted Gross Salary construction
-    percentGrossSalary:        Math.round(percentGrossSalary * 100) / 100, // Round to 2 decimal places
-    percentBonusAndAllowance:  Math.round(percentBonusAndAllowance * 100) / 100, // Round to 2 decimal places
-    // Employee Insurance
+    percentGrossSalary:        Math.round(percentGrossSalary * 100) / 100,
+    percentBonusAndAllowance:  Math.round(percentBonusAndAllowance * 100) / 100,
     employeeSocialInsurance:       Math.round(calculationResult.employeeSocialInsurance),
     employeeHealthInsurance:       Math.round(calculationResult.employeeHealthInsurance),
     employeeUnemploymentInsurance: Math.round(calculationResult.employeeUnemploymentInsurance),
     employeeInsurance:             Math.round(calculationResult.employeeInsurance),
-    // Employer Insurance
     employerSocialInsurance:       Math.round(calculationResult.employerSocialInsurance),
     employerHealthInsurance:       Math.round(calculationResult.employerHealthInsurance),
     employerUnemploymentInsurance: Math.round(calculationResult.employerUnemploymentInsurance),
     employerInsurance:             Math.round(calculationResult.employerInsurance),
-    // Contributions
     employeeContribution: Math.round(calculationResult.employeeContribution),
     employerContribution: Math.round(calculationResult.employerContribution),
-    // Tax calculation steps
     taxableIncome:        Math.round(calculationResult.taxableIncome),
     rentalTaxableAmount:  Math.round(calculationResult.rentalTaxableAmount),
     assessableIncome:     Math.round(calculationResult.assessableIncome),
     incomeTax:            Math.round(calculationResult.incomeTax),
-    // Employer Costs
     employerUnionFee:     Math.round(calculationResult.unionFeeAmount),
     totalEmployerCost:    Math.round(calculationResult.totalEmployerCost)
   };
