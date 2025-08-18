@@ -28,7 +28,7 @@ const taxRate = [
   { max: Infinity,  rate: 0.35, reduce: 9850000 }
 ];
 
-const unionFee = 0.02;
+const tradeUnionFund = 0.02;
 const personalDeduction = 11000000;
 
 function getRoundedValue(value, enabled) {
@@ -74,12 +74,12 @@ function calculateFromGross(grossSalary, totalBonusAndAllowance, lunchAllowance,
 
   const netSalary = adjustedGrossSalary - employeeInsurance - incomeTax;
   
-  const unionFeeAmount = Math.min(grossSalary, socialHealthCapSalaryForInsurance) * unionFee;
+  const tradeUnionFundAmount = Math.min(grossSalary, socialHealthCapSalaryForInsurance) * tradeUnionFund;
   
-  const totalEmployerCost = adjustedGrossSalary + employerInsurance + unionFeeAmount + totalBenefit;
+  const totalEmployerCost = adjustedGrossSalary + employerInsurance + tradeUnionFundAmount + totalBenefit;
 
   const employeeContribution = employeeInsurance + incomeTax;
-  const employerContribution = employerInsurance + unionFeeAmount;
+  const employerContribution = employerInsurance + tradeUnionFundAmount;
 
   return {
     adjustedGrossSalary,
@@ -98,7 +98,7 @@ function calculateFromGross(grossSalary, totalBonusAndAllowance, lunchAllowance,
     assessableIncome,
     incomeTax,
     netSalary,
-    unionFeeAmount,
+    tradeUnionFundAmount,
     totalEmployerCost
   };
 }
@@ -320,7 +320,7 @@ export function simulateSalary(params) {
     rentalTaxableAmount:  Math.round(calculationResult.rentalTaxableAmount),
     assessableIncome:     Math.round(calculationResult.assessableIncome),
     incomeTax:            Math.round(calculationResult.incomeTax),
-    employerUnionFee:     Math.round(calculationResult.unionFeeAmount),
+    employerTradeUnionFund: Math.round(calculationResult.tradeUnionFundAmount),
     totalEmployerCost:    Math.round(calculationResult.totalEmployerCost)
   };
 }

@@ -915,14 +915,14 @@ document.addEventListener('DOMContentLoaded', () => {
       data.employeeInsurance || 0,
       data.incomeTax || 0,
       data.employerInsurance || 0,
-      data.employerUnionFee || 0,
+      data.employerTradeUnionFund || 0,
       data.netSalary || 0
     ];
     const breakdownLabels = [
       'Employee Insurance',
       'Personal Income Tax',
       'Employer Insurance',
-      'Employer Union Fee',
+      'Employer Trade Union Fund',
       'Employee Take-home (Net) Salary'
     ];
     window.costBreakdownChart = new Chart(DOM.costBreakdownChart.getContext('2d'), {

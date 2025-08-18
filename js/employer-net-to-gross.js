@@ -107,11 +107,11 @@ const TEXT_CONFIG = {
     },
     costBreakdown: {
       socialInsurance: "Social Insurance",
-      unionFee: "Union Fee",
+      unionFee: "Trade Union Fund",
       personalIncomeTax: "Personal Income Tax",
       netSalary: "Employee Take-home (Net) Salary",
       employerInsurance: "Employer Insurance",
-      employerUnionFee: "Employer Union Fee",
+      employerUnionFee: "Employer Trade Union Fund",
       employeeInsurance: "Employee Insurance"
     },
     
@@ -1159,7 +1159,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="result-title">${TEXT_CONFIG.results.employerCostTable.sections.statutoryContribution}</div>
           <div class="result-list">
             <div class="result-item">${TEXT_CONFIG.results.costBreakdown.socialInsurance}: <span>+${data.employerInsurance.toLocaleString('vi-VN')} VND</span></div>
-            <div class="result-item">${TEXT_CONFIG.results.costBreakdown.unionFee}: <span>+${data.employerUnionFee.toLocaleString('vi-VN')} VND</span></div>
+            <div class="result-item">${TEXT_CONFIG.results.costBreakdown.unionFee}: <span>+${data.employerTradeUnionFund.toLocaleString('vi-VN')} VND</span></div>
           </div>
         </td>
       </tr>
