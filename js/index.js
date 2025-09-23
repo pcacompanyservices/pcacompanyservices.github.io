@@ -152,9 +152,9 @@ document.addEventListener('DOMContentLoaded', () => {
       value: 'employee',
       text: TEXT.index.home.buttons.employee.text,
       info: TEXT.index.home.buttons.employee.info,
-      enabled: false,
-      onClick: employeeHandler,
-      extraClass: 'unavailable' // off
+  enabled: true,
+  onClick: employeeHandler,
+  extraClass: ''
     }));
 
     main.appendChild(createButton({
