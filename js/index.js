@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
   text: TEXT.index.home.buttons.employeeGrossToNet.text,
   info: TEXT.index.home.buttons.employeeGrossToNet.info,
       enabled: true,
-  onClick : () => { window.location.href = 'simulation.html?type=employee-gtN' },
+      onClick : () => { window.location.href = 'employee-gross-to-net.html' },
       extraClass: 'employee-choice'
     }));
     main.appendChild(createButton({
@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
   text: TEXT.index.home.buttons.employeeNetToGross.text,
   info: TEXT.index.home.buttons.employeeNetToGross.info,
       enabled: true,
-  onClick: () => { window.location.href = 'simulation.html?type=employee-ntG' },
+      onClick: () => { window.location.href = 'employee-net-to-gross.html' },
       extraClass: 'employee-choice'
     }));
     main.appendChild(createBackButton(renderInitialButtons));
@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
   text: TEXT.index.home.buttons.employerFromGross.text,
   info: TEXT.index.home.buttons.employerFromGross.info,
       enabled: true,
-  onClick: () => { window.location.href = 'simulation.html?type=employer-gtN'; },
+      onClick: () => { window.location.href = 'employer-gross-to-net.html'; },
       extraClass: 'employer-choice'
     }));
     main.appendChild(createButton({
@@ -203,7 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
   text: TEXT.index.home.buttons.employerFromNet.text,
   info: TEXT.index.home.buttons.employerFromNet.info,
       enabled: true,
-  onClick: () => { window.location.href = 'simulation.html?type=employer-ntG'; },
+      onClick: () => { window.location.href = 'employer-net-to-gross.html'; },
       extraClass: 'employer-choice'
     }));
     main.appendChild(createBackButton(renderInitialButtons));
