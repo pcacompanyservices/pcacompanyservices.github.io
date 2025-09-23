@@ -6,6 +6,9 @@
 const html = (strings, ...values) =>
   strings.reduce((acc, str, i) => acc + str + (values[i] || ''), '');
 
+// Language pack
+import { TEXT } from '../lang/eng.js';
+
 // Global state for terms agreement
 let termsAgreed = false;
 
@@ -14,14 +17,14 @@ function createDisclaimer() {
   const footer = document.createElement('footer');
   footer.className = 'app-footer';
   footer.innerHTML = html`
-    <span class="footer-title">DISCLAIMER</span>
-    <div class="footer-text">The information provided in this simulation is for general informational purposes only. It does not constitute legal advice, nor does it create a service provider or client relationship. While we make every effort to ensure the accuracy, no warranty is given, whether express or implied, to its correctness or completeness. We accept no responsibility for any errors or omissions. We are not liable for any loss or damage, including but not limited to loss of business or profits, arising from the use of this simulation or reliance on its contents, whether in contract, tort, or otherwise.</div>
+    <span class="footer-title">${TEXT.index.footer.disclaimerTitle}</span>
+    <div class="footer-text">${TEXT.index.footer.disclaimerText}</div>
     <div class="terms-agreement">
       <label class="checkbox-label">
         <input type="checkbox" id="terms-checkbox" class="terms-checkbox">
-        <span class="checkbox-text">I have read and agreed to terms and conditions</span>
+        <span class="checkbox-text">${TEXT.index.footer.terms.checkboxLabel}</span>
       </label>
-      <div id="terms-warning" class="terms-warning">Please read and agree to our terms and conditions</div>
+      <div id="terms-warning" class="terms-warning">${TEXT.index.footer.terms.warning}</div>
     </div>
   `;
   document.body.appendChild(footer);
@@ -67,6 +70,9 @@ function updateButtonStates() {
 
 document.addEventListener('DOMContentLoaded', () => {
   const main = document.getElementById('simulation-root');
+  // Sync page title heading from language pack
+  const pageH1 = document.querySelector('h1');
+  if (pageH1) pageH1.textContent = TEXT.index.title;
 
   // Create disclaimer footer
   createDisclaimer();
@@ -119,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'simulation-button return-button';
-    btn.textContent = 'Return';
+  btn.textContent = TEXT.index.home.buttons.return;
     
     // Return buttons should work regardless of terms agreement
     btn.addEventListener('click', onClick);
@@ -134,8 +140,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     main.appendChild(createButton({
       value: 'employee',
-      text: `I'm an employee`,
-      info: 'You have a job.',
+      text: TEXT.index.home.buttons.employee.text,
+      info: TEXT.index.home.buttons.employee.info,
       enabled: false,
       onClick: employeeHandler,
       extraClass: 'unavailable' // off
@@ -143,16 +149,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     main.appendChild(createButton({
       value: 'freelancer',
-      text: `I'm a freelancer`,
-      info: 'Coming soon.',
+      text: TEXT.index.home.buttons.freelancer.text,
+      info: TEXT.index.home.buttons.freelancer.info,
       enabled: true,
       extraClass: 'unavailable' // off
     }));
 
     main.appendChild(createButton({
       value: 'employer',
-      text: `I'm an employer`,
-      info: 'You are hiring an employee.',
+      text: TEXT.index.home.buttons.employer.text,
+      info: TEXT.index.home.buttons.employer.info,
       enabled: true,
       onClick: employerHandler,
       extraClass: '',
@@ -164,16 +170,16 @@ document.addEventListener('DOMContentLoaded', () => {
     clearSimulationLists();
     main.appendChild(createButton({
       value: 'gross-to-net',
-      text: 'Calculate from your Gross Salary',
-      info: 'Calculate take-home salary from your gross salary.',
+  text: TEXT.index.home.buttons.employeeGrossToNet.text,
+  info: TEXT.index.home.buttons.employeeGrossToNet.info,
       enabled: true,
       onClick : () => { window.location.href = 'employee-gross-to-net.html' },
       extraClass: 'employee-choice'
     }));
     main.appendChild(createButton({
       value: 'net-to-gross',
-      text: 'Calculate from your Net Salary',
-      info: 'Calculate gross salary from how much you want to take home.',
+  text: TEXT.index.home.buttons.employeeNetToGross.text,
+  info: TEXT.index.home.buttons.employeeNetToGross.info,
       enabled: true,
       onClick: () => { window.location.href = 'employee-net-to-gross.html' },
       extraClass: 'employee-choice'
@@ -186,16 +192,16 @@ document.addEventListener('DOMContentLoaded', () => {
     clearSimulationLists();
     main.appendChild(createButton({
       value: 'from-gross',
-      text: 'Calculate from Gross Salary',
-      info: 'Calculate your cost from gross salary.',
+  text: TEXT.index.home.buttons.employerFromGross.text,
+  info: TEXT.index.home.buttons.employerFromGross.info,
       enabled: true,
       onClick: () => { window.location.href = 'employer-gross-to-net.html'; },
       extraClass: 'employer-choice'
     }));
     main.appendChild(createButton({
       value: 'from-net',
-      text: 'Calculate from Net Salary',
-      info: 'Calculate your cost from take-home salary.',
+  text: TEXT.index.home.buttons.employerFromNet.text,
+  info: TEXT.index.home.buttons.employerFromNet.info,
       enabled: true,
       onClick: () => { window.location.href = 'employer-net-to-gross.html'; },
       extraClass: 'employer-choice'
