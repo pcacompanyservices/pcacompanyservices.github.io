@@ -408,7 +408,7 @@ button:hover,
 .result-table-bordered td,
 .result-table-bordered th {
   border: 1px solid #666;
-  padding: 4px 4px;
+  padding: 2px 4px; /* reduce inner gap */
 }
 
 .result-table th {
@@ -469,7 +469,7 @@ button:hover,
 }
 
 .result-title {
-  font-size: 1.25rem;
+  font-size: 1.125rem; /* align with employer text size */
   font-weight: 700;
   text-align: center;
   margin-bottom: 0.05em;
@@ -499,7 +499,7 @@ button:hover,
   justify-content: space-between;
   gap: 0.01em;
   padding: 0 0.75rem;
-  font-size: 1em;
+  font-size: 0.95em; /* slightly tighter */
   width: 99%;
   margin: 0 auto;
 }
@@ -515,14 +515,19 @@ button:hover,
   font-weight: 600;
   text-align: center;
   margin-top: 0.02em;
-  font-size: 1.25rem;
+  font-size: 1.125rem; /* align with employer text size */
 }
 
 .result-center-value {
   text-align: center;
   font-weight: 600;
   color: #666;
-  padding: 0.5rem;
+  padding: 0.35rem; /* reduce inner gap */
+}
+
+/* Tighter spacing for employee summary rows (title + center-value pairs) */
+.employee-table-layout td > .result-title + .result-center-value {
+  padding: 0.05rem 0 !important; /* eliminate extra inner gap only for employee key rows */
 }
 
 .result-center-value-muted {

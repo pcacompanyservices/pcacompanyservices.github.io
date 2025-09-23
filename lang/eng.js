@@ -1,9 +1,30 @@
 // Centralized English language pack
 // Note: Wording is preserved per page to avoid behavior/style changes.
 
+// Shared footer for all calculators (canonical content based on Employer pages)
+const SHARED_CALC_FOOTER = {
+  importantNoteTitle: 'IMPORTANT NOTE',
+  importantNoteText:
+    'This simulation assumes a standard labor contract with a duration exceeding three months, ' +
+    'for a Vietnamese tax resident, applied in Region I (Zone I). It does not account for any ' +
+    'registered dependent deductions. For further information, please',
+  contactLinkText: 'contact us',
+  contactUrl: 'https://pca-cs.com/',
+  disclaimerTitle: 'DISCLAIMER',
+  disclaimerText:
+    'The information provided in this simulation is for general informational purposes only. ' +
+    'It does not constitute legal advice, nor does it create a service provider or client relationship. ' +
+    'While we make every effort to ensure the accuracy, no warranty is given, whether express or implied, ' +
+    'to its correctness or completeness. We accept no responsibility for any error or omission. ' +
+    'We are not liable for any loss or damage, including but not limited to loss of business or profits, ' +
+    'arising from the use of this simulation or reliance on its contents, whether in contract, tort, or otherwise.'
+};
+
 export const TEXT = {
   // Centralized version string for all pages
   version: 'Version: 1.1.2',
+  // Expose shared footer under TEXT as well for direct use
+  sharedFooter: SHARED_CALC_FOOTER,
   index: {
     title: 'Salary Simulation Tool',
     footer: {
@@ -31,28 +52,29 @@ export const TEXT = {
   employeeGrossToNet: {
     pageTitle: 'Calculate from your Gross Salary',
     progressSteps: {
-      citizenship: 'Citizenship',
-      grossSalary: 'Gross Salary',
-      allowance: 'Allowances',
-      bonus: 'Bonuses'
+      citizenship: 'Status',
+      grossSalary: 'Base Salary',
+      allowance: 'Allowance',
+      bonus: 'Bonus',
+      benefit: 'Benefit'
     },
     steps: {
       citizenship: {
-        title: 'Citizenship',
+        title: 'Tax Resident Status',
         tooltip: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.',
         selectPlaceholder: 'Select your citizenship',
         options: { local: 'Local', expat: 'Expat' },
         continue: 'Continue'
       },
       grossSalary: {
-        title: 'Gross Salary',
+        title: 'Gross Base Salary',
         tooltip: "Enter the employee's gross (contract) salary.",
         placeholder: 'Min 5.000.000 VND',
         warningMaxDigits: 'Maximum 9 digits allowed.',
         continue: 'Continue'
       },
       allowance: {
-        title: 'Allowances',
+        title: 'Allowance',
         tooltip: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.',
         hasAllowanceLabel: 'There are Allowances in the Contract',
         warningMaxDigits: 'Maximum 9 digits allowed.',
@@ -83,7 +105,7 @@ export const TEXT = {
         continue: 'Continue'
       },
       bonus: {
-        title: 'Bonuses',
+  title: 'Bonus',
         tooltip: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.',
         hasBonusLabel: 'There are Bonuses in the Contract',
         warningMaxDigits: 'Maximum 9 digits allowed.',
@@ -99,6 +121,17 @@ export const TEXT = {
           incentive: 'Incentive bonus (VND)',
           kpi: 'KPI bonus (VND)',
           other: 'Other bonuses (VND)'
+        }
+      },
+      benefit: {
+  title: 'Benefit',
+        warningMaxDigits: 'Maximum 9 digits allowed.',
+        types: { childTuition: "Child's Tuition Fee", rental: 'Rental', healthInsurance: 'Health Insurance' },
+        placeholders: { childTuition: "Child's tuition fee (VND)", rental: 'Rental benefit (VND)', healthInsurance: 'Health insurance benefit (VND)' },
+        tooltips: {
+          childTuition: "Specify your monthly child's tuition fee benefit in the contract.",
+          rental: 'Specify your monthly rental benefit in the contract.',
+          healthInsurance: 'Specify your monthly health insurance benefit in the contract.'
         }
       }
     },
@@ -133,41 +166,35 @@ export const TEXT = {
     },
     currencyUnit: 'VND',
     payslipTitle: 'PAYSLIP',
-    footer: {
-      importantNoteTitle: 'IMPORTANT NOTE',
-      importantNoteText: 'This simulation assumes a standard labor contract with a duration exceeding three months, for a resident in Viet Nam, applied in Region I (Zone I). It does not account for any registered dependent deductions. For further information, please',
-      contactLinkText: 'contact us',
-      contactUrl: 'https://pca-cs.com/',
-      disclaimerTitle: 'DISCLAIMER',
-      disclaimerText: 'The information provided in this simulation is for general informational purposes only. It does not constitute legal advice, nor does it create a service provider or client relationship. While we make every effort to ensure the accuracy, no warranty is given, whether express or implied, to its correctness or completeness. We accept NO RESPONSIBILITY for any errors or omissions. We are NOT LIABLE for any loss or damage, including but not limited to loss of business or profits, arising from the use of this simulation or reliance on its contents, whether in contract, tort, or otherwise.'
-    }
+  footer: SHARED_CALC_FOOTER
   },
 
   employeeNetToGross: {
     pageTitle: 'Calculate from your Net Salary',
     progressSteps: {
-      citizenship: 'Citizenship',
-      netSalary: 'Net Salary',
-      allowance: 'Allowances',
-      bonus: 'Bonuses'
+      citizenship: 'Status',
+      netSalary: 'Base Salary',
+      allowance: 'Allowance',
+  bonus: 'Bonus',
+  benefit: 'Benefit'
     },
     steps: {
       citizenship: {
-        title: 'Citizenship',
+        title: 'Tax Resident Status',
         tooltip: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.',
         selectPlaceholder: 'Select your citizenship',
         options: { local: 'Local', expat: 'Expat' },
         continue: 'Continue'
       },
       netSalary: {
-        title: 'Net Salary',
+        title: 'Net Base Salary',
         tooltip: "Enter the employee's net (take-home) salary.",
         placeholder: 'Min 4,475,000 VND',
         warningMaxDigits: 'Maximum 9 digits allowed.',
         continue: 'Continue'
       },
       allowance: {
-        title: 'Allowances',
+        title: 'Allowance',
         tooltip: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.',
         hasAllowanceLabel: 'There are Allowances in the Contract',
         warningMaxDigits: 'Maximum 9 digits allowed.',
@@ -198,7 +225,7 @@ export const TEXT = {
         continue: 'Continue'
       },
       bonus: {
-        title: 'Bonuses',
+  title: 'Bonus',
         tooltip: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.',
         hasBonusLabel: 'There are Bonuses in the Contract',
         warningMaxDigits: 'Maximum 9 digits allowed.',
@@ -215,9 +242,16 @@ export const TEXT = {
           kpi: 'KPI bonus (VND)',
           other: 'Other bonuses (VND)'
         }
+      },
+      benefit: {
+        title: 'Benefit',
+        tooltip: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.',
+        warningMaxDigits: 'Maximum 9 digits allowed.',
+        types: { childTuition: "Child's Tuition Fee", rental: 'Rental', healthInsurance: 'Health Insurance' },
+        placeholders: { childTuition: "Child's tuition fee (VND)", rental: 'Rental benefit (VND)', healthInsurance: 'Health insurance benefit (VND)' }
       }
     },
-    buttons: { calculate: 'Calculate', return: 'Return', downloadPdf: 'Download PDF', modify: 'Modify Information', reset: 'Reset' },
+    buttons: { continue: 'Continue', calculate: 'Calculate', return: 'Return', downloadPdf: 'Download PDF', modify: 'Modify Information', reset: 'Reset' },
     charts: { salaryBreakdown: 'Salary Breakdown', costBreakdown: 'Cost Breakdown', bonusAndAllowance: 'Bonus & Allowance', grossSalary: 'Gross Salary' },
     results: {
       employeeTypes: { local: 'Local Employee', expat: 'Expat Employee', default: 'Employee' },
@@ -247,14 +281,7 @@ export const TEXT = {
     },
     currencyUnit: 'VND',
     payslipTitle: 'PAYSLIP',
-    footer: {
-      importantNoteTitle: 'IMPORTANT NOTE',
-      importantNoteText: 'This simulation assumes a standard labor contract with a duration exceeding three months, for a resident in Viet Nam, applied in Region I (Zone I). It does not account for any registered dependent deductions. For further information, please',
-      contactLinkText: 'contact us',
-      contactUrl: 'https://pca-cs.com/',
-      disclaimerTitle: 'DISCLAIMER',
-      disclaimerText: 'The information provided in this simulation is for general informational purposes only. It does not constitute legal advice, nor does it create a service provider or client relationship. While we make every effort to ensure the accuracy, no warranty is given, whether express or implied, to its correctness or completeness. We accept NO RESPONSIBILITY for any errors or omissions. We are NOT LIABLE for any loss or damage, including but not limited to loss of business or profits, arising from the use of this simulation or reliance on its contents, whether in contract, tort, or otherwise.'
-    }
+  footer: SHARED_CALC_FOOTER
   },
 
   // Move employer configs verbatim to preserve behavior
@@ -309,21 +336,7 @@ export const TEXT = {
       rental: 'Specify your monthly rental benefit in the contract.',
       healthInsurance: 'Specify your monthly health insurance benefit in the contract.'
     },
-    footer: {
-      importantNoteTitle: 'IMPORTANT NOTE',
-      importantNoteText: 'This simulation assumes a standard labor contract with a duration exceeding three months, ' +
-        'for a Vietnamese tax resident, applied in Region I (Zone I). It does not account for any ' +
-        'registered dependent deductions. For further information, please',
-      contactLinkText: 'contact us',
-      contactUrl: 'https://pca-cs.com/',
-      disclaimerTitle: 'DISCLAIMER',
-      disclaimerText: 'The information provided in this simulation is for general informational purposes only. ' +
-        'It does not constitute legal advice, nor does it create a service provider or client relationship. ' +
-        'While we make every effort to ensure the accuracy, no warranty is given, whether express or implied, ' +
-        'to its correctness or completeness. We accept no responsibility for any error or omission. ' +
-        'We are not liable for any loss or damage, including but not limited to loss of business or profits, ' +
-        'arising from the use of this simulation or reliance on its contents, whether in contract, tort, or otherwise.'
-      },
+  footer: SHARED_CALC_FOOTER,
       currencyUnit: 'VND'
     },
 
@@ -378,21 +391,7 @@ export const TEXT = {
       rental: 'Specify your monthly rental benefit in the contract.',
       healthInsurance: 'Specify your monthly health insurance benefit in the contract.'
     },
-    footer: {
-      importantNoteTitle: 'IMPORTANT NOTE',
-      importantNoteText: 'This simulation assumes a standard labor contract with a duration exceeding three months, ' +
-        'for a Vietnamese tax resident, applied in Region I (Zone I). It does not account for any ' +
-        'registered dependent deductions. For further information, please',
-      contactLinkText: 'contact us',
-      contactUrl: 'https://pca-cs.com/',
-      disclaimerTitle: 'DISCLAIMER',
-      disclaimerText: 'The information provided in this simulation is for general informational purposes only. ' +
-        'It does not constitute legal advice, nor does it create a service provider or client relationship. ' +
-        'While we make every effort to ensure the accuracy, no warranty is given, whether express or implied, ' +
-        'to its correctness or completeness. We accept no responsibility for any error or omission. ' +
-        'We are not liable for any loss or damage, including but not limited to loss of business or profits, ' +
-        'arising from the use of this simulation or reliance on its contents, whether in contract, tort, or otherwise.'
-      },
+  footer: SHARED_CALC_FOOTER,
       currencyUnit: 'VND'
     }
 };
