@@ -58,23 +58,45 @@ async function exportResultToPdf({
   }
   onStart();
   await document.fonts.ready;
-  window.html2canvas(exportContainer, {
-    backgroundColor: '#fff',
-    scale: 2,
-    useCORS: true
-  }).then(canvas => {
+  // Apply export A4 styles and fixed px canvas size to match Employer Gross→Net
+  exportContainer.classList.add('export-a4');
+  // Inject export stylesheet and toggle export mode
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = 'css/export-a4.css';
+  document.head.appendChild(link);
+  document.body.classList.add('export-mode');
+  try {
+    const A4_WIDTH_PX = 794;   // 210mm at ~96 DPI
+    const A4_HEIGHT_PX = 1123; // 297mm at ~96 DPI
+    const CAPTURE_SCALE = 2;   // crisp output
+    const canvas = await window.html2canvas(exportContainer, {
+      backgroundColor: '#fff',
+      scale: CAPTURE_SCALE,
+      useCORS: true,
+      width: A4_WIDTH_PX,
+      height: Math.max(A4_HEIGHT_PX, exportContainer.scrollHeight),
+      windowWidth: A4_WIDTH_PX,
+      windowHeight: Math.max(A4_HEIGHT_PX, exportContainer.scrollHeight)
+    });
     const imgData = canvas.toDataURL('image/png');
     const jsPDF = window.jspdf.jsPDF;
     const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
-    const pageWidth = 595.28;
-    const margin = 40;
-    const imgWidth = pageWidth - margin * 2;
-    const imgHeight = canvas.height * imgWidth / canvas.width;
-    let y = margin;
-    pdf.addImage(imgData, 'PNG', margin, y, imgWidth, imgHeight);
+    const pageWidthPt = 595.28;
+    const marginPt = 40;
+    const contentWidthPt = pageWidthPt - marginPt * 2;
+    const imgHeightPt = canvas.height * (contentWidthPt / canvas.width);
+
+    pdf.addImage(imgData, 'PNG', marginPt, marginPt, contentWidthPt, imgHeightPt);
     pdf.save(filename);
     onComplete();
-  });
+  } finally {
+    // Cleanup export styles/classes
+    exportContainer.classList.remove('export-a4');
+    document.body.classList.remove('export-mode');
+    const links = Array.from(document.querySelectorAll('link[href$="export-a4.css"]'));
+    links.forEach(l => l.parentNode && l.parentNode.removeChild(l));
+  }
 }
 
 // ============================================================================
@@ -130,7 +152,7 @@ function createSalaryForm(root) {
  */
 function createStep1() {
   const step1 = document.createElement('div');
-  step1.className = 'form-step';
+  step1.className = 'form-step active';
   step1.id = 'step-1';
   step1.innerHTML = html`
     <div class="step-title-row">
@@ -482,10 +504,13 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Create result containers and buttons
   const { resultDiv } = createResultSection(root);
-  const { buttonContainer, downloadBtn, resetBtn, hardResetBtn } = createResultButtonsContainer(root);
+  let buttonContainer, downloadBtn, resetBtn, hardResetBtn;
+  try {
+    ({ buttonContainer, downloadBtn, resetBtn, hardResetBtn } = createResultButtonsContainer(root));
+  } catch {}
 
   // Create footer
-  createFooter(root);
+  try { createFooter(root); } catch {}
 
   // ============================================================================
   // FORM NAVIGATION SYSTEM
@@ -495,9 +520,39 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentStep = 0;
 
   // Get button references after they're created and added to DOM
-  const returnBtn = getElement('return-btn');
-  const continueBtn = getElement('continue-btn');
-  const calculateBtn = getElement('calculate-btn');
+  let returnBtn = getElement('return-btn');
+  let continueBtn = getElement('continue-btn');
+  let calculateBtn = getElement('calculate-btn');
+  if (!returnBtn || !continueBtn || !calculateBtn) {
+    // Create minimal fallback nav if button container wasn't created
+    const navDiv = document.createElement('div');
+    navDiv.className = 'form-navigation';
+    if (!returnBtn) {
+      returnBtn = document.createElement('button');
+      returnBtn.type = 'button';
+      returnBtn.id = 'return-btn';
+      returnBtn.className = 'simulation-button return-button';
+      returnBtn.textContent = TEXT_CONFIG.buttons.return;
+      navDiv.appendChild(returnBtn);
+    }
+    if (!continueBtn) {
+      continueBtn = document.createElement('button');
+      continueBtn.type = 'button';
+      continueBtn.id = 'continue-btn';
+      continueBtn.className = 'simulation-button';
+      continueBtn.textContent = TEXT_CONFIG.buttons.continue;
+      navDiv.appendChild(continueBtn);
+    }
+    if (!calculateBtn) {
+      calculateBtn = document.createElement('button');
+      calculateBtn.type = 'button';
+      calculateBtn.id = 'calculate-btn';
+      calculateBtn.className = 'simulation-button';
+      calculateBtn.textContent = TEXT_CONFIG.buttons.calculate;
+      navDiv.appendChild(calculateBtn);
+    }
+    salaryForm.appendChild(navDiv);
+  }
 
   /**
    * Show the specified step and update navigation buttons
@@ -593,6 +648,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!continueBtn) return;
     
     let isValid = false;
+  // Query inputs on demand to avoid referencing variables before initialization
+  const taxResidentStatusSelect = document.getElementById('tax-resident-status');
+  const netSalaryInput = document.getElementById('net-salary');
     
     switch (idx) {
       case 0: // Tax Resident Status step
@@ -725,6 +783,16 @@ document.addEventListener('DOMContentLoaded', () => {
    * Handle the salary calculation process
    */
   function handleCalculation() {
+    // Ensure result buttons container exists (fallback in case initial creation failed)
+    if (!buttonContainer || !document.getElementById('result-buttons-container')) {
+      try {
+        ({ buttonContainer, downloadBtn, resetBtn, hardResetBtn } = createResultButtonsContainer(root));
+        // Re-wire PDF setup now that button exists
+        setupDownloadButton();
+      } catch (_) {
+        // Non-fatal: calculation can proceed; just skip buttons
+      }
+    }
     // Helper functions
     const parseNumber = (val) => {
       if (typeof val === 'number') return val;
@@ -778,7 +846,9 @@ document.addEventListener('DOMContentLoaded', () => {
     renderResults(data);
     
     // Show action buttons container
-    DOM.buttonContainer.classList.add('show');
+    if (DOM.buttonContainer) {
+      DOM.buttonContainer.classList.add('show');
+    }
     
     // Setup button handlers
     setupResetHandlers();
@@ -1019,10 +1089,10 @@ document.addEventListener('DOMContentLoaded', () => {
    * Setup reset button handlers
    */
   function setupResetHandlers() {
-    resetBtn.onclick = () => {
+    if (resetBtn) resetBtn.onclick = () => {
       // Hide results and button container
       DOM.resultDiv.innerHTML = '';
-      DOM.buttonContainer.classList.remove('show');
+      if (DOM.buttonContainer) DOM.buttonContainer.classList.remove('show');
       
       // Re-insert form
       if (!document.getElementById('salary-form')) {
@@ -1036,7 +1106,7 @@ document.addEventListener('DOMContentLoaded', () => {
       showStep(currentStep);
     };
 
-    hardResetBtn.onclick = () => {
+    if (hardResetBtn) hardResetBtn.onclick = () => {
       window.location.reload();
     };
   }
@@ -1096,16 +1166,21 @@ document.addEventListener('DOMContentLoaded', () => {
    * Setup the download PDF button functionality
    */
   function setupDownloadButton() {
-    downloadBtn.addEventListener('click', async (e) => {
+  const btn = downloadBtn || document.getElementById('download-pdf-btn');
+  if (!btn) return; // guard in case buttons not created
+  // keep reference for future calls
+  downloadBtn = btn;
+  btn.addEventListener('click', async (e) => {
       e.preventDefault();
       
       ensureJsPdfAndHtml2Canvas(async () => {
-        const resultTableContainer = document.querySelector('.result-table-container');
-        if (!resultTableContainer) return;
+        // Collect both result tables (Payslip and Employer Cost)
+        const resultTableContainers = Array.from(document.querySelectorAll('.result-table-container'));
+        if (!resultTableContainers.length) return;
         
         // Create export container
         const exportContainer = document.createElement('div');
-        exportContainer.className = 'pdf-export-container';
+        exportContainer.className = 'pdf-export-container export-a4';
         
         // Add logo if exists
         const logo = document.querySelector('.logo');
@@ -1113,20 +1188,84 @@ document.addEventListener('DOMContentLoaded', () => {
           exportContainer.appendChild(logo.cloneNode(true));
         }
         
-        // Add PAYSLIP title
-        const payslipTitle = document.createElement('h1');
-        payslipTitle.textContent = TEXT_CONFIG.payslipTitle;
-        payslipTitle.className = 'pdf-export-title';
-        exportContainer.appendChild(payslipTitle);
+        // Add main header under logo (use exact case)
+        const headerTitle = document.createElement('h1');
+        try {
+          headerTitle.textContent = (window.TEXT && window.TEXT.index && window.TEXT.index.title
+            ? window.TEXT.index.title
+            : 'Salary Simulation Tool');
+        } catch (_) {
+          headerTitle.textContent = 'Salary Simulation Tool';
+        }
+        headerTitle.className = 'pdf-export-title';
+        exportContainer.appendChild(headerTitle);
         
-        // Add hr if exists
+        // Add hr below the main header
         const hr = root.querySelector('hr');
         if (hr) {
           exportContainer.appendChild(hr.cloneNode(true));
         }
         
-        // Add result table
-        exportContainer.appendChild(resultTableContainer.cloneNode(true));
+        // Add PAYSLIP title below hr
+        const payslipTitle = document.createElement('h1');
+        payslipTitle.textContent = TEXT_CONFIG.payslipTitle;
+        payslipTitle.className = 'pdf-export-title';
+        exportContainer.appendChild(payslipTitle);
+        
+        // Add Payslip table (first container)
+        exportContainer.appendChild(resultTableContainers[0].cloneNode(true));
+
+        // Add Employer Cost title and table if present
+        if (resultTableContainers[1]) {
+          const employerCostTitle = document.createElement('h1');
+          employerCostTitle.textContent = TEXT_CONFIG.results.employerCostTable.title;
+          employerCostTitle.className = 'pdf-export-title';
+          exportContainer.appendChild(employerCostTitle);
+          exportContainer.appendChild(resultTableContainers[1].cloneNode(true));
+        }
+
+  // Export footer with HR + Important Note and Disclaimer
+        const exportFooter = document.createElement('footer');
+        exportFooter.className = 'app-footer export-footer';
+  // HR above the note/disclaimer
+  const hrFooter = document.createElement('hr');
+  exportFooter.appendChild(hrFooter);
+        const importantTitle = document.createElement('span');
+        importantTitle.className = 'footer-title';
+        importantTitle.textContent = TEXT.employerNetToGross.footer.importantNoteTitle;
+        exportFooter.appendChild(importantTitle);
+        const importantText = document.createElement('div');
+        importantText.className = 'footer-text';
+        const contactPlain = document.createElement('span');
+        contactPlain.textContent = TEXT.employerNetToGross.footer.contactLinkText;
+        importantText.textContent = `${TEXT.employerNetToGross.footer.importantNoteText} `;
+        importantText.appendChild(contactPlain);
+        importantText.appendChild(document.createTextNode('.'));
+        exportFooter.appendChild(importantText);
+        const disclaimerTitle = document.createElement('span');
+        disclaimerTitle.className = 'footer-title';
+        disclaimerTitle.textContent = TEXT.employerNetToGross.footer.disclaimerTitle;
+        exportFooter.appendChild(disclaimerTitle);
+        const disclaimerText = document.createElement('div');
+        disclaimerText.className = 'footer-text';
+        disclaimerText.textContent = TEXT.employerNetToGross.footer.disclaimerText;
+        exportFooter.appendChild(disclaimerText);
+
+        // Export ID: plain epoch milliseconds (numbers only)
+        const exportTimestamp = Date.now();
+        const exportId = String(exportTimestamp);
+        const idDiv = document.createElement('div');
+        idDiv.className = 'export-id';
+        idDiv.textContent = `ID: ${exportId}`;
+        exportFooter.appendChild(idDiv);
+
+        // Version bottom-right
+        const versionDiv = document.createElement('div');
+        versionDiv.className = 'version-display';
+        versionDiv.textContent = (TEXT && TEXT.version) || '';
+        exportFooter.appendChild(versionDiv);
+
+        exportContainer.appendChild(exportFooter);
         document.body.appendChild(exportContainer);
         
         // Generate filename with current date
@@ -1134,14 +1273,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const day = String(now.getDate()).padStart(2, '0');
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const year = now.getFullYear();
-        const filename = `[PCA Net-to-Gross Salary Simulation]_${day}-${month}-${year}.pdf`;
+  const filename = `[PCA_Salary_Simulation]_${day}-${month}-${year}.pdf`;
         
         // Export to PDF
         await exportResultToPdf({
           exportContainer,
           filename,
           onComplete: () => {
-            document.body.removeChild(exportContainer);
+            if (exportContainer && exportContainer.parentNode) {
+              exportContainer.parentNode.removeChild(exportContainer);
+            }
           }
         });
       });

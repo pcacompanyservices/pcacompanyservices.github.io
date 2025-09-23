@@ -1047,7 +1047,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const day = String(now.getDate()).padStart(2, '0');
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const year = now.getFullYear();
-  const filename = `[PCA Salary Simulation]_${day}-${month}-${year}.pdf`;
+  const filename = `[PCA_Salary_Simulation]_${day}-${month}-${year}.pdf`;
         await exportResultToPdf({
           exportContainer,
           filename,

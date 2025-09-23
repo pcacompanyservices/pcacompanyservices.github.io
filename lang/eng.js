@@ -341,6 +341,7 @@ export const TEXT = {
           lunch: 'Net lunch allowance (VND)', fuel: 'Net fuel allowance (VND)', phone: 'Net phone allowance (VND)', travel: 'Net travel allowance (VND)', uniform: 'Net uniform allowance (VND)', other: 'Net other allowance (VND)'
         }
       },
+  bonus: { title: 'Bonus', placeholder: 'Total bonus (VND)' },
       benefit: {
         title: 'Benefit',
         types: { childTuition: "Child's Tuition Fee", rental: 'Rental', healthInsurance: 'Health Insurance' },
