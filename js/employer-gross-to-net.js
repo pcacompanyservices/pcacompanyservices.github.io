@@ -39,6 +39,20 @@ const html = (strings, ...values) =>
   strings.reduce((acc, str, i) => acc + str + (values[i] || ''), '');
 
 /**
+ * Export-only stylesheet toggle
+ */
+function withExportStyles(run) {
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = 'css/export-a4.css';
+  document.head.appendChild(link);
+  document.body.classList.add('export-mode');
+  try { return run(); } finally {
+    // cleanup is handled by caller after async completes
+  }
+}
+
+/**
  * Export the result container to PDF
  */
 async function exportResultToPdf({
@@ -52,23 +66,45 @@ async function exportResultToPdf({
   }
   onStart();
   await document.fonts.ready;
-  window.html2canvas(exportContainer, {
-    backgroundColor: '#fff',
-    scale: 2,
-    useCORS: true
-  }).then(canvas => {
+  // Apply export A4 styles and fixed px canvas size
+  exportContainer.classList.add('export-a4');
+  let cleanup;
+  const enableStyles = () => withExportStyles(() => {});
+  enableStyles();
+  try {
+    const A4_WIDTH_PX = 794;   // 210mm at ~96 DPI
+    const A4_HEIGHT_PX = 1123; // 297mm at ~96 DPI
+    const CAPTURE_SCALE = 2;   // match legacy crisp export (1588x2246)
+    const canvas = await window.html2canvas(exportContainer, {
+      backgroundColor: '#fff',
+      scale: CAPTURE_SCALE,
+      useCORS: true,
+      width: A4_WIDTH_PX,
+      height: Math.max(A4_HEIGHT_PX, exportContainer.scrollHeight),
+      windowWidth: A4_WIDTH_PX,
+      windowHeight: Math.max(A4_HEIGHT_PX, exportContainer.scrollHeight)
+    });
     const imgData = canvas.toDataURL('image/png');
-    const jsPDF = window.jspdf.jsPDF;
-    const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
-    const pageWidth = 595.28;
-    const margin = 40;
-    const imgWidth = pageWidth - margin * 2;
-    const imgHeight = canvas.height * imgWidth / canvas.width;
-    let y = margin;
-    pdf.addImage(imgData, 'PNG', margin, y, imgWidth, imgHeight);
+  const jsPDF = window.jspdf.jsPDF;
+  const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
+  // pt sizes for A4 at 72 DPI
+  const pageWidthPt = 595.28;
+  const pageHeightPt = 841.89;
+  const marginPt = 40; // match legacy export ~14mm
+    const contentWidthPt = pageWidthPt - marginPt * 2;
+    const imgHeightPt = canvas.height * (contentWidthPt / canvas.width);
+
+    let y = marginPt;
+    pdf.addImage(imgData, 'PNG', marginPt, y, contentWidthPt, imgHeightPt);
     pdf.save(filename);
     onComplete();
-  });
+  } finally {
+    // Remove export styles/classes
+    exportContainer.classList.remove('export-a4');
+    document.body.classList.remove('export-mode');
+    const linkTags = Array.from(document.querySelectorAll('link[href$="export-a4.css"]'));
+    linkTags.forEach(l => l.parentNode && l.parentNode.removeChild(l));
+  }
 }
 
 // ============================================================================
@@ -1099,7 +1135,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Create export container
         const exportContainer = document.createElement('div');
-        exportContainer.className = 'pdf-export-container';
+        exportContainer.className = 'pdf-export-container export-a4';
         
         // Add logo if exists
         const logo = document.querySelector('.logo');
@@ -1121,8 +1157,38 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Add result table
         exportContainer.appendChild(resultTableContainer.cloneNode(true));
-        document.body.appendChild(exportContainer);
+
+        // Add export footer (Important Note + Disclaimer) with same styling
+        const exportFooter = document.createElement('footer');
+        exportFooter.className = 'app-footer export-footer';
+        const hr1 = document.createElement('hr');
+        exportFooter.appendChild(hr1);
+        const importantTitle = document.createElement('span');
+        importantTitle.className = 'footer-title';
+        importantTitle.textContent = TEXT_CONFIG.footer.importantNoteTitle;
+        exportFooter.appendChild(importantTitle);
+        const importantText = document.createElement('div');
+        importantText.className = 'footer-text';
+        // Render contact text as plain text (no underline/hyperlink) in export
+        const contactPlain = document.createElement('span');
+        contactPlain.textContent = TEXT_CONFIG.footer.contactLinkText;
+        importantText.textContent = `${TEXT_CONFIG.footer.importantNoteText} `;
+        importantText.appendChild(contactPlain);
+        importantText.appendChild(document.createTextNode('.'));
+        exportFooter.appendChild(importantText);
+        const disclaimerTitle = document.createElement('span');
+        disclaimerTitle.className = 'footer-title';
+        disclaimerTitle.textContent = TEXT_CONFIG.footer.disclaimerTitle;
+        exportFooter.appendChild(disclaimerTitle);
+        const disclaimerText = document.createElement('div');
+        disclaimerText.className = 'footer-text';
+        disclaimerText.textContent = TEXT_CONFIG.footer.disclaimerText;
+        exportFooter.appendChild(disclaimerText);
+        exportContainer.appendChild(exportFooter);
         
+        // Ensure export container is attached to DOM for html2canvas
+        document.body.appendChild(exportContainer);
+ 
         // Generate filename with current date
         const now = new Date();
         const day = String(now.getDate()).padStart(2, '0');
@@ -1135,23 +1201,15 @@ document.addEventListener('DOMContentLoaded', () => {
           exportContainer,
           filename,
           onComplete: () => {
-            document.body.removeChild(exportContainer);
+            if (exportContainer && exportContainer.parentNode) {
+              exportContainer.parentNode.removeChild(exportContainer);
+            }
           }
         });
       });
     });
   }
 
-  /**
-   * Create and display version information in bottom right corner
-   */
-  function createVersionDisplay() {
-    const versionDiv = document.createElement('div');
-    versionDiv.className = 'version-display';
-    versionDiv.textContent = TEXT_CONFIG.version;
-    document.body.appendChild(versionDiv);
-  }
-
+  // Setup download button functionality
   setupDownloadButton();
-  createVersionDisplay();
 });

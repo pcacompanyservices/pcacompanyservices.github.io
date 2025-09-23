@@ -1,0 +1,88 @@
+/* Export-only A4 layout (px-based). Loaded dynamically during PDF export. */
+
+/* Root export mode flag to avoid affecting normal layout */
+body.export-mode {
+  background: #fff !important;
+  overflow: visible !important;
+}
+
+/* Fixed A4 canvas at 96 DPI: 794 x 1123 px */
+body.export-mode .export-a4 {
+  width: 794px;
+  min-height: 1123px;
+  margin: 0 auto !important;
+  padding: 0; /* margins handled by PDF coordinates */
+  box-sizing: border-box;
+  background: #ffffff !important;
+  color: #000;
+  border: none;
+  position: relative; /* allow absolute positioning of footer */
+  padding-bottom: 130px; /* reserve space so footer won't overlap content */
+}
+
+/* Preserve original typography; do not override font sizes to keep component scale unchanged */
+
+/* Tables & charts constrained to page width */
+body.export-mode .export-a4 .result-table-container {
+  width: 80% !important; /* further reduce width for more side margins */
+  max-width: 80% !important;
+  margin: 0 auto !important;
+}
+body.export-mode .export-a4 .result-table {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Normalize hr inside export (avoid global vw limits) */
+body.export-mode .export-a4 hr {
+  width: 95% !important;
+  max-width: none !important;
+  margin: 0.5rem auto 1rem auto !important;
+}
+
+/* Make the HR inside the export footer the same length as the top HR
+   (avoid 95% of 95% by setting it to 100% of the footer width). */
+body.export-mode .export-a4 .app-footer.export-footer hr {
+  width: 100% !important;
+}
+
+/* Footer fixed to bottom of page in export */
+body.export-mode .export-a4 .app-footer.export-footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 12px; /* keep near bottom */
+  margin: 0 auto;
+  width: 95%; /* match hr width */
+}
+
+body.export-mode .export-a4 .app-footer.export-footer .footer-title {
+  width: 100%;
+}
+
+body.export-mode .export-a4 .app-footer.export-footer .footer-text {
+  width: 100%;
+  text-align: justify; /* justify text to match hr width visually */
+}
+
+/* Remove link styling if any anchor slips in */
+body.export-mode .export-a4 .app-footer.export-footer a {
+  color: inherit;
+  text-decoration: none;
+  pointer-events: none;
+}
+
+body.export-mode .export-a4 .pie-chart-container {
+  max-width: 100% !important;
+  gap: 24px !important;
+}
+
+body.export-mode .export-a4 canvas {
+  max-width: 320px !important;
+  max-height: 320px !important;
+}
+
+/* Hide any non-result UI just in case */
+body.export-mode #progress-bar,
+body.export-mode .form-navigation,
+body.export-mode .app-footer:not(.export-footer) { display: none !important; }
