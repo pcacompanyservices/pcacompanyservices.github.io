@@ -1057,4 +1057,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   setupDownloadButton();
+  // Show version in bottom-right on this page using centralized TEXT.version
+  (function createVersionDisplay() {
+    if (document.querySelector('.version-display')) return;
+    const versionDiv = document.createElement('div');
+    versionDiv.className = 'version-display';
+    versionDiv.textContent = (TEXT && TEXT.version) || '';
+    document.body.appendChild(versionDiv);
+  })();
 });

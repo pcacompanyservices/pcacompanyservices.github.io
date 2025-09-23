@@ -34,6 +34,16 @@ function createDisclaimer() {
   checkbox.addEventListener('change', handleTermsChange);
 }
 
+// Create and display version information in bottom right corner
+function createVersionDisplay() {
+  if (document.querySelector('.version-display')) return;
+  const versionDiv = document.createElement('div');
+  versionDiv.className = 'version-display';
+  // Centralized version from language pack
+  versionDiv.textContent = (TEXT && TEXT.version) || '';
+  document.body.appendChild(versionDiv);
+}
+
 // Handle terms checkbox change
 function handleTermsChange(event) {
   termsAgreed = event.target.checked;
@@ -211,4 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initial render
   renderInitialButtons();
+
+  // Show version in bottom-right on index page
+  createVersionDisplay();
 });

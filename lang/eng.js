@@ -2,6 +2,8 @@
 // Note: Wording is preserved per page to avoid behavior/style changes.
 
 export const TEXT = {
+  // Centralized version string for all pages
+  version: 'Version: 1.1.2',
   index: {
     title: 'Salary Simulation Tool',
     footer: {
@@ -281,7 +283,7 @@ export const TEXT = {
     warnings: { maxDigits: 'Maximum 9 digit allowed.', noAllowanceOrBonus: '(There is no Allowance or Bonus in the Contract)' },
     results: {
       employeeTypes: { local: 'Local Employee – Tax Resident', expat: 'Expat Employee – Tax Resident', default: 'Employee' },
-      sections: { grossSalary: 'Gross Base Salary', adjustedGrossSalary: 'Adjusted Gross Salary', allowance: 'Allowance', bonus: 'Bonus', benefit: 'Benefit', employerCost: 'Employer Cost', employeeTakeHome: 'Statutory Contribution' },
+      sections: { grossSalary: 'Gross Base Salary', adjustedGrossSalary: 'Adjusted Gross Salary', allowance: 'Allowance', bonus: 'Bonus', benefit: 'Benefit', employerCost: 'Employer Cost', employeeTakeHome: 'Statutory Contribution', takeHomeTotal: 'Employee Take-home' },
       costBreakdown: {
         socialInsurance: 'Social Insurance', unionFee: 'Trade Union Fund', personalIncomeTax: 'Personal Income Tax', netSalary: 'Employee Take-home (Net) Salary', employerInsurance: 'Employer Insurance', employerUnionFee: 'Employer Trade Union Fund', employeeInsurance: 'Employee Insurance'
       },
@@ -321,9 +323,9 @@ export const TEXT = {
         'to its correctness or completeness. We accept no responsibility for any error or omission. ' +
         'We are not liable for any loss or damage, including but not limited to loss of business or profits, ' +
         'arising from the use of this simulation or reliance on its contents, whether in contract, tort, or otherwise.'
+      },
+      currencyUnit: 'VND'
     },
-    version: 'Version: 1.0.15'
-  },
 
   employerNetToGross: {
     pageTitle: "Calculate from Employee's Net Salary",
@@ -339,7 +341,6 @@ export const TEXT = {
           lunch: 'Net lunch allowance (VND)', fuel: 'Net fuel allowance (VND)', phone: 'Net phone allowance (VND)', travel: 'Net travel allowance (VND)', uniform: 'Net uniform allowance (VND)', other: 'Net other allowance (VND)'
         }
       },
-      bonus: { title: 'Bonus', placeholder: 'Net total bonus (VND)' },
       benefit: {
         title: 'Benefit',
         types: { childTuition: "Child's Tuition Fee", rental: 'Rental', healthInsurance: 'Health Insurance' },
@@ -350,7 +351,7 @@ export const TEXT = {
     warnings: { maxDigits: 'Maximum 9 digit allowed.', noAllowanceOrBonus: '(There is no Allowance or Bonus in the Contract)' },
     results: {
       employeeTypes: { local: 'Local Employee – Tax Resident', expat: 'Expat Employee – Tax Resident', default: 'Employee' },
-      sections: { grossSalary: 'Gross Base Salary', adjustedGrossSalary: 'Adjusted Gross Salary', allowance: 'Allowance', bonus: 'Bonus', benefit: 'Benefit', employerCost: 'Employer Cost', employeeTakeHome: 'Statutory Contribution' },
+      sections: { grossSalary: 'Gross Base Salary', adjustedGrossSalary: 'Adjusted Gross Salary', allowance: 'Allowance', bonus: 'Bonus', benefit: 'Benefit', employerCost: 'Employer Cost', employeeTakeHome: 'Statutory Contribution', takeHomeTotal: 'Employee Take-home' },
       costBreakdown: {
         socialInsurance: 'Social Insurance', unionFee: 'Trade Union Fund', personalIncomeTax: 'Personal Income Tax', netSalary: 'Employee Take-home (Net) Salary', employerInsurance: 'Employer Insurance', employerUnionFee: 'Employer Trade Union Fund', employeeInsurance: 'Employee Insurance'
       },
@@ -390,9 +391,9 @@ export const TEXT = {
         'to its correctness or completeness. We accept no responsibility for any error or omission. ' +
         'We are not liable for any loss or damage, including but not limited to loss of business or profits, ' +
         'arising from the use of this simulation or reliance on its contents, whether in contract, tort, or otherwise.'
-    },
-    version: 'Version: 1.0.15'
-  }
+      },
+      currencyUnit: 'VND'
+    }
 };
 
 export default TEXT;

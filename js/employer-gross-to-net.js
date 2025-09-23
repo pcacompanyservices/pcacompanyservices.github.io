@@ -39,6 +39,14 @@ const html = (strings, ...values) =>
   strings.reduce((acc, str, i) => acc + str + (values[i] || ''), '');
 
 /**
+ * Format currency with locale and configured unit
+ */
+function formatCurrency(val) {
+  const unit = TEXT_CONFIG.currencyUnit || 'VND';
+  return val || val === 0 ? `${Number(val).toLocaleString('vi-VN')} ${unit}` : '-';
+}
+
+/**
  * Export-only stylesheet toggle
  */
 function withExportStyles(run) {
@@ -68,9 +76,8 @@ async function exportResultToPdf({
   await document.fonts.ready;
   // Apply export A4 styles and fixed px canvas size
   exportContainer.classList.add('export-a4');
-  let cleanup;
-  const enableStyles = () => withExportStyles(() => {});
-  enableStyles();
+  // Enable export stylesheet and export mode for capture
+  withExportStyles(() => {});
   try {
     const A4_WIDTH_PX = 794;   // 210mm at ~96 DPI
     const A4_HEIGHT_PX = 1123; // 297mm at ~96 DPI
@@ -862,17 +869,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Generate content sections
     const employeeTypeLabel = getEmployeeTypeLabel(data.taxResidentStatus);
     const employeeTypeCell = `<div class="result-title"><u>${employeeTypeLabel}</u></div>`;
-    const grossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.sections.grossSalary}</div><div class="result-title">${data.grossSalary ? data.grossSalary.toLocaleString('vi-VN') + ' VND' : '-'}</div>`;
-    const adjustedGrossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.sections.adjustedGrossSalary}</div><div class="result-title">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('vi-VN') + ' VND' : '-'}</div>`;
+  const grossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.sections.grossSalary}</div><div class="result-title">${formatCurrency(data.grossSalary)}</div>`;
+  const adjustedGrossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.sections.adjustedGrossSalary}</div><div class="result-title">${formatCurrency(data.adjustedGrossSalary)}</div>`;
 
     const employeeDetailsCell = generateEmployeeDetailsCell(data);
-    const employeeTotalCell = `<div class="result-title">Employee Take-home</div><div class="result-total"><span class="employee-total-value">${data.netSalary.toLocaleString('vi-VN')} VND</span></div>`;
+  const employeeTotalCell = `<div class="result-title">${TEXT_CONFIG.results.sections.takeHomeTotal}</div><div class="result-total"><span class="employee-total-value">${formatCurrency(data.netSalary)}</span></div>`;
 
     // Generate employer cost table rows
     const employerBenefitRow = generateEmployerCostBenefitRow(benefitItem, data.totalBenefit);
     const employerStatutoryRow = generateEmployerCostStatutoryRow(data);
-    const employerAdjustedGrossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.employerCostTable.sections.adjustedGrossSalary}</div><div class="result-title">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('vi-VN') + ' VND' : '-'}</div>`;
-    const employerTotalCell = `<div class="result-title">${TEXT_CONFIG.results.employerCostTable.sections.totalEmployerCost}</div><div class="result-total"><span class="employer-total-value">${data.totalEmployerCost.toLocaleString('vi-VN')} VND</span></div>`;
+  const employerAdjustedGrossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.employerCostTable.sections.adjustedGrossSalary}</div><div class="result-title">${formatCurrency(data.adjustedGrossSalary)}</div>`;
+  const employerTotalCell = `<div class="result-title">${TEXT_CONFIG.results.employerCostTable.sections.totalEmployerCost}</div><div class="result-total"><span class="employer-total-value">${formatCurrency(data.totalEmployerCost)}</span></div>`;
 
     // Render both tables within the same result container
     DOM.resultDiv.innerHTML = html`
@@ -920,10 +927,10 @@ document.addEventListener('DOMContentLoaded', () => {
         <td colspan="2">
           <div class="result-title">${TEXT_CONFIG.results.sections.allowance}</div>
           <div class="result-list">
-            ${allowanceItem.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('vi-VN')} VND</span></div>`).join('')}
+            ${allowanceItem.map(item => `<div class="result-item">${item.label}: <span>${formatCurrency(item.value)}</span></div>`).join('')}
           </div>
           <hr class="result-divider" />
-          <div class="result-total"><span>${totalAllowance.toLocaleString('vi-VN')} VND</span></div>
+          <div class="result-total"><span>${formatCurrency(totalAllowance)}</span></div>
         </td>
       </tr>
     `;
@@ -942,7 +949,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <tr>
         <td colspan="2">
           <div class="result-title">${TEXT_CONFIG.results.sections.bonus}</div>
-          <div class="result-title">${totalBonus.toLocaleString('vi-VN')} VND</div>
+          <div class="result-title">${formatCurrency(totalBonus)}</div>
         </td>
       </tr>
     `;
@@ -962,10 +969,10 @@ document.addEventListener('DOMContentLoaded', () => {
         <td colspan="2">
           <div class="result-title">${TEXT_CONFIG.results.sections.benefit}</div>
           <div class="result-list">
-            ${benefitItem.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('vi-VN')} VND</span></div>`).join('')}
+            ${benefitItem.map(item => `<div class="result-item">${item.label}: <span>${formatCurrency(item.value)}</span></div>`).join('')}
           </div>
           <hr class="result-divider" />
-          <div class="result-total"><span>${totalBenefit ? totalBenefit.toLocaleString('vi-VN') : '0'} VND</span></div>
+          <div class="result-total"><span>${formatCurrency(totalBenefit || 0)}</span></div>
         </td>
       </tr>
     `;
@@ -989,8 +996,8 @@ document.addEventListener('DOMContentLoaded', () => {
     return html`
       <div class="result-title">${TEXT_CONFIG.results.sections.employeeTakeHome}</div>
       <div class="result-list">
-        <div class="result-item">${TEXT_CONFIG.results.costBreakdown.socialInsurance}: <span>-${data.employeeInsurance.toLocaleString('vi-VN')} VND</span></div>
-        <div class="result-item">${TEXT_CONFIG.results.costBreakdown.personalIncomeTax}: <span>-${data.incomeTax.toLocaleString('vi-VN')} VND</span></div>
+  <div class="result-item">${TEXT_CONFIG.results.costBreakdown.socialInsurance}: <span>-${formatCurrency(data.employeeInsurance)}</span></div>
+  <div class="result-item">${TEXT_CONFIG.results.costBreakdown.personalIncomeTax}: <span>-${formatCurrency(data.incomeTax)}</span></div>
       </div>
     `;
   }
@@ -1017,10 +1024,10 @@ document.addEventListener('DOMContentLoaded', () => {
         <td colspan="2">
           <div class="result-title">${TEXT_CONFIG.results.employerCostTable.sections.benefit}</div>
           <div class="result-list">
-            ${benefitItem.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('vi-VN')} VND</span></div>`).join('')}
+            ${benefitItem.map(item => `<div class="result-item">${item.label}: <span>${formatCurrency(item.value)}</span></div>`).join('')}
           </div>
           <hr class="result-divider" />
-          <div class="result-total"><span>${totalBenefit ? totalBenefit.toLocaleString('vi-VN') : '0'} VND</span></div>
+          <div class="result-total"><span>${formatCurrency(totalBenefit || 0)}</span></div>
         </td>
       </tr>
     `;
@@ -1037,8 +1044,8 @@ document.addEventListener('DOMContentLoaded', () => {
         <td colspan="2">
           <div class="result-title">${TEXT_CONFIG.results.employerCostTable.sections.statutoryContribution}</div>
           <div class="result-list">
-            <div class="result-item">${TEXT_CONFIG.results.costBreakdown.socialInsurance}: <span>+${data.employerInsurance.toLocaleString('vi-VN')} VND</span></div>
-            <div class="result-item">${TEXT_CONFIG.results.costBreakdown.unionFee}: <span>+${data.employerTradeUnionFund.toLocaleString('vi-VN')} VND</span></div>
+            <div class="result-item">${TEXT_CONFIG.results.costBreakdown.socialInsurance}: <span>+${formatCurrency(data.employerInsurance)}</span></div>
+            <div class="result-item">${TEXT_CONFIG.results.costBreakdown.unionFee}: <span>+${formatCurrency(data.employerTradeUnionFund)}</span></div>
           </div>
         </td>
       </tr>
@@ -1130,8 +1137,9 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       
       ensureJsPdfAndHtml2Canvas(async () => {
-        const resultTableContainer = document.querySelector('.result-table-container');
-        if (!resultTableContainer) return;
+  // Collect both result tables (Payslip and Employer Cost)
+  const resultTableContainers = Array.from(document.querySelectorAll('.result-table-container'));
+  if (!resultTableContainers.length) return;
         
         // Create export container
         const exportContainer = document.createElement('div');
@@ -1143,22 +1151,43 @@ document.addEventListener('DOMContentLoaded', () => {
           exportContainer.appendChild(logo.cloneNode(true));
         }
         
-        // Add PAYSLIP title
+        // Add main header under logo (use exact case)
+        const headerTitle = document.createElement('h1');
+        try {
+          headerTitle.textContent = (window.TEXT && window.TEXT.index && window.TEXT.index.title
+            ? window.TEXT.index.title
+            : 'Salary Simulation Tool');
+        } catch (_) {
+          headerTitle.textContent = 'Salary Simulation Tool';
+        }
+        headerTitle.className = 'pdf-export-title';
+        exportContainer.appendChild(headerTitle);
+
+        // Add hr below the main header
+        const hr = root.querySelector('hr');
+        if (hr) {
+          exportContainer.appendChild(hr.cloneNode(true));
+        }
+
+        // Add PAYSLIP title below hr, same size as Employer's Cost
         const payslipTitle = document.createElement('h1');
         payslipTitle.textContent = TEXT_CONFIG.payslipTitle;
         payslipTitle.className = 'pdf-export-title';
         exportContainer.appendChild(payslipTitle);
         
-        // Add hr if exists
-        const hr = root.querySelector('hr');
-        if (hr) {
-          exportContainer.appendChild(hr.cloneNode(true));
-        }
-        
-        // Add result table
-        exportContainer.appendChild(resultTableContainer.cloneNode(true));
+        // Add Payslip table (first container)
+        exportContainer.appendChild(resultTableContainers[0].cloneNode(true));
 
-        // Add export footer (Important Note + Disclaimer) with same styling
+        // Add Employer Cost table (second container), with its own title if present
+        if (resultTableContainers[1]) {
+          const employerCostTitle = document.createElement('h1');
+          employerCostTitle.textContent = TEXT_CONFIG.results.employerCostTable.title;
+          employerCostTitle.className = 'pdf-export-title';
+          exportContainer.appendChild(employerCostTitle);
+          exportContainer.appendChild(resultTableContainers[1].cloneNode(true));
+        }
+
+  // Add export footer (Important Note + Disclaimer) with same styling
         const exportFooter = document.createElement('footer');
         exportFooter.className = 'app-footer export-footer';
         const hr1 = document.createElement('hr');
@@ -1180,11 +1209,27 @@ document.addEventListener('DOMContentLoaded', () => {
         disclaimerTitle.className = 'footer-title';
         disclaimerTitle.textContent = TEXT_CONFIG.footer.disclaimerTitle;
         exportFooter.appendChild(disclaimerTitle);
-        const disclaimerText = document.createElement('div');
-        disclaimerText.className = 'footer-text';
-        disclaimerText.textContent = TEXT_CONFIG.footer.disclaimerText;
-        exportFooter.appendChild(disclaimerText);
-        exportContainer.appendChild(exportFooter);
+  const disclaimerText = document.createElement('div');
+  disclaimerText.className = 'footer-text';
+  disclaimerText.textContent = TEXT_CONFIG.footer.disclaimerText;
+  exportFooter.appendChild(disclaimerText);
+
+  // Export ID: plain epoch milliseconds (numbers only)
+  const exportTimestamp = Date.now();
+  const exportId = String(exportTimestamp);
+
+  // Add ID (bottom-left) and version (bottom-right) inside footer on same line
+  const idDiv = document.createElement('div');
+  idDiv.className = 'export-id';
+  idDiv.textContent = `ID: ${exportId}`;
+  exportFooter.appendChild(idDiv);
+
+  // Add version label inside the export footer so it appears below disclaimer text
+  const versionDiv = document.createElement('div');
+  versionDiv.className = 'version-display';
+  versionDiv.textContent = (TEXT && TEXT.version) || (TEXT_CONFIG && TEXT_CONFIG.version) || '';
+  exportFooter.appendChild(versionDiv);
+  exportContainer.appendChild(exportFooter);
         
         // Ensure export container is attached to DOM for html2canvas
         document.body.appendChild(exportContainer);
@@ -1211,5 +1256,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Setup download button functionality
+  // Create and display version information in bottom right corner (page)
+  function createVersionDisplay() {
+    if (document.querySelector('.version-display')) return;
+    const versionDiv = document.createElement('div');
+    versionDiv.className = 'version-display';
+  versionDiv.textContent = (TEXT && TEXT.version) || (TEXT_CONFIG && TEXT_CONFIG.version) || '';
+    document.body.appendChild(versionDiv);
+  }
+
   setupDownloadButton();
+  createVersionDisplay();
 });

@@ -38,6 +38,12 @@ function createAndAppend(parent, tag, props = {}, innerHTML = '') {
 const html = (strings, ...values) =>
   strings.reduce((acc, str, i) => acc + str + (values[i] || ''), '');
 
+// Currency format helper using language config
+function formatCurrency(val) {
+  const unit = TEXT.employerNetToGross.currencyUnit || 'VND';
+  return val || val === 0 ? `${Number(val).toLocaleString('vi-VN')} ${unit}` : '-';
+}
+
 /**
  * Export the result container to PDF
  */
@@ -826,17 +832,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Generate content sections
     const employeeTypeLabel = getEmployeeTypeLabel(data.taxResidentStatus);
     const employeeTypeCell = `<div class="result-title"><u>${employeeTypeLabel}</u></div>`;
-    const grossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.sections.grossSalary}</div><div class="result-title">${data.grossSalary ? data.grossSalary.toLocaleString('vi-VN') + ' VND' : '-'}</div>`;
-    const adjustedGrossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.sections.adjustedGrossSalary}</div><div class="result-title">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('vi-VN') + ' VND' : '-'}</div>`;
+  const grossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.sections.grossSalary}</div><div class="result-title">${formatCurrency(data.grossSalary)}</div>`;
+  const adjustedGrossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.sections.adjustedGrossSalary}</div><div class="result-title">${formatCurrency(data.adjustedGrossSalary)}</div>`;
 
     const employeeDetailsCell = generateEmployeeDetailsCell(data);
-    const employeeTotalCell = `<div class="result-title">Employee Take-home</div><div class="result-total"><span class="employee-total-value">${data.netSalary.toLocaleString('vi-VN')} VND</span></div>`;
+  const employeeTotalCell = `<div class="result-title">${TEXT_CONFIG.results.sections.takeHomeTotal}</div><div class="result-total"><span class="employee-total-value">${formatCurrency(data.netSalary)}</span></div>`;
 
     // Generate employer cost table rows
     const employerBenefitRow = generateEmployerCostBenefitRow(benefitItem, data.totalBenefit);
     const employerStatutoryRow = generateEmployerCostStatutoryRow(data);
-    const employerAdjustedGrossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.employerCostTable.sections.adjustedGrossSalary}</div><div class="result-title">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('vi-VN') + ' VND' : '-'}</div>`;
-    const employerTotalCell = `<div class="result-title">${TEXT_CONFIG.results.employerCostTable.sections.totalEmployerCost}</div><div class="result-total"><span class="employer-total-value">${data.totalEmployerCost.toLocaleString('vi-VN')} VND</span></div>`;
+  const employerAdjustedGrossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.employerCostTable.sections.adjustedGrossSalary}</div><div class="result-title">${formatCurrency(data.adjustedGrossSalary)}</div>`;
+  const employerTotalCell = `<div class="result-title">${TEXT_CONFIG.results.employerCostTable.sections.totalEmployerCost}</div><div class="result-total"><span class="employer-total-value">${formatCurrency(data.totalEmployerCost)}</span></div>`;
 
     // Render both tables within the same result container
     DOM.resultDiv.innerHTML = html`
@@ -884,10 +890,10 @@ document.addEventListener('DOMContentLoaded', () => {
         <td colspan="2">
           <div class="result-title">${TEXT_CONFIG.results.sections.allowance}</div>
           <div class="result-list">
-            ${allowanceItem.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('vi-VN')} VND</span></div>`).join('')}
+            ${allowanceItem.map(item => `<div class="result-item">${item.label}: <span>${formatCurrency(item.value)}</span></div>`).join('')}
           </div>
           <hr class="result-divider" />
-          <div class="result-total"><span>${totalAllowance.toLocaleString('vi-VN')} VND</span></div>
+          <div class="result-total"><span>${formatCurrency(totalAllowance)}</span></div>
         </td>
       </tr>
     `;
@@ -906,7 +912,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <tr>
         <td colspan="2">
           <div class="result-title">${TEXT_CONFIG.results.sections.bonus}</div>
-          <div class="result-title">${totalBonus.toLocaleString('vi-VN')} VND</div>
+          <div class="result-title">${formatCurrency(totalBonus)}</div>
         </td>
       </tr>
     `;
@@ -926,10 +932,10 @@ document.addEventListener('DOMContentLoaded', () => {
         <td colspan="2">
           <div class="result-title">${TEXT_CONFIG.results.sections.benefit}</div>
           <div class="result-list">
-            ${benefitItem.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('vi-VN')} VND</span></div>`).join('')}
+            ${benefitItem.map(item => `<div class="result-item">${item.label}: <span>${formatCurrency(item.value)}</span></div>`).join('')}
           </div>
           <hr class="result-divider" />
-          <div class="result-total"><span>${totalBenefit ? totalBenefit.toLocaleString('vi-VN') : '0'} VND</span></div>
+          <div class="result-total"><span>${formatCurrency(totalBenefit || 0)}</span></div>
         </td>
       </tr>
     `;
@@ -953,8 +959,8 @@ document.addEventListener('DOMContentLoaded', () => {
     return html`
       <div class="result-title">${TEXT_CONFIG.results.sections.employeeTakeHome}</div>
       <div class="result-list">
-        <div class="result-item">${TEXT_CONFIG.results.costBreakdown.socialInsurance}: <span>-${data.employeeInsurance.toLocaleString('vi-VN')} VND</span></div>
-        <div class="result-item">${TEXT_CONFIG.results.costBreakdown.personalIncomeTax}: <span>-${data.incomeTax.toLocaleString('vi-VN')} VND</span></div>
+  <div class="result-item">${TEXT_CONFIG.results.costBreakdown.socialInsurance}: <span>-${formatCurrency(data.employeeInsurance)}</span></div>
+  <div class="result-item">${TEXT_CONFIG.results.costBreakdown.personalIncomeTax}: <span>-${formatCurrency(data.incomeTax)}</span></div>
       </div>
     `;
   }
@@ -981,10 +987,10 @@ document.addEventListener('DOMContentLoaded', () => {
         <td colspan="2">
           <div class="result-title">${TEXT_CONFIG.results.employerCostTable.sections.benefit}</div>
           <div class="result-list">
-            ${benefitItem.map(item => `<div class="result-item">${item.label}: <span>${item.value.toLocaleString('vi-VN')} VND</span></div>`).join('')}
+            ${benefitItem.map(item => `<div class="result-item">${item.label}: <span>${formatCurrency(item.value)}</span></div>`).join('')}
           </div>
           <hr class="result-divider" />
-          <div class="result-total"><span>${totalBenefit ? totalBenefit.toLocaleString('vi-VN') : '0'} VND</span></div>
+          <div class="result-total"><span>${formatCurrency(totalBenefit || 0)}</span></div>
         </td>
       </tr>
     `;
@@ -1001,8 +1007,8 @@ document.addEventListener('DOMContentLoaded', () => {
         <td colspan="2">
           <div class="result-title">${TEXT_CONFIG.results.employerCostTable.sections.statutoryContribution}</div>
           <div class="result-list">
-            <div class="result-item">${TEXT_CONFIG.results.costBreakdown.socialInsurance}: <span>+${data.employerInsurance.toLocaleString('vi-VN')} VND</span></div>
-            <div class="result-item">${TEXT_CONFIG.results.costBreakdown.unionFee}: <span>+${data.employerTradeUnionFund.toLocaleString('vi-VN')} VND</span></div>
+            <div class="result-item">${TEXT_CONFIG.results.costBreakdown.socialInsurance}: <span>+${formatCurrency(data.employerInsurance)}</span></div>
+            <div class="result-item">${TEXT_CONFIG.results.costBreakdown.unionFee}: <span>+${formatCurrency(data.employerTradeUnionFund)}</span></div>
           </div>
         </td>
       </tr>
@@ -1148,7 +1154,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function createVersionDisplay() {
     const versionDiv = document.createElement('div');
     versionDiv.className = 'version-display';
-    versionDiv.textContent = TEXT_CONFIG.version;
+  versionDiv.textContent = (TEXT && TEXT.version) || (TEXT_CONFIG && TEXT_CONFIG.version) || '';
     document.body.appendChild(versionDiv);
   }
 

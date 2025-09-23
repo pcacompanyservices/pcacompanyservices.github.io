@@ -11,13 +11,12 @@ body.export-mode .export-a4 {
   width: 794px;
   min-height: 1123px;
   margin: 0 auto !important;
-  padding: 0; /* margins handled by PDF coordinates */
+  padding: 20px 0 110px 0; /* set top padding (~same as logo top gap) and keep bottom safe area */
   box-sizing: border-box;
   background: #ffffff !important;
   color: #000;
   border: none;
   position: relative; /* allow absolute positioning of footer */
-  padding-bottom: 130px; /* reserve space so footer won't overlap content */
 }
 
 /* Preserve original typography; do not override font sizes to keep component scale unchanged */
@@ -37,13 +36,14 @@ body.export-mode .export-a4 .result-table {
 body.export-mode .export-a4 hr {
   width: 95% !important;
   max-width: none !important;
-  margin: 0.5rem auto 1rem auto !important;
+  margin: 0.5rem auto 0.35rem auto !important; /* tighter space below HR before PAYSLIP */
 }
 
 /* Make the HR inside the export footer the same length as the top HR
    (avoid 95% of 95% by setting it to 100% of the footer width). */
 body.export-mode .export-a4 .app-footer.export-footer hr {
   width: 100% !important;
+  margin: 0.375rem auto 0.75rem auto !important; /* footer keeps a bit more space */
 }
 
 /* Footer fixed to bottom of page in export */
@@ -51,9 +51,10 @@ body.export-mode .export-a4 .app-footer.export-footer {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 12px; /* keep near bottom */
+  bottom: 0; /* align with bottom margin */
   margin: 0 auto;
   width: 95%; /* match hr width */
+  padding-bottom: 30px; /* extra space so version label doesn't overlap text */
 }
 
 body.export-mode .export-a4 .app-footer.export-footer .footer-title {
@@ -64,6 +65,9 @@ body.export-mode .export-a4 .app-footer.export-footer .footer-text {
   width: 100%;
   text-align: justify; /* justify text to match hr width visually */
 }
+
+/* Keep text away from the version label area on the right */
+/* Vertical spacing in footer prevents overlap with version/ID line. */
 
 /* Remove link styling if any anchor slips in */
 body.export-mode .export-a4 .app-footer.export-footer a {
@@ -80,6 +84,29 @@ body.export-mode .export-a4 .pie-chart-container {
 body.export-mode .export-a4 canvas {
   max-width: 320px !important;
   max-height: 320px !important;
+}
+
+/* Reduce the gap between the HR under the main header and the PAYSLIP title */
+body.export-mode .export-a4 .pdf-export-title {
+  margin-top: 0.15rem !important;
+}
+
+/* Version label in export: pin to bottom-right of the export page */
+/* When the version label is placed inside the export footer, pin it to the footer's bottom-right */
+body.export-mode .export-a4 .app-footer.export-footer .version-display {
+  position: absolute !important;
+  bottom: 4px !important;
+  right: -6px !important; /* nudge slightly beyond footer text to the right */
+  z-index: 1001 !important;
+}
+
+/* Export ID on the same line (bottom-left), aligned with footer text */
+body.export-mode .export-a4 .app-footer.export-footer .export-id {
+  position: absolute !important;
+  bottom: 4px !important;
+  left: 0 !important; /* align with the left edge of footer text */
+  z-index: 1001 !important;
+  font-size: 0.75rem !important;
 }
 
 /* Hide any non-result UI just in case */
