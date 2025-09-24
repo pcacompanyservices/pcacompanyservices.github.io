@@ -94,7 +94,7 @@ function formatCurrency(val) {
 function createProgressBar(root) {
   const progressBar = createAndAppend(root, 'div', { id: 'progress-bar' });
   progressBar.innerHTML = html`
-    <div class="progress-step" data-step="0">${TEXT.employeeNetToGross.progressSteps.citizenship}</div>
+  <div class="progress-step" data-step="0">${TEXT.employeeNetToGross.progressSteps.taxResidentStatus}</div>
     <div class="progress-bar-line"></div>
     <div class="progress-step" data-step="1">${TEXT.employeeNetToGross.progressSteps.netSalary}</div>
     <div class="progress-bar-line"></div>
@@ -125,16 +125,16 @@ function createStep1() {
   step1.id = 'step-1';
   step1.innerHTML = html`
     <div class="step-title-row">
-      <h2>${TEXT.employeeNetToGross.steps.citizenship.title}</h2>
+  <h2>${TEXT.employeeNetToGross.steps.taxResidentStatus.title}</h2>
       <span class="question-icon" tabindex="0">
         <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">${TEXT.employeeNetToGross.steps.citizenship.tooltip}</span>
+  <span class="info-box">${TEXT.employeeNetToGross.steps.taxResidentStatus.tooltip}</span>
       </span>
     </div>
   <select id="tax-resident-status">
-      <option value="" disabled selected>${TEXT.employeeNetToGross.steps.citizenship.selectPlaceholder}</option>
-      <option value="local">${TEXT.employeeNetToGross.steps.citizenship.options.local}</option>
-      <option value="expat">${TEXT.employeeNetToGross.steps.citizenship.options.expat}</option>
+  <option value="" disabled selected>${TEXT.employeeNetToGross.steps.taxResidentStatus.selectPlaceholder}</option>
+  <option value="local">${TEXT.employeeNetToGross.steps.taxResidentStatus.options.local}</option>
+  <option value="expat">${TEXT.employeeNetToGross.steps.taxResidentStatus.options.expat}</option>
     </select>
   `;
   return step1;
@@ -637,7 +637,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     // Employee type box (local/expat)
   let employeeTypeLabel = '';
-  const status = data.taxResidentStatus || data.citizenship;
+  const status = data.taxResidentStatus;
   if (status === 'local') {
       employeeTypeLabel = TEXT.employeeNetToGross.results.employeeTypes.local;
   } else if (status === 'expat') {

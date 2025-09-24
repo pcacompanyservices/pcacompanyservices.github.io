@@ -43,7 +43,7 @@ function createSalaryForm(root) {
 function createProgressBar(root) {
   const progressBar = createAndAppend(root, 'div', { id: 'progress-bar' });
   progressBar.innerHTML = html`
-    <div class="progress-step" data-step="0">${TEXT.employeeGrossToNet.progressSteps.citizenship}</div>
+  <div class="progress-step" data-step="0">${TEXT.employeeGrossToNet.progressSteps.taxResidentStatus}</div>
       <div class="progress-bar-line"></div>
     <div class="progress-step" data-step="1">${TEXT.employeeGrossToNet.progressSteps.grossSalary}</div>
       <div class="progress-bar-line"></div>
@@ -62,16 +62,16 @@ function createStep1() {
   step1.id = 'step-1';
   step1.innerHTML = html`
     <div class="step-title-row">
-      <h2>${TEXT.employeeGrossToNet.steps.citizenship.title}</h2>
+  <h2>${TEXT.employeeGrossToNet.steps.taxResidentStatus.title}</h2>
       <span class="question-icon" tabindex="0">
         <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">${TEXT.employeeGrossToNet.steps.citizenship.tooltip}</span>
+  <span class="info-box">${TEXT.employeeGrossToNet.steps.taxResidentStatus.tooltip}</span>
       </span>
     </div>
-    <select id="citizenship">
-      <option value="" disabled selected>${TEXT.employeeGrossToNet.steps.citizenship.selectPlaceholder}</option>
-      <option value="local">${TEXT.employeeGrossToNet.steps.citizenship.options.local}</option>
-      <option value="expat">${TEXT.employeeGrossToNet.steps.citizenship.options.expat}</option>
+    <select id="tax-resident-status">
+      <option value="" disabled selected>${TEXT.employeeGrossToNet.steps.taxResidentStatus.selectPlaceholder}</option>
+      <option value="local">${TEXT.employeeGrossToNet.steps.taxResidentStatus.options.local}</option>
+      <option value="expat">${TEXT.employeeGrossToNet.steps.taxResidentStatus.options.expat}</option>
     </select>
   `;
   return step1;
@@ -390,11 +390,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateContinueButtonState(idx) {
     if (!continueBtn) return;
     let isValid = false;
-    const citizenshipSelect = document.getElementById('citizenship');
+    const taxResidentStatusSelect = document.getElementById('tax-resident-status');
     const grossSalaryInput = document.getElementById('gross-salary');
     switch (idx) {
       case 0:
-        isValid = !!(citizenshipSelect && citizenshipSelect.value);
+        isValid = !!(taxResidentStatusSelect && taxResidentStatusSelect.value);
         break;
       case 1:
         if (grossSalaryInput) {
@@ -447,8 +447,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Input listeners for validation
-  const citizenshipSelect = getElement('citizenship');
-  citizenshipSelect && citizenshipSelect.addEventListener('change', () => updateContinueButtonState(currentStep));
+  const taxResidentStatusSelect = getElement('tax-resident-status');
+  taxResidentStatusSelect && taxResidentStatusSelect.addEventListener('change', () => updateContinueButtonState(currentStep));
   const grossSalaryInput = getElement('gross-salary');
   grossSalaryInput && grossSalaryInput.addEventListener('input', () => updateContinueButtonState(currentStep));
 
@@ -537,7 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const params = {
       method: 'gross-to-net',
       grossSalary: parseNumber(getVal('gross-salary')),
-      taxResidentStatus: getVal('citizenship') || 'local',
+  taxResidentStatus: getVal('tax-resident-status') || 'local',
       
       // Allowance inputs
       lunchAllowance: parseNumber(getVal('allowance-lunch')),
@@ -621,9 +621,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     // Employee type box (local/expat)
     let employeeTypeLabel = '';
-    if (data.citizenship === 'local') {
+  if (data.taxResidentStatus === 'local') {
       employeeTypeLabel = TEXT.employeeGrossToNet.results.employeeTypes.local;
-    } else if (data.citizenship === 'expat') {
+  } else if (data.taxResidentStatus === 'expat') {
       employeeTypeLabel = TEXT.employeeGrossToNet.results.employeeTypes.expat;
     } else {
       employeeTypeLabel = TEXT.employeeGrossToNet.results.employeeTypes.default;
