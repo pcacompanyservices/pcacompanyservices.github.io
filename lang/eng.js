@@ -2,14 +2,17 @@
 // Note: Wording is preserved per page to avoid behavior/style changes.
 
 // Shared footer for all calculators (canonical content based on Employer pages)
+const html = (strings, ...values) =>
+  strings.reduce((acc, str, i) => acc + str + (values[i] ?? ''), '');
+
 const SHARED_CALC_FOOTER = {
   importantNoteTitle: 'IMPORTANT NOTE',
   importantNoteText:
     'This simulation assumes a standard labor contract with a duration exceeding three months, ' +
-    'for a Vietnamese tax resident, applied in Region I (Zone I). It does not account for any ' +
+  'for a Vietnamese Tax Resident, applied in Region I (Zone I). It does not account for any ' +
     'registered dependent deductions. For further information, please',
   contactLinkText: 'contact us',
-  contactUrl: 'https://pca-cs.com/',
+  contactUrl: 'https://pca-cs.com/contact/',
   disclaimerTitle: 'DISCLAIMER',
   disclaimerText:
     'The information provided in this simulation is for general informational purposes only. ' +
@@ -19,6 +22,17 @@ const SHARED_CALC_FOOTER = {
     'We are not liable for any loss or damage, including but not limited to loss of business or profits, ' +
     'arising from the use of this simulation or reliance on its contents, whether in contract, tort, or otherwise.'
 };
+
+// Shared, HTML-formatted tooltip for Tax Resident Status (preserves bullet/paragraph formatting)
+const TAX_RESIDENT_STATUS_TOOLTIP_HTML = html`
+  <p>You are a Vietnamese Tax Resident if you meet any of the following criteria:</p>
+  <ul>
+    <li>Residing in Vietnam for 183 days or more in either (i) the calendar year, or (ii) the period of 12 consecutive months from the date of arrival.</li>
+    <li>Having a permanent residence in Vietnam (including (i) a registered residence recorded on the permanent/temporary residence card, or (ii) a rented house in Vietnam with a lease term of 183 days or more in a tax year in the case of foreigners), and unable to prove Tax Residence in another country.</li>
+  </ul>
+  <p>Individuals not meeting these conditions are considered <strong>Tax Non-Residents</strong> in Vietnam and are outside the scope of this simulation.</p>
+  <p>If you are a Vietnamese Tax Resident, choose your status based on nationality: &lsquo;Local&rsquo; for Vietnamese citizens, &lsquo;Expat&rsquo; for non‑Vietnamese citizens.</p>
+`;
 
 export const TEXT = {
   // Centralized version string for all pages
@@ -61,9 +75,9 @@ export const TEXT = {
     steps: {
       citizenship: {
         title: 'Tax Resident Status',
-        tooltip: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.',
-        selectPlaceholder: 'Select your citizenship',
-        options: { local: 'Local', expat: 'Expat' },
+  tooltip: TAX_RESIDENT_STATUS_TOOLTIP_HTML,
+  selectPlaceholder: 'Select your tax resident status',
+  options: { local: 'Local – Tax resident', expat: 'Expat – Tax resident' },
         continue: 'Continue'
       },
       grossSalary: {
@@ -181,10 +195,10 @@ export const TEXT = {
     steps: {
       citizenship: {
         title: 'Tax Resident Status',
-        tooltip: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.',
-        selectPlaceholder: 'Select your citizenship',
-        options: { local: 'Local', expat: 'Expat' },
-        continue: 'Continue'
+  tooltip: TAX_RESIDENT_STATUS_TOOLTIP_HTML,
+  selectPlaceholder: 'Select your tax resident status',
+  options: { local: 'Local – Tax resident', expat: 'Expat – Tax resident' },
+          continue: 'Continue'
       },
       netSalary: {
         title: 'Net Base Salary',
@@ -290,7 +304,7 @@ export const TEXT = {
     payslipTitle: 'PAYSLIP',
     progressSteps: { taxResidentStatus: 'Status', grossSalary: 'Base Salary', allowance: 'Allowance', bonus: 'Bonus', benefit: 'Benefit' },
     steps: {
-      taxResidentStatus: { title: 'Tax Resident Status', selectPlaceholder: 'Select your tax resident status', options: { local: 'Local – Tax resident', expat: 'Expat – Tax resident' } },
+  taxResidentStatus: { title: 'Tax Resident Status', selectPlaceholder: 'Select your tax resident status', options: { local: 'Local – Tax resident', expat: 'Expat – Tax resident' } },
       grossSalary: { title: 'Gross Base Salary', placeholder: 'Min 5.000.000 VND' },
       allowance: {
         title: 'Allowance',
@@ -321,7 +335,7 @@ export const TEXT = {
       }
     },
     infoTooltips: {
-      taxResidentStatus: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.',
+  taxResidentStatus: TAX_RESIDENT_STATUS_TOOLTIP_HTML,
       grossSalary: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.',
       allowance: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.',
       bonus: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.',
@@ -345,7 +359,7 @@ export const TEXT = {
     payslipTitle: 'PAYSLIP',
     progressSteps: { taxResidentStatus: 'Status', netSalary: 'Base Salary', allowance: 'Allowance', bonus: 'Bonus', benefit: 'Benefit' },
     steps: {
-      taxResidentStatus: { title: 'Tax Resident Status', selectPlaceholder: 'Select your tax resident status', options: { local: 'Local – Tax resident', expat: 'Expat – Tax resident' } },
+  taxResidentStatus: { title: 'Tax Resident Status', selectPlaceholder: 'Select your tax resident status', options: { local: 'Local – Tax resident', expat: 'Expat – Tax resident' } },
       netSalary: { title: 'Net Base Salary', placeholder: 'Min 4.475.000 VND' },
       allowance: {
         title: 'Allowance',
@@ -376,7 +390,7 @@ export const TEXT = {
       }
     },
     infoTooltips: {
-      taxResidentStatus: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.',
+  taxResidentStatus: TAX_RESIDENT_STATUS_TOOLTIP_HTML,
       netSalary: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.',
       allowance: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.',
       bonus: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae.',
