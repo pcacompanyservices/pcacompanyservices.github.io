@@ -519,23 +519,10 @@ button:hover,
   font-size: 1.125rem; /* align with employer text size */
 }
 
-.result-center-value {
-  text-align: center;
-  font-weight: 600;
-  color: #666;
-  padding: 0.35rem; /* reduce inner gap */
-}
-
-/* Tighter spacing for employee summary rows (title + center-value pairs) */
-/* When both label and value now use result-title, keep tight spacing */
-.employee-table-layout td > .result-title + .result-title,
-.employee-table-layout td > .result-title + .result-center-value {
+/* All employee value cells now use .result-title; remove deprecated center-value styles */
+/* Tight spacing when two consecutive .result-title elements occur in a cell */
+.employee-table-layout td > .result-title + .result-title {
   padding: 0.05rem 0 !important;
-}
-
-.result-center-value-muted {
-  font-size: 1em;
-  color: #888;
 }
 
 .result-box {

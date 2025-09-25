@@ -73,7 +73,6 @@ body.export-mode .export-a4 .result-table td .employee-type-label {
 
 /* Tighter spacing for result titles and center values */
 body.export-mode .export-a4 .result-title { margin-bottom: 2px !important; }
-body.export-mode .export-a4 .result-center-value { padding: 1px 0 !important; }
 
 /* Compact list items inside result lists */
 body.export-mode .export-a4 .result-list .result-item { margin: 0 0 1px 0 !important; }
@@ -86,7 +85,6 @@ body.export-mode .export-a4 h1 {
 
 body.export-mode .export-a4 .result-title,
 body.export-mode .export-a4 .result-total,
-body.export-mode .export-a4 .result-center-value,
 body.export-mode .export-a4 .result-list .result-item,
 body.export-mode .export-a4 .result-table td,
 body.export-mode .export-a4 .result-table th {
