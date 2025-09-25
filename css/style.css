@@ -15,6 +15,7 @@ body {
 
 h1, h2 {
   text-align: center;
+  font-weight: bold !important;
 }
 
 hr {
@@ -477,7 +478,7 @@ button:hover,
 }
 
 .result-table-title {
-  font-size: 1.5rem !important;
+  font-size: 1.4rem;
   color: #3c4043 !important;
   margin: 1rem 0 1rem 0 !important;
   text-align: center !important;
@@ -526,8 +527,10 @@ button:hover,
 }
 
 /* Tighter spacing for employee summary rows (title + center-value pairs) */
+/* When both label and value now use result-title, keep tight spacing */
+.employee-table-layout td > .result-title + .result-title,
 .employee-table-layout td > .result-title + .result-center-value {
-  padding: 0.05rem 0 !important; /* eliminate extra inner gap only for employee key rows */
+  padding: 0.05rem 0 !important;
 }
 
 .result-center-value-muted {

@@ -616,7 +616,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (allowanceItems.length === 0 && bonusItems.length === 0) {
       noAllowanceBonusRow = `
-        <tr><td colspan="2"><div class="result-center-value" style="font-size:1em; color:#888;">${TEXT.employeeGrossToNet.results.allowanceOrBonusNone}</div></td></tr>
+  <tr><td colspan="2"><div class="result-title" style="font-size:1em; color:#000;">${TEXT.employeeGrossToNet.results.allowanceOrBonusNone}</div></td></tr>
       `;
     }
     // Employee type box (local/expat)
@@ -628,17 +628,17 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       employeeTypeLabel = TEXT.employeeGrossToNet.results.employeeTypes.default;
     }
-    const employeeTypeCell = html`<div class="result-title"><u>${employeeTypeLabel}</u></div>`;
+  const employeeTypeCell = html`<div class="result-title">${employeeTypeLabel}</div>`;
     // Gross Salary box
     const grossSalaryCell = html`
   <div class="result-title" style="margin-bottom:0;">${TEXT.employeeGrossToNet.results.sections.grossSalary}</div>
-  <div class="result-center-value" style="padding:0.05rem 0;">${data.grossSalary ? data.grossSalary.toLocaleString('vi-VN') + ' ' + TEXT.employeeGrossToNet.currencyUnit : '-'}</div>
+  <div class="result-title" style="padding:0.05rem 0;">${data.grossSalary ? data.grossSalary.toLocaleString('vi-VN') + ' ' + TEXT.employeeGrossToNet.currencyUnit : '-'}</div>
     `;
     // Adjusted Gross Salary box with Total Employer Cost
     const adjustedGrossSalaryCell = html`
       <div class="result-title" style="margin-bottom:0;">${TEXT.employeeGrossToNet.results.sections.adjustedGrossSalary}</div>
-      <div class="result-center-value" style="padding:0.05rem 0;">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('vi-VN') + ' ' + TEXT.employeeGrossToNet.currencyUnit : '-'}</div>
-      <div style="text-align:center;margin-top:4px;font-size:0.85em;">
+  <div class="result-title" style="padding:0.05rem 0;">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('vi-VN') + ' ' + TEXT.employeeGrossToNet.currencyUnit : '-'}</div>
+  <div style="text-align:center;margin-top:2px;font-size:0.85em;">
         (${TEXT.employeeGrossToNet.results.totalEmployerCostLabel}: <span style="color:#C1272D;">${data.totalEmployerCost ? data.totalEmployerCost.toLocaleString('vi-VN') + ' ' + TEXT.employeeGrossToNet.currencyUnit : '-'}</span>)
       </div>
     `;
@@ -654,13 +654,13 @@ document.addEventListener('DOMContentLoaded', () => {
         ${insuranceItems.map(item => `<div class="result-item">${item.label}: <span>-${item.value.toLocaleString('vi-VN')} ${TEXT.employeeGrossToNet.currencyUnit}</span></div>`).join('')}
       </div>
       <hr class="result-divider-insurance" />
-      <div class="result-center-value"><span>-${data.employeeInsurance.toLocaleString('vi-VN')} ${TEXT.employeeGrossToNet.currencyUnit}</span></div>
+  <div class="result-title"><span>-${data.employeeInsurance.toLocaleString('vi-VN')} ${TEXT.employeeGrossToNet.currencyUnit}</span></div>
     `;
     // Personal Income Tax cell
     const personalIncomeTaxCell = html`
       <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:100%;min-height:80px;">
         <div class="result-title" style="text-align:center;">${TEXT.employeeGrossToNet.results.sections.personalIncomeTax}</div>
-        <div class="result-center-value" style="text-align:center;">
+  <div class="result-title" style="text-align:center;">
           <span>-${data.incomeTax.toLocaleString('vi-VN')} ${TEXT.employeeGrossToNet.currencyUnit}</span>
         </div>
       </div>
@@ -670,7 +670,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <tr>
         <td colspan="2">
       <div class="result-title" style="margin-bottom:0;">${TEXT.employeeGrossToNet.results.sections.statutoryContribution}</div>
-      <div class="result-center-value" style="color:#C1272D;padding:0.05rem 0;">-${data.employeeContribution.toLocaleString('vi-VN')} ${TEXT.employeeGrossToNet.currencyUnit}</div>
+  <div class="result-title" style="color:#C1272D;padding:0.05rem 0;">-${data.employeeContribution.toLocaleString('vi-VN')} ${TEXT.employeeGrossToNet.currencyUnit}</div>
         </td>
       </tr>
     `;
@@ -679,7 +679,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <tr>
         <td colspan="2">
       <div class="result-title" style="margin-bottom:0;">${TEXT.employeeGrossToNet.results.sections.takeHomeSalary}</div>
-      <div class="result-center-value" style="color:#1a7f3c;padding:0.05rem 0;">${data.netSalary.toLocaleString('vi-VN')} ${TEXT.employeeGrossToNet.currencyUnit}</div>
+  <div class="result-title" style="color:#1a7f3c;padding:0.05rem 0;">${data.netSalary.toLocaleString('vi-VN')} ${TEXT.employeeGrossToNet.currencyUnit}</div>
         </td>
       </tr>
     `;

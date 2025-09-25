@@ -11,7 +11,7 @@ body.export-mode .export-a4 {
   width: 794px;
   min-height: 1123px;
   margin: 0 auto !important;
-  padding: 20px 0 110px 0; /* set top padding (~same as logo top gap) and keep bottom safe area */
+  padding: 6px 0 6px 0; /* tighter top/bottom padding */
   box-sizing: border-box;
   background: #ffffff !important;
   color: #000;
@@ -36,14 +36,14 @@ body.export-mode .export-a4 .result-table {
 body.export-mode .export-a4 hr {
   width: 95% !important;
   max-width: none !important;
-  margin: 0.5rem auto 0.35rem auto !important; /* tighter space below HR before PAYSLIP */
+  margin: 0.22rem auto 0.12rem auto !important; /* further tightened */
 }
 
 /* Make the HR inside the export footer the same length as the top HR
    (avoid 95% of 95% by setting it to 100% of the footer width). */
 body.export-mode .export-a4 .app-footer.export-footer hr {
   width: 100% !important;
-  margin: 0.375rem auto 0.75rem auto !important; /* footer keeps a bit more space */
+  margin: 0.2rem auto 0.28rem auto !important; /* slightly more compact */
 }
 
 /* Footer fixed to bottom of page in export */
@@ -54,8 +54,45 @@ body.export-mode .export-a4 .app-footer.export-footer {
   bottom: 0; /* align with bottom margin */
   margin: 0 auto;
   width: 95%; /* match hr width */
-  padding-bottom: 30px; /* extra space so version label doesn't overlap text */
+  padding-bottom: 26px; /* slight increase for clearer separation below text */
 }
+
+/* Compress table cell vertical space */
+body.export-mode .export-a4 .result-table td,
+body.export-mode .export-a4 .result-table th {
+  padding: 1px 6px !important;
+  line-height: 1.12 !important;
+}
+
+/* Remove underline from employee type labels in export */
+body.export-mode .export-a4 .result-table td a,
+body.export-mode .export-a4 .result-table td span.employee-type-label,
+body.export-mode .export-a4 .result-table td .employee-type-label {
+  text-decoration: none !important;
+}
+
+/* Tighter spacing for result titles and center values */
+body.export-mode .export-a4 .result-title { margin-bottom: 2px !important; }
+body.export-mode .export-a4 .result-center-value { padding: 1px 0 !important; }
+
+/* Compact list items inside result lists */
+body.export-mode .export-a4 .result-list .result-item { margin: 0 0 1px 0 !important; }
+
+/* ================= Pixel-Fixed Typography for Export ================= */
+body.export-mode .export-a4 h1 {
+  font-size: 20px !important;
+}
+
+
+body.export-mode .export-a4 .result-title,
+body.export-mode .export-a4 .result-total,
+body.export-mode .export-a4 .result-center-value,
+body.export-mode .export-a4 .result-list .result-item,
+body.export-mode .export-a4 .result-table td,
+body.export-mode .export-a4 .result-table th {
+  font-size: 18px !important; 
+}
+
 
 body.export-mode .export-a4 .app-footer.export-footer .footer-title {
   width: 100%;
@@ -76,11 +113,6 @@ body.export-mode .export-a4 .app-footer.export-footer a {
   pointer-events: none;
 }
 
-body.export-mode .export-a4 .pie-chart-container {
-  max-width: 100% !important;
-  gap: 24px !important;
-}
-
 body.export-mode .export-a4 canvas {
   max-width: 320px !important;
   max-height: 320px !important;
@@ -95,18 +127,24 @@ body.export-mode .export-a4 .pdf-export-title {
 /* When the version label is placed inside the export footer, pin it to the footer's bottom-right */
 body.export-mode .export-a4 .app-footer.export-footer .version-display {
   position: absolute !important;
-  bottom: 4px !important;
-  right: -6px !important; /* nudge slightly beyond footer text to the right */
+  bottom: 0px !important; /* moved further downward */
+  right: -6px !important; /* nudge to visually align with justified edge */
   z-index: 1001 !important;
+  font-weight: 700 !important;
+  color: #222 !important;
+  white-space: nowrap !important; /* keep on one line */
 }
 
 /* Export ID on the same line (bottom-left), aligned with footer text */
 body.export-mode .export-a4 .app-footer.export-footer .export-id {
   position: absolute !important;
-  bottom: 4px !important;
+  bottom: 0px !important; /* moved further downward */
   left: 0 !important; /* align with the left edge of footer text */
   z-index: 1001 !important;
   font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  color: #222 !important;
+  white-space: nowrap !important; /* keep on one line */
 }
 
 /* Hide any non-result UI just in case */

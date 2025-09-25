@@ -901,7 +901,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Generate content sections
     const employeeTypeLabel = getEmployeeTypeLabel(data.taxResidentStatus);
-    const employeeTypeCell = `<div class="result-title"><u>${employeeTypeLabel}</u></div>`;
+  const employeeTypeCell = `<div class="result-title">${employeeTypeLabel}</div>`;
   const grossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.sections.grossSalary}</div><div class="result-title">${formatCurrency(data.grossSalary)}</div>`;
   const adjustedGrossSalaryCell = `<div class="result-title">${TEXT_CONFIG.results.sections.adjustedGrossSalary}</div><div class="result-title">${formatCurrency(data.adjustedGrossSalary)}</div>`;
 
