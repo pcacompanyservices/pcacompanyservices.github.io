@@ -645,7 +645,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Insurance Contribution (all employee insurances)
     const insuranceItems = [
       { label: 'Social Insurance', value: data.employeeSocialInsurance },
-      { label: 'Health Insurance', value: data.employeeHealthInsurance },
+  { label: TEXT.employeeGrossToNet.steps.benefit.types.healthInsurance, value: data.employeeHealthInsurance },
       { label: 'Unemployment Insurance', value: data.employeeUnemploymentInsurance }
     ].filter(item => item.value && item.value > 0);
     const insuranceContributionCell = `

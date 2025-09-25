@@ -885,7 +885,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const benefitItem = [
       { label: TEXT_CONFIG.steps.benefit.types.childTuition, value: data.childTuitionBenefit },
       { label: TEXT_CONFIG.steps.benefit.types.rental, value: data.rentalBenefit },
-      { label: TEXT_CONFIG.steps.benefit.types.healthInsurance, value: data.healthInsuranceBenefit }
+  { label: TEXT_CONFIG.steps.benefit.types.healthInsurance, value: data.healthInsuranceBenefit }
     ].filter(item => item.value && item.value > 0);
     
     // Check if there are bonuses
