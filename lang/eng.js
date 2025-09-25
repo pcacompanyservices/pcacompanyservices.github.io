@@ -47,7 +47,7 @@ const TAX_RESIDENT_STATUS_TOOLTIP_HTML_EMPLOYER = html`
 `;
 
 export const TEXT = {
-  version: 'Version: 1.1.2',
+  version: 'Version: 1.1.23',
   sharedFooter: SHARED_CALC_FOOTER,
   index: {
     title: 'Salary Simulation Tool',
