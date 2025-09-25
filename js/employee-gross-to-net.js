@@ -742,19 +742,7 @@ document.addEventListener('DOMContentLoaded', () => {
     handleCalculation();
   });
 
-  // --- Per-step Enter key handling ---
-  steps.forEach((step, idx) => {
-    step.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        if (idx === steps.length - 1) {
-          handleCalculation();
-        } else if (continueBtn && !continueBtn.disabled) {
-          continueBtn.click();
-        }
-      }
-    });
-  });
+  // (Removed keyboard Enter-to-advance to enforce explicit button clicks)
 
   // (Chart rendering removed)
   // --- PDF Export logic (A4, Garamond, instant download) ---
