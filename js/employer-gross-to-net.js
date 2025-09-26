@@ -1013,7 +1013,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return `
         <tr>
           <td colspan="2">
-            <div class="result-title result-title-muted">${TEXT_CONFIG.results.employerCostTable.noBenefit}</div>
+            <div class="result-none-text">${TEXT_CONFIG.results.employerCostTable.noBenefit}</div>
           </td>
         </tr>
       `;

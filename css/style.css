@@ -512,6 +512,15 @@ button:hover,
   font-weight: normal;
 }
 
+/* Neutral gray, non-bold for absence messages */
+.result-none-text {
+  font-size: 1em;
+  color: #888 !important;
+  text-align: center;
+  font-weight: normal !important;
+  margin: 0.25rem 0;
+}
+
 .result-total {
   font-weight: 600;
   text-align: center;
@@ -560,7 +569,6 @@ button:hover,
 }
 
 /* Result titles */
-.payslip-title,
 .employer-cost-title {
   text-align: center;
   margin-bottom: 16px;

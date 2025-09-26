@@ -615,9 +615,9 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     }
     if (allowanceItems.length === 0 && bonusItems.length === 0) {
-      noAllowanceBonusRow = `
-  <tr><td colspan="2"><div class="result-title result-title-small">${TEXT.employeeGrossToNet.results.allowanceOrBonusNone}</div></td></tr>
-      `;
+    noAllowanceBonusRow = `
+  <tr><td colspan="2"><div class="result-none-text">${TEXT.employeeGrossToNet.results.allowanceOrBonusNone}</div></td></tr>
+    `;
     }
     // Employee type box (local/expat)
     let employeeTypeLabel = '';
@@ -635,11 +635,12 @@ document.addEventListener('DOMContentLoaded', () => {
   <div class="result-title result-tight">${data.grossSalary ? data.grossSalary.toLocaleString('vi-VN') + ' ' + TEXT.employeeGrossToNet.currencyUnit : '-'}</div>
     `;
     // Adjusted Gross Salary box with Total Employer Cost
+    const benefitSum = (data.childTuitionBenefit || 0) + (data.rentalBenefit || 0) + (data.healthInsuranceBenefit || 0);
     const adjustedGrossSalaryCell = html`
   <div class="adjusted-gross-cell">
     <div class="result-title mb-0">${TEXT.employeeGrossToNet.results.sections.adjustedGrossSalary}</div>
     <div class="result-title result-tight">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('vi-VN') + ' ' + TEXT.employeeGrossToNet.currencyUnit : '-'}</div>
-    <div class="result-note">(${TEXT.employeeGrossToNet.results.totalEmployerCostLabel}: <span class="text-red">${data.totalEmployerCost ? data.totalEmployerCost.toLocaleString('vi-VN') + ' ' + TEXT.employeeGrossToNet.currencyUnit : '-'}</span>)</div>
+  <div class="result-note">(${TEXT.employeeGrossToNet.results.totalEmployerCostLabel}: <span class="text-red">${data.totalEmployerCost ? data.totalEmployerCost.toLocaleString('vi-VN') + ' ' + TEXT.employeeGrossToNet.currencyUnit : '-'}</span>${benefitSum > 0 ? ' ' + TEXT.employeeGrossToNet.results.totalEmployerCostBenefitIncluded : ''})</div>
   </div>
     `;
     // Insurance Contribution (all employee insurances)
@@ -684,7 +685,7 @@ document.addEventListener('DOMContentLoaded', () => {
       </tr>
     `;
     DOM.resultDiv.innerHTML = html`
-  <h1 class="payslip-title center mb-0">${TEXT.employeeGrossToNet.payslipTitle}</h1>
+  <h1 class="result-table-title">${TEXT.employeeGrossToNet.payslipTitle}</h1>
       <div class="result-table-container">
         <table class="result-table result-table-vertical result-table-bordered employee-table-layout">
           <tr><td colspan="2">${employeeTypeCell}</td></tr>
