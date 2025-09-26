@@ -2,6 +2,7 @@
 
 import { simulateSalary } from '../be/cal.js';
 import { TEXT } from '../lang/eng.js';
+import { exportResultToPdf, buildStandardPdfFilename } from './download-pdf.js';
 
 // Simple HTML template helper (same as employer path)
 const html = (strings, ...values) =>
@@ -748,81 +749,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // (Chart rendering removed)
   // --- PDF Export logic (A4, Garamond, instant download) ---
   // Ensure jsPDF and html2canvas are loaded
-  function withExportStyles(run) {
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'css/export-a4.css';
-    document.head.appendChild(link);
-    document.body.classList.add('export-mode');
-    try { return run(); } finally {
-      // cleanup handled by caller
-    }
-  }
-
-  async function exportResultToPdf({ exportContainer, filename = 'export.pdf', onStart = () => {}, onComplete = () => {} }) {
-    if (!window.jspdf || !window.jspdf.jsPDF || !window.html2canvas) {
-      throw new Error('jsPDF and html2canvas must be loaded before calling exportResultToPdf');
-    }
-    onStart();
-    await document.fonts.ready;
-    exportContainer.classList.add('export-a4');
-    withExportStyles(() => {});
-    try {
-      const A4_WIDTH_PX = 794;
-      const A4_HEIGHT_PX = 1123;
-      const CAPTURE_SCALE = 2;
-      const canvas = await window.html2canvas(exportContainer, {
-        backgroundColor: '#fff',
-        scale: CAPTURE_SCALE,
-        useCORS: true,
-        width: A4_WIDTH_PX,
-        height: Math.max(A4_HEIGHT_PX, exportContainer.scrollHeight),
-        windowWidth: A4_WIDTH_PX,
-        windowHeight: Math.max(A4_HEIGHT_PX, exportContainer.scrollHeight)
-      });
-      const imgData = canvas.toDataURL('image/png');
-      const jsPDF = window.jspdf.jsPDF;
-      const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
-      const pageWidthPt = 595.28;
-      const marginPt = 40;
-      const contentWidthPt = pageWidthPt - marginPt * 2;
-      const imgHeightPt = canvas.height * (contentWidthPt / canvas.width);
-      let y = marginPt;
-      pdf.addImage(imgData, 'PNG', marginPt, y, contentWidthPt, imgHeightPt);
-      pdf.save(filename);
-      onComplete();
-    } finally {
-      exportContainer.classList.remove('export-a4');
-      document.body.classList.remove('export-mode');
-      const linkTags = Array.from(document.querySelectorAll('link[href$="export-a4.css"]'));
-      linkTags.forEach(l => l.parentNode && l.parentNode.removeChild(l));
-    }
-  }
-
-  function ensureJsPdfAndHtml2Canvas(cb) {
-    let loaded = 0;
-    function check() { loaded++; if (loaded === 2) cb(); }
-    // Check jsPDF
-    if (!window.jspdf || !window.jspdf.jsPDF) {
-      const s = document.createElement('script');
-      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-      s.onload = check;
-      document.head.appendChild(s);
-    } else loaded++;
-    // Check html2canvas
-    if (!window.html2canvas) {
-      const s = document.createElement('script');
-      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-      s.onload = check;
-      document.head.appendChild(s);
-    } else loaded++;
-    if ((window.jspdf && window.jspdf.jsPDF) && window.html2canvas) cb();
-  }
+  // (PDF download logic centralized in download-pdf.js)
 
   function setupDownloadButton() {
     downloadBtn.addEventListener('click', async (e) => {
       e.preventDefault();
-      ensureJsPdfAndHtml2Canvas(async () => {
+  // Libraries are loaded within exportResultToPdf now
         // Collect result table (Payslip only for employee)
         const resultTableContainer = document.querySelector('.result-table-container');
         if (!resultTableContainer) return;
@@ -911,13 +843,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Attach and export
         document.body.appendChild(exportContainer);
 
-        const now = new Date();
-        const day = String(now.getDate()).padStart(2, '0');
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const year = now.getFullYear();
-        const filename = `[PCA_Salary_Simulation]_${day}-${month}-${year}.pdf`;
+  const filename = buildStandardPdfFilename();
 
-        await exportResultToPdf({
+  await exportResultToPdf({
           exportContainer,
           filename,
           onComplete: () => {
@@ -926,7 +854,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
           }
         });
-      });
     });
   }
 
