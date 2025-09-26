@@ -23,8 +23,8 @@ body.export-mode .export-a4 {
 
 /* Tables & charts constrained to page width */
 body.export-mode .export-a4 .result-table-container {
-  width: 80% !important; /* further reduce width for more side margins */
-  max-width: 80% !important;
+  width: 95% !important; /* match hr and footer width */
+  max-width: 95% !important;
   margin: 0 auto !important;
 }
 body.export-mode .export-a4 .result-table {

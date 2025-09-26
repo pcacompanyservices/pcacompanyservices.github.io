@@ -153,7 +153,7 @@ function createStep2() {
       </span>
     </div>
     <input type="text" class="number-input" id="net-salary" placeholder="${TEXT.employeeNetToGross.steps.netSalary.placeholder}" />
-  <div id="net-salary-warning" class="input-warning" style="display:none;">${TEXT.employeeNetToGross.steps.netSalary.warningMaxDigits}</div>
+  <div id="net-salary-warning" class="input-warning hidden-initial">${TEXT.employeeNetToGross.steps.netSalary.warningMaxDigits}</div>
   `;
   return step2;
 }
@@ -171,7 +171,7 @@ function createStep3() {
       </span>
     </div>
     <div id="allowance-inputs">
-      <div id="allowance-warning" class="input-warning" style="display:none;">${TEXT.employeeNetToGross.steps.allowance.warningMaxDigits}</div>
+  <div id="allowance-warning" class="input-warning hidden-initial">${TEXT.employeeNetToGross.steps.allowance.warningMaxDigits}</div>
       <label class="input-label">${TEXT.employeeNetToGross.steps.allowance.types.lunch}
         <span class="question-icon" tabindex="0">
           <img src="asset/question_icon.webp" alt="info" />
@@ -237,7 +237,7 @@ function createStep4() {
       </span>
     </div>
     <input type="text" class="number-input" id="total-bonus" placeholder="${TEXT.employeeNetToGross.steps.bonus.placeholders.other}" />
-    <div id="bonus-warning" class="input-warning" style="display:none;">${TEXT.employeeNetToGross.steps.bonus.warningMaxDigits}</div>
+  <div id="bonus-warning" class="input-warning hidden-initial">${TEXT.employeeNetToGross.steps.bonus.warningMaxDigits}</div>
   `;
   return step4;
 }
@@ -256,7 +256,7 @@ function createStep5() {
       </span>
     </div>
     <div id="benefit-inputs">
-      <div id="benefit-warning" class="input-warning" style="display:none;">${benefit.warningMaxDigits || 'Maximum 9 digits allowed.'}</div>
+  <div id="benefit-warning" class="input-warning hidden-initial">${benefit.warningMaxDigits || 'Maximum 9 digits allowed.'}</div>
       <label class="input-label">${(benefit.types && benefit.types.childTuition) || "Child's Tuition Fee"}</label>
       <input type="text" class="number-input" id="benefit-child-tuition" placeholder="${(benefit.placeholders && benefit.placeholders.childTuition) || "Child's tuition fee (VND)"}" />
       <label class="input-label">${(benefit.types && benefit.types.rental) || 'Rental'}</label>
@@ -273,7 +273,7 @@ function createNavButtons() {
   navDiv.className = 'form-navigation';
   navDiv.innerHTML = html`
     <button type="button" id="return-btn" class="simulation-button return-button">${TEXT.employeeNetToGross.buttons.return}</button>
-  <button type="button" id="continue-btn" class="simulation-button">${(TEXT.employeeNetToGross.buttons && (TEXT.employeeNetToGross.buttons.continue || TEXT.employeeNetToGross.buttons.calculate.replace('Calculate','Continue')))}</button>
+  <button type="button" id="continue-btn" class="simulation-button">${TEXT.employeeNetToGross.buttons.continue}</button>
     <button type="submit" id="calculate-btn" class="simulation-button">${TEXT.employeeNetToGross.buttons.calculate}</button>
   `;
   return navDiv;
@@ -567,7 +567,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     const data = simulateSalary(params);
     if (data && data.error) {
-      DOM.resultDiv.innerHTML = `<div class="result-error-text" style="text-align:center;color:#C1272D;">${data.error}</div>`;
+  DOM.resultDiv.innerHTML = `<div class="result-error-text">${data.error}</div>`;
       if (DOM.buttonContainer) DOM.buttonContainer.classList.remove('show');
       return;
     }
@@ -632,7 +632,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (allowanceItems.length === 0 && bonusItems.length === 0) {
       noAllowanceBonusRow = `
-  <tr><td colspan="2"><div class="result-title" style="font-size:1em; color:#000;">${TEXT.employeeNetToGross.results.allowanceOrBonusNone}</div></td></tr>
+  <tr><td colspan="2"><div class="result-title result-title-small">${TEXT.employeeNetToGross.results.allowanceOrBonusNone}</div></td></tr>
       `;
     }
     // Employee type box (local/expat)
@@ -653,10 +653,10 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     // Adjusted Gross Salary box with Total Employer Cost
     const adjustedGrossSalaryCell = html`
-      <div class="result-title">${TEXT.employeeNetToGross.results.sections.adjustedGrossSalary}</div>
-  <div class="result-title">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('vi-VN') + ' ' + TEXT.employeeNetToGross.currencyUnit : '-'}</div>
-  <div style="text-align:center;margin-top:2px;font-size:0.85em;">
-        (${TEXT.employeeNetToGross.results.totalEmployerCostLabel}: <span style="color:#C1272D;">${data.totalEmployerCost ? data.totalEmployerCost.toLocaleString('vi-VN') + ' ' + TEXT.employeeNetToGross.currencyUnit : '-'}</span>)
+      <div class="adjusted-gross-cell">
+        <div class="result-title">${TEXT.employeeNetToGross.results.sections.adjustedGrossSalary}</div>
+        <div class="result-title">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('vi-VN') + ' ' + TEXT.employeeNetToGross.currencyUnit : '-'}</div>
+        <div class="result-note">(${TEXT.employeeNetToGross.results.totalEmployerCostLabel}: <span class="text-red">${data.totalEmployerCost ? data.totalEmployerCost.toLocaleString('vi-VN') + ' ' + TEXT.employeeNetToGross.currencyUnit : '-'}</span>)</div>
       </div>
     `;
     // Insurance Contribution (all employee insurances)
@@ -675,9 +675,9 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     // Personal Income Tax cell
     const personalIncomeTaxCell = html`
-      <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:100%;min-height:80px;">
-        <div class="result-title" style="text-align:center;">${TEXT.employeeNetToGross.results.sections.personalIncomeTax}</div>
-  <div class="result-title" style="text-align:center;">
+  <div class="flex-col-center-80">
+  <div class="result-title center">${TEXT.employeeNetToGross.results.sections.personalIncomeTax}</div>
+  <div class="result-title center">
           <span>-${data.incomeTax.toLocaleString('vi-VN')} ${TEXT.employeeNetToGross.currencyUnit}</span>
         </div>
       </div>
@@ -687,7 +687,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <tr>
         <td colspan="2">
           <div class="result-title">${TEXT.employeeNetToGross.results.sections.statutoryContribution}</div>
-          <div class="result-title" style="color:#C1272D;">-${data.employeeContribution.toLocaleString('vi-VN')} ${TEXT.employeeNetToGross.currencyUnit}</div>
+          <div class="result-title text-red">-${data.employeeContribution.toLocaleString('vi-VN')} ${TEXT.employeeNetToGross.currencyUnit}</div>
         </td>
       </tr>
     `;
@@ -696,12 +696,12 @@ document.addEventListener('DOMContentLoaded', () => {
       <tr>
         <td colspan="2">
       <div class="result-title">${TEXT.employeeNetToGross.results.sections.takeHomeSalary}</div>
-  <div class="result-title" style="color:#1a7f3c;">${data.netSalary.toLocaleString('vi-VN')} ${TEXT.employeeNetToGross.currencyUnit}</div>
+  <div class="result-title text-green">${data.netSalary.toLocaleString('vi-VN')} ${TEXT.employeeNetToGross.currencyUnit}</div>
         </td>
       </tr>
     `;
     DOM.resultDiv.innerHTML = html`
-    <h1 style="text-align:center;margin-bottom:16px;font-size:30px">${TEXT.employeeNetToGross.payslipTitle}</h1>
+  <h1 class="payslip-title center mb-0">${TEXT.employeeNetToGross.payslipTitle}</h1>
       <div class="result-table-container">
         <table class="result-table result-table-vertical result-table-bordered employee-table-layout">
           <tr><td colspan="2">${employeeTypeCell}</td></tr>
@@ -711,8 +711,8 @@ document.addEventListener('DOMContentLoaded', () => {
           ${!allowanceRow && !bonusRow ? noAllowanceBonusRow : ''}
           <tr><td colspan="2">${adjustedGrossSalaryCell}</td></tr>
           <tr>
-            <td style="padding:0;vertical-align:top;">${insuranceContributionCell}</td>
-            <td style="padding:0;vertical-align:middle;">${personalIncomeTaxCell}</td>
+            <td class="p-0 va-top">${insuranceContributionCell}</td>
+            <td class="p-0 va-middle">${personalIncomeTaxCell}</td>
           </tr>
           ${employeeContributionRow}
           ${employeeTakeHomeRow}
