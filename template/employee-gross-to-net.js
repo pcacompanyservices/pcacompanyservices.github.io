@@ -3,6 +3,7 @@
 import { simulateSalary } from '../be/cal.js';
 import { TEXT } from '../lang/eng.js';
 import { exportResultToPdf, buildStandardPdfFilename } from '../module/download-pdf.js';
+import { buildProgressBar } from '../module/progress-bar.js';
 
 // Simple HTML template helper (same as employer path)
 const html = (strings, ...values) =>
@@ -40,22 +41,7 @@ function createSalaryForm(root) {
   return salaryForm;
 }
 
-// Progress bar (aligned with other flows)
-function createProgressBar(root) {
-  const progressBar = createAndAppend(root, 'div', { id: 'progress-bar' });
-  progressBar.innerHTML = html`
-  <div class="progress-step" data-step="0">${TEXT.employeeGrossToNet.progressSteps.taxResidentStatus}</div>
-      <div class="progress-bar-line"></div>
-    <div class="progress-step" data-step="1">${TEXT.employeeGrossToNet.progressSteps.grossSalary}</div>
-      <div class="progress-bar-line"></div>
-    <div class="progress-step" data-step="2">${TEXT.employeeGrossToNet.progressSteps.allowance}</div>
-      <div class="progress-bar-line"></div>
-    <div class="progress-step" data-step="3">${TEXT.employeeGrossToNet.progressSteps.bonus}</div>
-      <div class="progress-bar-line"></div>
-    <div class="progress-step" data-step="4">${TEXT.employeeGrossToNet.progressSteps.benefit}</div>
-  `;
-  return progressBar;
-}
+// Progress bar now centralized via buildProgressBar (removed duplicate implementation)
 
 function createStep1() {
   const step1 = document.createElement('div');
@@ -333,8 +319,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Title and header
   createTitleBlock(root);
-  // Progress bar
-  createProgressBar(root);
+  // Progress bar (shared builder)
+  buildProgressBar(root, [
+    TEXT.employeeGrossToNet.progressSteps.taxResidentStatus,
+    TEXT.employeeGrossToNet.progressSteps.grossSalary,
+    TEXT.employeeGrossToNet.progressSteps.allowance,
+    TEXT.employeeGrossToNet.progressSteps.bonus,
+    TEXT.employeeGrossToNet.progressSteps.benefit
+  ]);
   // Form
   const salaryForm = createSalaryForm(root);
   // Steps

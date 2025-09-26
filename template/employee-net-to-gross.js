@@ -3,6 +3,7 @@
 import { simulateSalary } from '../be/cal.js';
 import { TEXT } from '../lang/eng.js';
 import { exportResultToPdf, buildStandardPdfFilename } from '../module/download-pdf.js';
+import { buildProgressBar } from '../module/progress-bar.js';
 
 // ============================================================================
 // UTILITY FUNCTIONS (formerly from util/ directory)
@@ -43,21 +44,7 @@ function formatCurrency(val) {
 
 
 // --- UI creation functions ---
-function createProgressBar(root) {
-  const progressBar = createAndAppend(root, 'div', { id: 'progress-bar' });
-  progressBar.innerHTML = html`
-  <div class="progress-step" data-step="0">${TEXT.employeeNetToGross.progressSteps.taxResidentStatus}</div>
-    <div class="progress-bar-line"></div>
-    <div class="progress-step" data-step="1">${TEXT.employeeNetToGross.progressSteps.netSalary}</div>
-    <div class="progress-bar-line"></div>
-    <div class="progress-step" data-step="2">${TEXT.employeeNetToGross.progressSteps.allowance}</div>
-    <div class="progress-bar-line"></div>
-    <div class="progress-step" data-step="3">${TEXT.employeeNetToGross.progressSteps.bonus}</div>
-    <div class="progress-bar-line"></div>
-    <div class="progress-step" data-step="4">${TEXT.employeeNetToGross.progressSteps.benefit}</div>
-  `;
-  return progressBar;
-}
+// Progress bar now centralized via buildProgressBar (removed duplicate implementation)
 
 function createTitleBlock(root) {
   const h1 = createAndAppend(root, 'h1');
@@ -316,7 +303,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // Title and header
   createTitleBlock(root);
   // Progress bar
-  createProgressBar(root);
+  buildProgressBar(root, [
+    TEXT.employeeNetToGross.progressSteps.taxResidentStatus,
+    TEXT.employeeNetToGross.progressSteps.netSalary,
+    TEXT.employeeNetToGross.progressSteps.allowance,
+    TEXT.employeeNetToGross.progressSteps.bonus,
+    TEXT.employeeNetToGross.progressSteps.benefit
+  ]);
   // Form
   const salaryForm = createSalaryForm(root);
   // Steps

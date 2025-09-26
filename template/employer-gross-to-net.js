@@ -1,6 +1,7 @@
 import { simulateSalary } from '../be/cal.js';
 import { TEXT } from '../lang/eng.js';
 import { exportResultToPdf, buildStandardPdfFilename } from '../module/download-pdf.js';
+import { buildProgressBar } from '../module/progress-bar.js';
 
 // ============================================================================
 // CONSTANTS AND CONFIGURATION
@@ -71,21 +72,7 @@ function withExportStyles(run) {
  * @param {HTMLElement} root - Root element to append progress bar to
  * @returns {HTMLElement} The created progress bar element
  */
-function createProgressBar(root) {
-  const progressBar = createAndAppend(root, 'div', { id: 'progress-bar' });
-  progressBar.innerHTML = html`
-    <div class="progress-step" data-step="0">${TEXT_CONFIG.progressSteps.taxResidentStatus}</div>
-    <div class="progress-bar-line"></div>
-    <div class="progress-step" data-step="1">${TEXT_CONFIG.progressSteps.grossSalary}</div>
-    <div class="progress-bar-line"></div>
-    <div class="progress-step" data-step="2">${TEXT_CONFIG.progressSteps.allowance}</div>
-    <div class="progress-bar-line"></div>
-    <div class="progress-step" data-step="3">${TEXT_CONFIG.progressSteps.bonus}</div>
-    <div class="progress-bar-line"></div>
-    <div class="progress-step" data-step="4">${TEXT_CONFIG.progressSteps.benefit}</div>
-  `;
-  return progressBar;
-}
+// Progress bar now centralized via buildProgressBar (removed duplicate implementation)
 
 /**
  * Create the main title block with heading and horizontal rule
@@ -448,7 +435,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Create UI components
   createTitleBlock(root);
-  createProgressBar(root);
+  buildProgressBar(root, [
+    TEXT_CONFIG.progressSteps.taxResidentStatus,
+    TEXT_CONFIG.progressSteps.grossSalary,
+    TEXT_CONFIG.progressSteps.allowance,
+    TEXT_CONFIG.progressSteps.bonus,
+    TEXT_CONFIG.progressSteps.benefit
+  ]);
   const salaryForm = createSalaryForm(root);
   
   // Create form steps
