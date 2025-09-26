@@ -6,13 +6,7 @@ const html = (strings, ...values) => strings.reduce((acc, str, i) => acc + str +
 
 const SHARED_CALC_FOOTER = {
   importantNoteTitle: 'IMPORTANT NOTE',
-  importantNoteText:
-  'This simulation assumes a standard labor contract with a duration exceeding three months, ' +
-  'for a Vietnamese Tax Resident, applied in Region I (Zone I). ' +
-  'All amounts are denominated in VND (Vietnamese Dong). ' +
-  'This tool reflects the newest regulations effective from July 01 2025. ' +
-  'No registered dependent deductions are included for Personal Income Tax purposes, except for personal deduction. ' +
-  'For further information, please',
+  importantNoteText: 'This simulation assumes a standard labor contract with a duration exceeding three months for a Vietnamese tax resident and applies to Region I (including Hanoi and Ho Chi Minh City). All amounts are denominated in Vietnamese Dong (VND). The calculations reflect the latest regulations effective from 1 July 2025. No dependent deductions are included for Personal Income Tax purposes other than the personal deduction. For further information, please',
   contactLinkText: 'contact us',
   contactUrl: 'https://pca-cs.com/contact/',
   disclaimerTitle: 'DISCLAIMER',
