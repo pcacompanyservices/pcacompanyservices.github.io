@@ -1,5 +1,6 @@
 import { simulateSalary } from '../be/cal.js';
 import { TEXT } from '../lang/eng.js';
+import { exportResultToPdf, buildStandardPdfFilename } from '../module/download-pdf.js';
 
 // ============================================================================
 // CONSTANTS AND CONFIGURATION
@@ -60,59 +61,6 @@ function withExportStyles(run) {
   }
 }
 
-/**
- * Export the result container to PDF
- */
-async function exportResultToPdf({
-  exportContainer,
-  filename = 'export.pdf',
-  onStart = () => {},
-  onComplete = () => {}
-}) {
-  if (!window.jspdf || !window.jspdf.jsPDF || !window.html2canvas) {
-    throw new Error('jsPDF and html2canvas must be loaded before calling exportResultToPdf');
-  }
-  onStart();
-  await document.fonts.ready;
-  // Apply export A4 styles and fixed px canvas size
-  exportContainer.classList.add('export-a4');
-  // Enable export stylesheet and export mode for capture
-  withExportStyles(() => {});
-  try {
-    const A4_WIDTH_PX = 794;   // 210mm at ~96 DPI
-    const A4_HEIGHT_PX = 1123; // 297mm at ~96 DPI
-    const CAPTURE_SCALE = 2;   // match legacy crisp export (1588x2246)
-    const canvas = await window.html2canvas(exportContainer, {
-      backgroundColor: '#fff',
-      scale: CAPTURE_SCALE,
-      useCORS: true,
-      width: A4_WIDTH_PX,
-      height: Math.max(A4_HEIGHT_PX, exportContainer.scrollHeight),
-      windowWidth: A4_WIDTH_PX,
-      windowHeight: Math.max(A4_HEIGHT_PX, exportContainer.scrollHeight)
-    });
-    const imgData = canvas.toDataURL('image/png');
-  const jsPDF = window.jspdf.jsPDF;
-  const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
-  // pt sizes for A4 at 72 DPI
-  const pageWidthPt = 595.28;
-  const pageHeightPt = 841.89;
-  const marginPt = 40; // match legacy export ~14mm
-    const contentWidthPt = pageWidthPt - marginPt * 2;
-    const imgHeightPt = canvas.height * (contentWidthPt / canvas.width);
-
-    let y = marginPt;
-    pdf.addImage(imgData, 'PNG', marginPt, y, contentWidthPt, imgHeightPt);
-    pdf.save(filename);
-    onComplete();
-  } finally {
-    // Remove export styles/classes
-    exportContainer.classList.remove('export-a4');
-    document.body.classList.remove('export-mode');
-    const linkTags = Array.from(document.querySelectorAll('link[href$="export-a4.css"]'));
-    linkTags.forEach(l => l.parentNode && l.parentNode.removeChild(l));
-  }
-}
 
 // ============================================================================
 // UI CREATION FUNCTIONS
@@ -852,7 +800,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const benefitItem = [
       { label: TEXT_CONFIG.steps.benefit.types.childTuition, value: data.childTuitionBenefit },
       { label: TEXT_CONFIG.steps.benefit.types.rental, value: data.rentalBenefit },
-      { label: TEXT_CONFIG.steps.benefit.types.healthInsurance, value: data.healthInsuranceBenefit }
+  { label: TEXT_CONFIG.steps.benefit.types.healthInsurance, value: data.healthInsuranceBenefit }
     ].filter(item => item.value && item.value > 0);
     
     // Check if there are bonuses
@@ -1013,7 +961,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return `
         <tr>
           <td colspan="2">
-            <div class="result-title result-title-muted">${TEXT_CONFIG.results.employerCostTable.noBenefit}</div>
+            <div class="result-none-text">${TEXT_CONFIG.results.employerCostTable.noBenefit}</div>
           </td>
         </tr>
       `;
@@ -1096,38 +1044,7 @@ document.addEventListener('DOMContentLoaded', () => {
    * Ensure jsPDF and html2canvas libraries are loaded before export
    * @param {Function} callback - Callback to execute when libraries are ready
    */
-  function ensureJsPdfAndHtml2Canvas(callback) {
-    let loaded = 0;
-    const checkLoaded = () => { 
-      loaded++; 
-      if (loaded === 2) callback(); 
-    };
-    
-    // Load jsPDF
-    if (!window.jspdf || !window.jspdf.jsPDF) {
-      const jsPdfScript = document.createElement('script');
-      jsPdfScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-      jsPdfScript.onload = checkLoaded;
-      document.head.appendChild(jsPdfScript);
-    } else {
-      loaded++;
-    }
-    
-    // Load html2canvas
-    if (!window.html2canvas) {
-      const html2canvasScript = document.createElement('script');
-      html2canvasScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-      html2canvasScript.onload = checkLoaded;
-      document.head.appendChild(html2canvasScript);
-    } else {
-      loaded++;
-    }
-    
-    // If both are already loaded
-    if ((window.jspdf && window.jspdf.jsPDF) && window.html2canvas) {
-      callback();
-    }
-  }
+  // (PDF download logic centralized in download-pdf.js)
 
   /**
    * Setup the download PDF button functionality
@@ -1136,7 +1053,7 @@ document.addEventListener('DOMContentLoaded', () => {
     downloadBtn.addEventListener('click', async (e) => {
       e.preventDefault();
       
-      ensureJsPdfAndHtml2Canvas(async () => {
+  // Libraries loaded inside shared exportResultToPdf
   // Collect both result tables (Payslip and Employer Cost)
   const resultTableContainers = Array.from(document.querySelectorAll('.result-table-container'));
   if (!resultTableContainers.length) return;
@@ -1235,14 +1152,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(exportContainer);
  
         // Generate filename with current date
-        const now = new Date();
-        const day = String(now.getDate()).padStart(2, '0');
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const year = now.getFullYear();
-  const filename = `[PCA_Salary_Simulation]_${day}-${month}-${year}.pdf`;
+  const filename = buildStandardPdfFilename();
         
         // Export to PDF
-        await exportResultToPdf({
+  await exportResultToPdf({
           exportContainer,
           filename,
           onComplete: () => {
@@ -1251,7 +1164,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
           }
         });
-      });
     });
   }
 

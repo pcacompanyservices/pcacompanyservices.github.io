@@ -505,7 +505,8 @@ button:hover,
 
 .result-table-title {
   font-size: 1.4rem;
-  color: #3c4043 !important;
+  color: #000 !important;
+  font-weight: 700 !important;
   margin: 1rem 0 1rem 0 !important;
   text-align: center !important;
 }
@@ -536,6 +537,15 @@ button:hover,
   color: #888;
   text-align: center;
   font-weight: normal;
+}
+
+/* Neutral gray, non-bold for absence messages */
+.result-none-text {
+  font-size: 1em;
+  color: #888 !important;
+  text-align: center;
+  font-weight: normal !important;
+  margin: 0.25rem 0;
 }
 
 .result-total {
@@ -586,7 +596,6 @@ button:hover,
 }
 
 /* Result titles */
-.payslip-title,
 .employer-cost-title {
   text-align: center;
   margin-bottom: 16px;
@@ -906,3 +915,22 @@ button:hover,
   user-select: none;
   pointer-events: none;
 }
+
+/* ============================================================================
+  UTILITY & INLINE STYLE REPLACEMENTS (Employee flows)
+  ============================================================================ */
+.hidden-initial { display: none; }
+.mb-0 { margin-bottom: 0 !important; }
+.result-tight { padding: 0.05rem 0 !important; }
+.result-title-small { font-size: 1em !important; color: #000 !important; }
+.result-note { text-align: center; margin-top: 2px; font-size: 0.85em; }
+.text-red { color: #C1272D !important; }
+.text-green { color: #1a7f3c !important; }
+.center { text-align: center !important; }
+.flex-col-center-80 { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; min-height: 80px; }
+.p-0 { padding: 0 !important; }
+.va-top { vertical-align: top !important; }
+.va-middle { vertical-align: middle !important; }
+/* Balanced padding wrapper for Adjusted Gross Salary cell so top/bottom spacing match */
+.adjusted-gross-cell { padding: 0.25rem 0 0.3rem 0; }
+.pdf-export-container .adjusted-gross-cell { padding: 0.3rem 0 0.35rem 0; }

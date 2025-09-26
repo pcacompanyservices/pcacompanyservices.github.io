@@ -6,13 +6,7 @@ const html = (strings, ...values) => strings.reduce((acc, str, i) => acc + str +
 
 const SHARED_CALC_FOOTER = {
   importantNoteTitle: 'IMPORTANT NOTE',
-  importantNoteText:
-  'This simulation assumes a standard labor contract with a duration exceeding three months, ' +
-  'for a Vietnamese Tax Resident, applied in Region I (Zone I). ' +
-  'All amounts are denominated in VND (Vietnamese Dong). ' +
-  'This tool reflects the newest regulations effective from July 01 2025. ' +
-  'No registered dependent deductions are included for Personal Income Tax purposes, except for personal deduction. ' +
-  'For further information, please',
+  importantNoteText: 'This simulation assumes a standard labor contract with a duration exceeding three months for a Vietnamese tax resident and applies to Region I (including Hanoi and Ho Chi Minh City). All amounts are denominated in Vietnamese Dong (VND). The calculations reflect the latest regulations effective from 1 July 2025. No dependent deductions are included for Personal Income Tax purposes other than the personal deduction. For further information, please',
   contactLinkText: 'contact us',
   contactUrl: 'https://pca-cs.com/contact/',
   disclaimerTitle: 'DISCLAIMER',
@@ -85,7 +79,7 @@ export const TEXT = {
         placeholders: { lunch: 'Lunch allowance (VND)', fuel: 'Fuel allowance (VND)', phone: 'Phone allowance (VND)', travel: 'Travel allowance (VND)', uniform: 'Uniform allowance (VND)', other: 'Other allowance (VND)' }
       },
       bonus: { title: 'Bonus', placeholder: 'Total bonus (VND)' },
-  benefit: { title: 'Benefit', types: { childTuition: "Child's Tuition Fee", rental: 'Rental', healthInsurance: 'Health Insurance (annual fee)' }, placeholders: { childTuition: "Child's tuition fee (VND)", rental: 'Rental benefit (VND)', healthInsurance: 'Health insurance annual fee (VND)' } }
+  benefit: { title: 'Benefit', types: { childTuition: "Child's Tuition Fee", rental: 'Rental', healthInsurance: 'Health Insurance' }, placeholders: { childTuition: "Child's tuition fee (VND)", rental: 'Rental benefit (VND)', healthInsurance: 'Health insurance annual fee (VND)' } }
     },
     buttons: { continue: 'Continue', calculate: 'Calculate', return: 'Return', reset: 'Reset', modify: 'Modify Information', downloadPdf: 'Download PDF' },
     warnings: { maxDigits: 'Maximum 9 digit allowed.', noAllowanceOrBonus: '(There is no Allowance or Bonus in the Contract)' },
@@ -125,7 +119,7 @@ export const TEXT = {
       netSalary: { title: 'Net Base Salary', placeholder: 'Min 4.475.000 VND' },
       allowance: { title: 'Allowance', types: { lunch: 'Lunch', fuel: 'Fuel', phone: 'Phone', travel: 'Traveling', uniform: 'Uniform', other: 'Other Allowance' }, placeholders: { lunch: 'Net lunch allowance (VND)', fuel: 'Net fuel allowance (VND)', phone: 'Net phone allowance (VND)', travel: 'Net travel allowance (VND)', uniform: 'Net uniform allowance (VND)', other: 'Net other allowance (VND)' } },
       bonus: { title: 'Bonus', placeholder: 'Total bonus (VND)' },
-  benefit: { title: 'Benefit', types: { childTuition: "Child's Tuition Fee", rental: 'Rental', healthInsurance: 'Health Insurance (annual fee)' }, placeholders: { childTuition: "Child's tuition fee (VND)", rental: 'Rental benefit (VND)', healthInsurance: 'Health insurance annual fee (VND)' } }
+  benefit: { title: 'Benefit', types: { childTuition: "Child's Tuition Fee", rental: 'Rental', healthInsurance: 'Health Insurance' }, placeholders: { childTuition: "Child's tuition fee (VND)", rental: 'Rental benefit (VND)', healthInsurance: 'Health insurance annual fee (VND)' } }
     },
     buttons: { continue: 'Continue', calculate: 'Calculate', return: 'Return', reset: 'Reset', modify: 'Modify Information', downloadPdf: 'Download PDF' },
     warnings: { maxDigits: 'Maximum 9 digit allowed.', noAllowanceOrBonus: '(There is no Allowance or Bonus in the Contract)' },
@@ -205,11 +199,11 @@ export const TEXT = {
           other: 'Other bonuses (VND)'
         }
       },
-  benefit: { title: 'Benefit', warningMaxDigits: 'Maximum 9 digits allowed.', types: { childTuition: "Child's Tuition Fee", rental: 'Rental', healthInsurance: 'Health Insurance (annual fee)' }, placeholders: { childTuition: "Child's tuition fee (VND)", rental: 'Rental benefit (VND)', healthInsurance: 'Health insurance annual fee (VND)' }, tooltips: { childTuition: "Specify your monthly child's tuition fee benefit in the contract.", rental: 'Specify your monthly rental benefit in the contract.', healthInsurance: 'Specify your annual Health Insurance fee in the contract.' } }
+  benefit: { title: 'Benefit', warningMaxDigits: 'Maximum 9 digits allowed.', types: { childTuition: "Child's Tuition Fee", rental: 'Rental', healthInsurance: 'Health Insurance' }, placeholders: { childTuition: "Child's tuition fee (VND)", rental: 'Rental benefit (VND)', healthInsurance: 'Health insurance annual fee (VND)' }, tooltips: { childTuition: "Specify your monthly child's tuition fee benefit in the contract.", rental: 'Specify your monthly rental benefit in the contract.', healthInsurance: 'Specify your annual Health Insurance fee in the contract.' } }
     },
-    buttons: { calculate: 'Calculate', return: 'Return', downloadPdf: 'Download PDF', modify: 'Modify Information', reset: 'Reset' },
+  buttons: { continue: 'Continue', calculate: 'Calculate', return: 'Return', downloadPdf: 'Download PDF', modify: 'Modify Information', reset: 'Reset' },
     charts: { salaryBreakdown: 'Salary Breakdown', costBreakdown: 'Cost Breakdown', bonusAndAllowance: 'Bonus & Allowance', grossSalary: 'Gross Salary' },
-  results: { employeeTypes: { local: 'Local Employee – Tax Resident', expat: 'Expat Employee – Tax Resident', default: 'Employee' }, sections: { grossSalary: 'Gross Salary', adjustedGrossSalary: 'Adjusted Gross Salary', allowance: 'Allowances', bonus: 'Bonuses', compulsoryInsurances: 'Compulsory Insurances', personalIncomeTax: 'Personal Income Tax', statutoryContribution: 'Statutory Contribution', takeHomeSalary: 'Take-home Salary', employeeInsurance: 'Employee Insurance', employerInsurance: 'Employer Insurance', employerUnionFee: 'Employer Trade Union Fund' }, allowanceOrBonusNone: '(There are no Allowances or Bonuses in the Contract)', costBreakdown: { employeeInsurance: 'Employee Insurance', personalIncomeTax: 'Personal Income Tax', employerInsurance: 'Employer Insurance', employerUnionFee: 'Employer Trade Union Fund', netSalary: 'Employee Take-home (Net) Salary' }, salaryVisualizationTitle: 'Salary Visualization', totalBonusLabel: 'Total Bonus', totalEmployerCostLabel: 'Total Employer Cost' },
+  results: { employeeTypes: { local: 'Local Employee – Tax Resident', expat: 'Expat Employee – Tax Resident', default: 'Employee' }, sections: { grossSalary: 'Gross Salary', adjustedGrossSalary: 'Adjusted Gross Salary', allowance: 'Allowances', bonus: 'Bonuses', compulsoryInsurances: 'Compulsory Insurances', personalIncomeTax: 'Personal Income Tax', statutoryContribution: 'Statutory Contribution', takeHomeSalary: 'Take-home Salary', employeeInsurance: 'Employee Insurance', employerInsurance: 'Employer Insurance', employerUnionFee: 'Employer Trade Union Fund' }, allowanceOrBonusNone: '(There is no Allowance or Bonus in the Contract)', costBreakdown: { employeeInsurance: 'Employee Insurance', personalIncomeTax: 'Personal Income Tax', employerInsurance: 'Employer Insurance', employerUnionFee: 'Employer Trade Union Fund', netSalary: 'Employee Take-home (Net) Salary' }, salaryVisualizationTitle: 'Salary Visualization', totalBonusLabel: 'Total Bonus', totalEmployerCostLabel: 'Total Employer Cost', totalEmployerCostBenefitIncluded: '– Benefit included' },
     currencyUnit: 'VND',
     payslipTitle: 'PAYSLIP',
     footer: SHARED_CALC_FOOTER
@@ -268,13 +262,13 @@ export const TEXT = {
         title: 'Benefit',
         tooltip: 'Enter benefits provided by the Employer (e.g., Rental, Health Insurance, Child’s Tuition) as per the labor contract. For Health Insurance, enter the annual fee.',
         warningMaxDigits: 'Maximum 9 digits allowed.',
-        types: { childTuition: "Child's Tuition Fee", rental: 'Rental', healthInsurance: 'Health Insurance (annual fee)' },
+  types: { childTuition: "Child's Tuition Fee", rental: 'Rental', healthInsurance: 'Health Insurance' },
         placeholders: { childTuition: "Child's tuition fee (VND)", rental: 'Rental benefit (VND)', healthInsurance: 'Health insurance annual fee (VND)' }
       }
     },
-    buttons: { continue: 'Continue', calculate: 'Calculate', return: 'Return', downloadPdf: 'Download PDF', modify: 'Modify Information', reset: 'Reset' },
+  buttons: { continue: 'Continue', calculate: 'Calculate', return: 'Return', downloadPdf: 'Download PDF', modify: 'Modify Information', reset: 'Reset' },
     charts: { salaryBreakdown: 'Salary Breakdown', costBreakdown: 'Cost Breakdown', bonusAndAllowance: 'Bonus & Allowance', grossSalary: 'Gross Salary' },
-  results: { employeeTypes: { local: 'Local Employee – Tax Resident', expat: 'Expat Employee – Tax Resident', default: 'Employee' }, sections: { grossSalary: 'Gross Salary', adjustedGrossSalary: 'Adjusted Gross Salary', allowance: 'Allowances', bonus: 'Bonuses', compulsoryInsurances: 'Compulsory Insurances', personalIncomeTax: 'Personal Income Tax', statutoryContribution: 'Statutory Contribution', takeHomeSalary: 'Take-home Salary', employeeInsurance: 'Employee Insurance', employerInsurance: 'Employer Insurance', employerUnionFee: 'Employer Trade Union Fund' }, allowanceOrBonusNone: '(There are no Allowances or Bonuses in the Contract)', costBreakdown: { employeeInsurance: 'Employee Insurance', personalIncomeTax: 'Personal Income Tax', employerInsurance: 'Employer Insurance', employerUnionFee: 'Employer Trade Union Fund', netSalary: 'Employee Take-home (Net) Salary' }, salaryVisualizationTitle: 'Salary Visualization', totalEmployerCostLabel: 'Total Employer Cost' },
+  results: { employeeTypes: { local: 'Local Employee – Tax Resident', expat: 'Expat Employee – Tax Resident', default: 'Employee' }, sections: { grossSalary: 'Gross Salary', adjustedGrossSalary: 'Adjusted Gross Salary', allowance: 'Allowances', bonus: 'Bonuses', compulsoryInsurances: 'Compulsory Insurances', personalIncomeTax: 'Personal Income Tax', statutoryContribution: 'Statutory Contribution', takeHomeSalary: 'Take-home Salary', employeeInsurance: 'Employee Insurance', employerInsurance: 'Employer Insurance', employerUnionFee: 'Employer Trade Union Fund' }, allowanceOrBonusNone: '(There is no Allowance or Bonus in the Contract)', costBreakdown: { employeeInsurance: 'Employee Insurance', personalIncomeTax: 'Personal Income Tax', employerInsurance: 'Employer Insurance', employerUnionFee: 'Employer Trade Union Fund', netSalary: 'Employee Take-home (Net) Salary' }, salaryVisualizationTitle: 'Salary Visualization', totalEmployerCostLabel: 'Total Employer Cost', totalEmployerCostBenefitIncluded: '– Benefit included' },
     currencyUnit: 'VND',
     payslipTitle: 'PAYSLIP',
     footer: SHARED_CALC_FOOTER

@@ -23,8 +23,8 @@ body.export-mode .export-a4 {
 
 /* Tables & charts constrained to page width */
 body.export-mode .export-a4 .result-table-container {
-  width: 80% !important; /* further reduce width for more side margins */
-  max-width: 80% !important;
+  width: 95% !important; /* match hr and footer width */
+  max-width: 95% !important;
   margin: 0 auto !important;
 }
 body.export-mode .export-a4 .result-table {
@@ -36,14 +36,16 @@ body.export-mode .export-a4 .result-table {
 body.export-mode .export-a4 hr {
   width: 95% !important;
   max-width: none !important;
-  margin: 0.22rem auto 0.12rem auto !important; /* further tightened */
+  /* 0.22rem 0.12rem => 3.52px 1.92px (base 16px) */
+  margin: 3.52px auto 1.92px auto !important; /* further tightened (px-converted) */
 }
 
 /* Make the HR inside the export footer the same length as the top HR
    (avoid 95% of 95% by setting it to 100% of the footer width). */
 body.export-mode .export-a4 .app-footer.export-footer hr {
   width: 100% !important;
-  margin: 0.2rem auto 0.28rem auto !important; /* slightly more compact */
+  /* 0.2rem 0.28rem => 3.2px 4.48px */
+  margin: 3.2px auto 4.48px auto !important; /* slightly more compact (px-converted) */
 }
 
 /* Footer fixed to bottom of page in export */
@@ -118,7 +120,8 @@ body.export-mode .export-a4 canvas {
 
 /* Reduce the gap between the HR under the main header and the PAYSLIP title */
 body.export-mode .export-a4 .pdf-export-title {
-  margin-top: 0.15rem !important;
+  /* 0.15rem => 2.4px */
+  margin-top: 2.4px !important;
 }
 
 /* Version label in export: pin to bottom-right of the export page */
@@ -139,7 +142,8 @@ body.export-mode .export-a4 .app-footer.export-footer .export-id {
   bottom: 0px !important; /* moved further downward */
   left: 0 !important; /* align with the left edge of footer text */
   z-index: 1001 !important;
-  font-size: 0.75rem !important;
+  /* 0.75rem => 12px */
+  font-size: 12px !important;
   font-weight: 700 !important;
   color: #222 !important;
   white-space: nowrap !important; /* keep on one line */

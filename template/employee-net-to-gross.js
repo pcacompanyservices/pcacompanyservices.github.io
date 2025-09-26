@@ -2,6 +2,7 @@
 
 import { simulateSalary } from '../be/cal.js';
 import { TEXT } from '../lang/eng.js';
+import { exportResultToPdf, buildStandardPdfFilename } from '../module/download-pdf.js';
 
 // ============================================================================
 // UTILITY FUNCTIONS (formerly from util/ directory)
@@ -24,56 +25,7 @@ function createAndAppend(parent, tag, props = {}, innerHTML = '') {
 const html = (strings, ...values) =>
   strings.reduce((acc, str, i) => acc + str + (values[i] || ''), '');
 
-// PDF export utility (A4 export with export-only CSS, same as employer)
-async function exportResultToPdf({
-  exportContainer,
-  filename = 'export.pdf',
-  onStart = () => {},
-  onComplete = () => {}
-}) {
-  if (!window.jspdf || !window.jspdf.jsPDF || !window.html2canvas) {
-    throw new Error('jsPDF and html2canvas must be loaded before calling exportResultToPdf');
-  }
-  onStart();
-  await document.fonts.ready;
-  // Apply export A4 styles and toggle export mode
-  exportContainer.classList.add('export-a4');
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = 'css/export-a4.css';
-  document.head.appendChild(link);
-  document.body.classList.add('export-mode');
-  try {
-    const A4_WIDTH_PX = 794;
-    const A4_HEIGHT_PX = 1123;
-    const CAPTURE_SCALE = 2;
-    const canvas = await window.html2canvas(exportContainer, {
-      backgroundColor: '#fff',
-      scale: CAPTURE_SCALE,
-      useCORS: true,
-      width: A4_WIDTH_PX,
-      height: Math.max(A4_HEIGHT_PX, exportContainer.scrollHeight),
-      windowWidth: A4_WIDTH_PX,
-      windowHeight: Math.max(A4_HEIGHT_PX, exportContainer.scrollHeight)
-    });
-    const imgData = canvas.toDataURL('image/png');
-    const jsPDF = window.jspdf.jsPDF;
-    const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
-    const pageWidthPt = 595.28;
-    const marginPt = 40;
-    const contentWidthPt = pageWidthPt - marginPt * 2;
-    const imgHeightPt = canvas.height * (contentWidthPt / canvas.width);
-
-    pdf.addImage(imgData, 'PNG', marginPt, marginPt, contentWidthPt, imgHeightPt);
-    pdf.save(filename);
-    onComplete();
-  } finally {
-    exportContainer.classList.remove('export-a4');
-    document.body.classList.remove('export-mode');
-    const links = Array.from(document.querySelectorAll('link[href$="export-a4.css"]'));
-    links.forEach(l => l.parentNode && l.parentNode.removeChild(l));
-  }
-}
+// (PDF download logic centralized in download-pdf.js)
 
 // Format utilities
 function formatLine(label, value) {
@@ -153,7 +105,7 @@ function createStep2() {
       </span>
     </div>
     <input type="text" class="number-input" id="net-salary" placeholder="${TEXT.employeeNetToGross.steps.netSalary.placeholder}" />
-  <div id="net-salary-warning" class="input-warning" style="display:none;">${TEXT.employeeNetToGross.steps.netSalary.warningMaxDigits}</div>
+  <div id="net-salary-warning" class="input-warning hidden-initial">${TEXT.employeeNetToGross.steps.netSalary.warningMaxDigits}</div>
   `;
   return step2;
 }
@@ -171,7 +123,7 @@ function createStep3() {
       </span>
     </div>
     <div id="allowance-inputs">
-      <div id="allowance-warning" class="input-warning" style="display:none;">${TEXT.employeeNetToGross.steps.allowance.warningMaxDigits}</div>
+  <div id="allowance-warning" class="input-warning hidden-initial">${TEXT.employeeNetToGross.steps.allowance.warningMaxDigits}</div>
       <label class="input-label">${TEXT.employeeNetToGross.steps.allowance.types.lunch}
         <span class="question-icon" tabindex="0">
           <img src="asset/question_icon.webp" alt="info" />
@@ -237,7 +189,7 @@ function createStep4() {
       </span>
     </div>
     <input type="text" class="number-input" id="total-bonus" placeholder="${TEXT.employeeNetToGross.steps.bonus.placeholders.other}" />
-    <div id="bonus-warning" class="input-warning" style="display:none;">${TEXT.employeeNetToGross.steps.bonus.warningMaxDigits}</div>
+  <div id="bonus-warning" class="input-warning hidden-initial">${TEXT.employeeNetToGross.steps.bonus.warningMaxDigits}</div>
   `;
   return step4;
 }
@@ -256,7 +208,7 @@ function createStep5() {
       </span>
     </div>
     <div id="benefit-inputs">
-      <div id="benefit-warning" class="input-warning" style="display:none;">${benefit.warningMaxDigits || 'Maximum 9 digits allowed.'}</div>
+  <div id="benefit-warning" class="input-warning hidden-initial">${benefit.warningMaxDigits || 'Maximum 9 digits allowed.'}</div>
       <label class="input-label">${(benefit.types && benefit.types.childTuition) || "Child's Tuition Fee"}</label>
       <input type="text" class="number-input" id="benefit-child-tuition" placeholder="${(benefit.placeholders && benefit.placeholders.childTuition) || "Child's tuition fee (VND)"}" />
       <label class="input-label">${(benefit.types && benefit.types.rental) || 'Rental'}</label>
@@ -273,7 +225,7 @@ function createNavButtons() {
   navDiv.className = 'form-navigation';
   navDiv.innerHTML = html`
     <button type="button" id="return-btn" class="simulation-button return-button">${TEXT.employeeNetToGross.buttons.return}</button>
-  <button type="button" id="continue-btn" class="simulation-button">${(TEXT.employeeNetToGross.buttons && (TEXT.employeeNetToGross.buttons.continue || TEXT.employeeNetToGross.buttons.calculate.replace('Calculate','Continue')))}</button>
+  <button type="button" id="continue-btn" class="simulation-button">${TEXT.employeeNetToGross.buttons.continue}</button>
     <button type="submit" id="calculate-btn" class="simulation-button">${TEXT.employeeNetToGross.buttons.calculate}</button>
   `;
   return navDiv;
@@ -567,7 +519,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     const data = simulateSalary(params);
     if (data && data.error) {
-      DOM.resultDiv.innerHTML = `<div class="result-error-text" style="text-align:center;color:#C1272D;">${data.error}</div>`;
+  DOM.resultDiv.innerHTML = `<div class="result-error-text">${data.error}</div>`;
       if (DOM.buttonContainer) DOM.buttonContainer.classList.remove('show');
       return;
     }
@@ -631,9 +583,9 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     }
     if (allowanceItems.length === 0 && bonusItems.length === 0) {
-      noAllowanceBonusRow = `
-  <tr><td colspan="2"><div class="result-title" style="font-size:1em; color:#000;">${TEXT.employeeNetToGross.results.allowanceOrBonusNone}</div></td></tr>
-      `;
+    noAllowanceBonusRow = `
+  <tr><td colspan="2"><div class="result-none-text">${TEXT.employeeNetToGross.results.allowanceOrBonusNone}</div></td></tr>
+    `;
     }
     // Employee type box (local/expat)
   let employeeTypeLabel = '';
@@ -652,17 +604,18 @@ document.addEventListener('DOMContentLoaded', () => {
   <div class="result-title">${data.grossSalary ? data.grossSalary.toLocaleString('vi-VN') + ' ' + TEXT.employeeNetToGross.currencyUnit : '-'}</div>
     `;
     // Adjusted Gross Salary box with Total Employer Cost
+    const benefitSum = (data.childTuitionBenefit || 0) + (data.rentalBenefit || 0) + (data.healthInsuranceBenefit || 0);
     const adjustedGrossSalaryCell = html`
-      <div class="result-title">${TEXT.employeeNetToGross.results.sections.adjustedGrossSalary}</div>
-  <div class="result-title">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('vi-VN') + ' ' + TEXT.employeeNetToGross.currencyUnit : '-'}</div>
-  <div style="text-align:center;margin-top:2px;font-size:0.85em;">
-        (${TEXT.employeeNetToGross.results.totalEmployerCostLabel}: <span style="color:#C1272D;">${data.totalEmployerCost ? data.totalEmployerCost.toLocaleString('vi-VN') + ' ' + TEXT.employeeNetToGross.currencyUnit : '-'}</span>)
+      <div class="adjusted-gross-cell">
+        <div class="result-title">${TEXT.employeeNetToGross.results.sections.adjustedGrossSalary}</div>
+        <div class="result-title">${data.adjustedGrossSalary ? data.adjustedGrossSalary.toLocaleString('vi-VN') + ' ' + TEXT.employeeNetToGross.currencyUnit : '-'}</div>
+  <div class="result-note">(${TEXT.employeeNetToGross.results.totalEmployerCostLabel}: <span class="text-red">${data.totalEmployerCost ? data.totalEmployerCost.toLocaleString('vi-VN') + ' ' + TEXT.employeeNetToGross.currencyUnit : '-'}</span>${benefitSum > 0 ? ' ' + TEXT.employeeNetToGross.results.totalEmployerCostBenefitIncluded : ''})</div>
       </div>
     `;
     // Insurance Contribution (all employee insurances)
     const insuranceItems = [
       { label: 'Social Insurance', value: data.employeeSocialInsurance },
-      { label: 'Health Insurance', value: data.employeeHealthInsurance },
+  { label: TEXT.employeeNetToGross.steps.benefit.types.healthInsurance, value: data.employeeHealthInsurance },
       { label: 'Unemployment Insurance', value: data.employeeUnemploymentInsurance }
     ].filter(item => item.value && item.value > 0);
     const insuranceContributionCell = `
@@ -675,9 +628,9 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     // Personal Income Tax cell
     const personalIncomeTaxCell = html`
-      <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:100%;min-height:80px;">
-        <div class="result-title" style="text-align:center;">${TEXT.employeeNetToGross.results.sections.personalIncomeTax}</div>
-  <div class="result-title" style="text-align:center;">
+  <div class="flex-col-center-80">
+  <div class="result-title center">${TEXT.employeeNetToGross.results.sections.personalIncomeTax}</div>
+  <div class="result-title center">
           <span>-${data.incomeTax.toLocaleString('vi-VN')} ${TEXT.employeeNetToGross.currencyUnit}</span>
         </div>
       </div>
@@ -687,7 +640,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <tr>
         <td colspan="2">
           <div class="result-title">${TEXT.employeeNetToGross.results.sections.statutoryContribution}</div>
-          <div class="result-title" style="color:#C1272D;">-${data.employeeContribution.toLocaleString('vi-VN')} ${TEXT.employeeNetToGross.currencyUnit}</div>
+          <div class="result-title text-red">-${data.employeeContribution.toLocaleString('vi-VN')} ${TEXT.employeeNetToGross.currencyUnit}</div>
         </td>
       </tr>
     `;
@@ -696,12 +649,12 @@ document.addEventListener('DOMContentLoaded', () => {
       <tr>
         <td colspan="2">
       <div class="result-title">${TEXT.employeeNetToGross.results.sections.takeHomeSalary}</div>
-  <div class="result-title" style="color:#1a7f3c;">${data.netSalary.toLocaleString('vi-VN')} ${TEXT.employeeNetToGross.currencyUnit}</div>
+  <div class="result-title text-green">${data.netSalary.toLocaleString('vi-VN')} ${TEXT.employeeNetToGross.currencyUnit}</div>
         </td>
       </tr>
     `;
     DOM.resultDiv.innerHTML = html`
-    <h1 style="text-align:center;margin-bottom:16px;font-size:30px">${TEXT.employeeNetToGross.payslipTitle}</h1>
+  <h1 class="result-table-title">${TEXT.employeeNetToGross.payslipTitle}</h1>
       <div class="result-table-container">
         <table class="result-table result-table-vertical result-table-bordered employee-table-layout">
           <tr><td colspan="2">${employeeTypeCell}</td></tr>
@@ -711,8 +664,8 @@ document.addEventListener('DOMContentLoaded', () => {
           ${!allowanceRow && !bonusRow ? noAllowanceBonusRow : ''}
           <tr><td colspan="2">${adjustedGrossSalaryCell}</td></tr>
           <tr>
-            <td style="padding:0;vertical-align:top;">${insuranceContributionCell}</td>
-            <td style="padding:0;vertical-align:middle;">${personalIncomeTaxCell}</td>
+            <td class="p-0 va-top">${insuranceContributionCell}</td>
+            <td class="p-0 va-middle">${personalIncomeTaxCell}</td>
           </tr>
           ${employeeContributionRow}
           ${employeeTakeHomeRow}
@@ -755,50 +708,20 @@ document.addEventListener('DOMContentLoaded', () => {
     handleCalculation();
   });
 
-  // Enter key handler: continue or calculate
-  steps.forEach((step, idx) => {
-    step.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        if (idx === steps.length - 1) {
-          handleCalculation();
-        } else if (continueBtn && !continueBtn.disabled) {
-          continueBtn.click();
-        }
-      }
-    });
-  });
+  // (Removed keyboard Enter-to-advance to enforce explicit button clicks)
 
   // --- Chart rendering ---
   // Charts removed
   // --- PDF Export logic (A4, Garamond, instant download) ---
   // Ensure jsPDF and html2canvas are loaded
-  function ensureJsPdfAndHtml2Canvas(cb) {
-    let loaded = 0;
-    function check() { loaded++; if (loaded === 2) cb(); }
-    // Check jsPDF
-    if (!window.jspdf || !window.jspdf.jsPDF) {
-      const s = document.createElement('script');
-      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-      s.onload = check;
-      document.head.appendChild(s);
-    } else loaded++;
-    // Check html2canvas
-    if (!window.html2canvas) {
-      const s = document.createElement('script');
-      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-      s.onload = check;
-      document.head.appendChild(s);
-    } else loaded++;
-    if ((window.jspdf && window.jspdf.jsPDF) && window.html2canvas) cb();
-  }
+  // (Library loading handled in shared export module)
 
   function setupDownloadButton() {
     const btn = downloadBtn || document.getElementById('download-pdf-btn');
     if (!btn) return;
     btn.addEventListener('click', async (e) => {
       e.preventDefault();
-      ensureJsPdfAndHtml2Canvas(async () => {
+  // Libraries ensured by shared exportResultToPdf
         const resultTableContainer = document.querySelector('.result-table-container');
         if (!resultTableContainer) return;
         const exportContainer = document.createElement('div');
@@ -863,20 +786,15 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(exportContainer);
 
         // Standard filename
-        const now = new Date();
-        const day = String(now.getDate()).padStart(2, '0');
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const year = now.getFullYear();
-        const filename = `[PCA_Salary_Simulation]_${day}-${month}-${year}.pdf`;
+  const filename = buildStandardPdfFilename();
 
-        await exportResultToPdf({
+  await exportResultToPdf({
           exportContainer,
           filename,
           onComplete: () => {
             if (exportContainer && exportContainer.parentNode) exportContainer.parentNode.removeChild(exportContainer);
           }
         });
-      });
     });
   }
 
