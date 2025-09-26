@@ -1,15 +1,15 @@
 import { simulateSalary } from '../be/cal.js';
 import { TEXT } from '../lang/eng.js';
-import { exportResultToPdf, buildStandardPdfFilename } from './download-pdf.js';
+import { exportResultToPdf, buildStandardPdfFilename } from '../module/download-pdf.js';
 
 // ============================================================================
 // CONSTANTS AND CONFIGURATION
 // ============================================================================
 
-const MIN_SALARY = 4475000;
+const MIN_SALARY = 5000000;
 const MAX_DIGITS = 9;
 
-const TEXT_CONFIG = TEXT.employerNetToGross;
+const TEXT_CONFIG = TEXT.employerGrossToNet;
 
 // ============================================================================
 // UTILITY FUNCTIONS
@@ -39,13 +39,28 @@ function createAndAppend(parent, tag, props = {}, innerHTML = '') {
 const html = (strings, ...values) =>
   strings.reduce((acc, str, i) => acc + str + (values[i] || ''), '');
 
-// Currency format helper using language config
+/**
+ * Format currency with locale and configured unit
+ */
 function formatCurrency(val) {
-  const unit = TEXT.employerNetToGross.currencyUnit || 'VND';
+  const unit = TEXT_CONFIG.currencyUnit || 'VND';
   return val || val === 0 ? `${Number(val).toLocaleString('vi-VN')} ${unit}` : '-';
 }
 
-// (PDF download logic centralized in download-pdf.js)
+/**
+ * Export-only stylesheet toggle
+ */
+function withExportStyles(run) {
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = 'css/export-a4.css';
+  document.head.appendChild(link);
+  document.body.classList.add('export-mode');
+  try { return run(); } finally {
+    // cleanup is handled by caller after async completes
+  }
+}
+
 
 // ============================================================================
 // UI CREATION FUNCTIONS
@@ -61,7 +76,7 @@ function createProgressBar(root) {
   progressBar.innerHTML = html`
     <div class="progress-step" data-step="0">${TEXT_CONFIG.progressSteps.taxResidentStatus}</div>
     <div class="progress-bar-line"></div>
-    <div class="progress-step" data-step="1">${TEXT_CONFIG.progressSteps.netSalary}</div>
+    <div class="progress-step" data-step="1">${TEXT_CONFIG.progressSteps.grossSalary}</div>
     <div class="progress-bar-line"></div>
     <div class="progress-step" data-step="2">${TEXT_CONFIG.progressSteps.allowance}</div>
     <div class="progress-bar-line"></div>
@@ -100,7 +115,7 @@ function createSalaryForm(root) {
  */
 function createStep1() {
   const step1 = document.createElement('div');
-  step1.className = 'form-step active';
+  step1.className = 'form-step';
   step1.id = 'step-1';
   step1.innerHTML = html`
     <div class="step-title-row">
@@ -120,7 +135,7 @@ function createStep1() {
 }
 
 /**
- * Create Step 2: Net Salary Input
+ * Create Step 2: Gross Salary Input
  * @returns {HTMLElement} The created step element
  */
 function createStep2() {
@@ -129,14 +144,14 @@ function createStep2() {
   step2.id = 'step-2';
   step2.innerHTML = html`
     <div class="step-title-row">
-      <h2>${TEXT_CONFIG.steps.netSalary.title}</h2>
+      <h2>${TEXT_CONFIG.steps.grossSalary.title}</h2>
       <span class="question-icon" tabindex="0">
         <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">${TEXT_CONFIG.infoTooltips.netSalary}</span>
+        <span class="info-box">${TEXT_CONFIG.infoTooltips.grossSalary}</span>
       </span>
     </div>
-    <input type="text" class="number-input" id="net-salary" placeholder="${TEXT_CONFIG.steps.netSalary.placeholder}" />
-    <div id="net-salary-warning" class="input-warning">${TEXT_CONFIG.warnings.maxDigits}</div>
+    <input type="text" class="number-input" id="gross-salary" placeholder="${TEXT_CONFIG.steps.grossSalary.placeholder}" />
+    <div id="gross-salary-warning" class="input-warning">${TEXT_CONFIG.warnings.maxDigits}</div>
   `;
   return step2;
 }
@@ -428,7 +443,7 @@ function createFooter(root) {
 // ============================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
-  const root = getElement('net-to-gross-root');
+  const root = getElement('gross-to-net-root');
   root.innerHTML = '';
 
   // Create UI components
@@ -452,13 +467,10 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Create result containers and buttons
   const { resultDiv } = createResultSection(root);
-  let buttonContainer, downloadBtn, resetBtn, hardResetBtn;
-  try {
-    ({ buttonContainer, downloadBtn, resetBtn, hardResetBtn } = createResultButtonsContainer(root));
-  } catch {}
+  const { buttonContainer, downloadBtn, resetBtn, hardResetBtn } = createResultButtonsContainer(root);
 
   // Create footer
-  try { createFooter(root); } catch {}
+  createFooter(root);
 
   // ============================================================================
   // FORM NAVIGATION SYSTEM
@@ -468,39 +480,9 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentStep = 0;
 
   // Get button references after they're created and added to DOM
-  let returnBtn = getElement('return-btn');
-  let continueBtn = getElement('continue-btn');
-  let calculateBtn = getElement('calculate-btn');
-  if (!returnBtn || !continueBtn || !calculateBtn) {
-    // Create minimal fallback nav if button container wasn't created
-    const navDiv = document.createElement('div');
-    navDiv.className = 'form-navigation';
-    if (!returnBtn) {
-      returnBtn = document.createElement('button');
-      returnBtn.type = 'button';
-      returnBtn.id = 'return-btn';
-      returnBtn.className = 'simulation-button return-button';
-      returnBtn.textContent = TEXT_CONFIG.buttons.return;
-      navDiv.appendChild(returnBtn);
-    }
-    if (!continueBtn) {
-      continueBtn = document.createElement('button');
-      continueBtn.type = 'button';
-      continueBtn.id = 'continue-btn';
-      continueBtn.className = 'simulation-button';
-      continueBtn.textContent = TEXT_CONFIG.buttons.continue;
-      navDiv.appendChild(continueBtn);
-    }
-    if (!calculateBtn) {
-      calculateBtn = document.createElement('button');
-      calculateBtn.type = 'button';
-      calculateBtn.id = 'calculate-btn';
-      calculateBtn.className = 'simulation-button';
-      calculateBtn.textContent = TEXT_CONFIG.buttons.calculate;
-      navDiv.appendChild(calculateBtn);
-    }
-    salaryForm.appendChild(navDiv);
-  }
+  const returnBtn = getElement('return-btn');
+  const continueBtn = getElement('continue-btn');
+  const calculateBtn = getElement('calculate-btn');
 
   /**
    * Show the specified step and update navigation buttons
@@ -548,12 +530,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update continue button state based on step validation
     updateContinueButtonState(idx);
     
-    // Auto-focus net base salary input on step 2
+    // Auto-focus gross base salary input on step 2
     if (idx === 1) {
-      const netSalaryInput = document.getElementById('net-salary');
-      if (netSalaryInput) {
-        netSalaryInput.focus();
-        netSalaryInput.select && netSalaryInput.select();
+      const grossSalaryInput = document.getElementById('gross-salary');
+      if (grossSalaryInput) {
+        grossSalaryInput.focus();
+        grossSalaryInput.select && grossSalaryInput.select();
       }
     }
     
@@ -596,17 +578,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!continueBtn) return;
     
     let isValid = false;
-  // Query inputs on demand to avoid referencing variables before initialization
-  const taxResidentStatusSelect = document.getElementById('tax-resident-status');
-  const netSalaryInput = document.getElementById('net-salary');
     
     switch (idx) {
       case 0: // Tax Resident Status step
         isValid = taxResidentStatusSelect && taxResidentStatusSelect.value;
         break;
-      case 1: // Net base salary step
-        if (netSalaryInput) {
-          const numericValue = parseInt(netSalaryInput.value.replace(/\D/g, '')) || 0;
+      case 1: // Gross base salary step
+        if (grossSalaryInput) {
+          const numericValue = parseInt(grossSalaryInput.value.replace(/\D/g, '')) || 0;
           isValid = numericValue >= MIN_SALARY;
         }
         break;
@@ -637,10 +616,10 @@ document.addEventListener('DOMContentLoaded', () => {
     taxResidentStatusSelect.addEventListener('change', () => updateContinueButtonState(currentStep));
   }
 
-  // Step 2: Net Base Salary Input
-  const netSalaryInput = getElement('net-salary');
-  if (netSalaryInput) {
-    netSalaryInput.addEventListener('input', () => updateContinueButtonState(currentStep));
+  // Step 2: Gross Base Salary Input
+  const grossSalaryInput = getElement('gross-salary');
+  if (grossSalaryInput) {
+    grossSalaryInput.addEventListener('input', () => updateContinueButtonState(currentStep));
   }
 
   // Continue button handler
@@ -689,8 +668,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let warningElement = null;
     
     // Get appropriate warning element
-    if (input.id === 'net-salary') {
-      warningElement = document.getElementById('net-salary-warning');
+    if (input.id === 'gross-salary') {
+      warningElement = document.getElementById('gross-salary-warning');
     } else if (input.closest('#allowance-inputs')) {
       warningElement = document.getElementById('allowance-warning');
     } else if (input.closest('#bonus-inputs')) {
@@ -731,16 +710,6 @@ document.addEventListener('DOMContentLoaded', () => {
    * Handle the salary calculation process
    */
   function handleCalculation() {
-    // Ensure result buttons container exists (fallback in case initial creation failed)
-    if (!buttonContainer || !document.getElementById('result-buttons-container')) {
-      try {
-        ({ buttonContainer, downloadBtn, resetBtn, hardResetBtn } = createResultButtonsContainer(root));
-        // Re-wire PDF setup now that button exists
-        setupDownloadButton();
-      } catch (_) {
-        // Non-fatal: calculation can proceed; just skip buttons
-      }
-    }
     // Helper functions
     const parseNumber = (val) => {
       if (typeof val === 'number') return val;
@@ -756,20 +725,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Collect form data - consistent with backend expectations
     const params = {
-      method: 'net-to-gross',
-      netSalary: parseNumber(getVal('net-salary')),
+      method: 'gross-to-net',
+      grossSalary: parseNumber(getVal('gross-salary')),
       taxResidentStatus: getVal('tax-resident-status') || 'local',
       
-      // Net allowance inputs
-      netLunchAllowance: parseNumber(getVal('allowance-lunch')),
-      netFuelAllowance: parseNumber(getVal('allowance-fuel')),
-      netPhoneAllowance: parseNumber(getVal('allowance-phone')),
-      netTravelAllowance: parseNumber(getVal('allowance-travel')),
-      netUniformAllowance: parseNumber(getVal('allowance-uniform')),
-      netOtherAllowance: parseNumber(getVal('allowance-other')),
+      // Allowance inputs
+      lunchAllowance: parseNumber(getVal('allowance-lunch')),
+      fuelAllowance: parseNumber(getVal('allowance-fuel')),
+      phoneAllowance: parseNumber(getVal('allowance-phone')),
+      travelAllowance: parseNumber(getVal('allowance-travel')),
+      uniformAllowance: parseNumber(getVal('allowance-uniform')),
+      otherAllowance: parseNumber(getVal('allowance-other')),
       
-      // Net bonus input
-      netTotalBonus: parseNumber(getVal('total-bonus')),
+      // Bonus input
+      totalBonus: parseNumber(getVal('total-bonus')),
       
       // Benefit inputs
       childTuitionBenefit: parseNumber(getVal('benefit-child-tuition')),
@@ -794,9 +763,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderResults(data);
     
     // Show action buttons container
-    if (DOM.buttonContainer) {
-      DOM.buttonContainer.classList.add('show');
-    }
+    DOM.buttonContainer.classList.add('show');
     
     // Setup button handlers
     setupResetHandlers();
@@ -1037,10 +1004,10 @@ document.addEventListener('DOMContentLoaded', () => {
    * Setup reset button handlers
    */
   function setupResetHandlers() {
-    if (resetBtn) resetBtn.onclick = () => {
+    resetBtn.onclick = () => {
       // Hide results and button container
       DOM.resultDiv.innerHTML = '';
-      if (DOM.buttonContainer) DOM.buttonContainer.classList.remove('show');
+      DOM.buttonContainer.classList.remove('show');
       
       // Re-insert form
       if (!document.getElementById('salary-form')) {
@@ -1054,7 +1021,7 @@ document.addEventListener('DOMContentLoaded', () => {
       showStep(currentStep);
     };
 
-    if (hardResetBtn) hardResetBtn.onclick = () => {
+    hardResetBtn.onclick = () => {
       window.location.reload();
     };
   }
@@ -1077,23 +1044,19 @@ document.addEventListener('DOMContentLoaded', () => {
    * Ensure jsPDF and html2canvas libraries are loaded before export
    * @param {Function} callback - Callback to execute when libraries are ready
    */
-  // (Library loading handled in shared export module)
+  // (PDF download logic centralized in download-pdf.js)
 
   /**
    * Setup the download PDF button functionality
    */
   function setupDownloadButton() {
-  const btn = downloadBtn || document.getElementById('download-pdf-btn');
-  if (!btn) return; // guard in case buttons not created
-  // keep reference for future calls
-  downloadBtn = btn;
-  btn.addEventListener('click', async (e) => {
+    downloadBtn.addEventListener('click', async (e) => {
       e.preventDefault();
       
-  // Libraries ensured by shared exportResultToPdf
-        // Collect both result tables (Payslip and Employer Cost)
-        const resultTableContainers = Array.from(document.querySelectorAll('.result-table-container'));
-        if (!resultTableContainers.length) return;
+  // Libraries loaded inside shared exportResultToPdf
+  // Collect both result tables (Payslip and Employer Cost)
+  const resultTableContainers = Array.from(document.querySelectorAll('.result-table-container'));
+  if (!resultTableContainers.length) return;
         
         // Create export container
         const exportContainer = document.createElement('div');
@@ -1116,14 +1079,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         headerTitle.className = 'pdf-export-title';
         exportContainer.appendChild(headerTitle);
-        
+
         // Add hr below the main header
         const hr = root.querySelector('hr');
         if (hr) {
           exportContainer.appendChild(hr.cloneNode(true));
         }
-        
-        // Add PAYSLIP title below hr
+
+        // Add PAYSLIP title below hr, same size as Employer's Cost
         const payslipTitle = document.createElement('h1');
         payslipTitle.textContent = TEXT_CONFIG.payslipTitle;
         payslipTitle.className = 'pdf-export-title';
@@ -1132,7 +1095,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add Payslip table (first container)
         exportContainer.appendChild(resultTableContainers[0].cloneNode(true));
 
-        // Add Employer Cost title and table if present
+        // Add Employer Cost table (second container), with its own title if present
         if (resultTableContainers[1]) {
           const employerCostTitle = document.createElement('h1');
           employerCostTitle.textContent = TEXT_CONFIG.results.employerCostTable.title;
@@ -1141,50 +1104,53 @@ document.addEventListener('DOMContentLoaded', () => {
           exportContainer.appendChild(resultTableContainers[1].cloneNode(true));
         }
 
-  // Export footer with HR + Important Note and Disclaimer
+  // Add export footer (Important Note + Disclaimer) with same styling
         const exportFooter = document.createElement('footer');
         exportFooter.className = 'app-footer export-footer';
-  // HR above the note/disclaimer
-  const hrFooter = document.createElement('hr');
-  exportFooter.appendChild(hrFooter);
+        const hr1 = document.createElement('hr');
+        exportFooter.appendChild(hr1);
         const importantTitle = document.createElement('span');
         importantTitle.className = 'footer-title';
-        importantTitle.textContent = TEXT.employerNetToGross.footer.importantNoteTitle;
+        importantTitle.textContent = TEXT_CONFIG.footer.importantNoteTitle;
         exportFooter.appendChild(importantTitle);
         const importantText = document.createElement('div');
         importantText.className = 'footer-text';
+        // Render contact text as plain text (no underline/hyperlink) in export
         const contactPlain = document.createElement('span');
-        contactPlain.textContent = TEXT.employerNetToGross.footer.contactLinkText;
-        importantText.textContent = `${TEXT.employerNetToGross.footer.importantNoteText} `;
+        contactPlain.textContent = TEXT_CONFIG.footer.contactLinkText;
+        importantText.textContent = `${TEXT_CONFIG.footer.importantNoteText} `;
         importantText.appendChild(contactPlain);
         importantText.appendChild(document.createTextNode('.'));
         exportFooter.appendChild(importantText);
         const disclaimerTitle = document.createElement('span');
         disclaimerTitle.className = 'footer-title';
-        disclaimerTitle.textContent = TEXT.employerNetToGross.footer.disclaimerTitle;
+        disclaimerTitle.textContent = TEXT_CONFIG.footer.disclaimerTitle;
         exportFooter.appendChild(disclaimerTitle);
-        const disclaimerText = document.createElement('div');
-        disclaimerText.className = 'footer-text';
-        disclaimerText.textContent = TEXT.employerNetToGross.footer.disclaimerText;
-        exportFooter.appendChild(disclaimerText);
+  const disclaimerText = document.createElement('div');
+  disclaimerText.className = 'footer-text';
+  disclaimerText.textContent = TEXT_CONFIG.footer.disclaimerText;
+  exportFooter.appendChild(disclaimerText);
 
-        // Export ID: plain epoch milliseconds (numbers only)
-        const exportTimestamp = Date.now();
-        const exportId = String(exportTimestamp);
-        const idDiv = document.createElement('div');
-        idDiv.className = 'export-id';
-        idDiv.textContent = `ID: ${exportId}`;
-        exportFooter.appendChild(idDiv);
+  // Export ID: plain epoch milliseconds (numbers only)
+  const exportTimestamp = Date.now();
+  const exportId = String(exportTimestamp);
 
-        // Version bottom-right
-        const versionDiv = document.createElement('div');
-        versionDiv.className = 'version-display';
-        versionDiv.textContent = (TEXT && TEXT.version) || '';
-        exportFooter.appendChild(versionDiv);
+  // Add ID (bottom-left) and version (bottom-right) inside footer on same line
+  const idDiv = document.createElement('div');
+  idDiv.className = 'export-id';
+  idDiv.textContent = `ID: ${exportId}`;
+  exportFooter.appendChild(idDiv);
 
-        exportContainer.appendChild(exportFooter);
-        document.body.appendChild(exportContainer);
+  // Add version label inside the export footer so it appears below disclaimer text
+  const versionDiv = document.createElement('div');
+  versionDiv.className = 'version-display';
+  versionDiv.textContent = (TEXT && TEXT.version) || (TEXT_CONFIG && TEXT_CONFIG.version) || '';
+  exportFooter.appendChild(versionDiv);
+  exportContainer.appendChild(exportFooter);
         
+        // Ensure export container is attached to DOM for html2canvas
+        document.body.appendChild(exportContainer);
+ 
         // Generate filename with current date
   const filename = buildStandardPdfFilename();
         
@@ -1201,10 +1167,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /**
-   * Create and display version information in bottom right corner
-   */
+  // Setup download button functionality
+  // Create and display version information in bottom right corner (page)
   function createVersionDisplay() {
+    if (document.querySelector('.version-display')) return;
     const versionDiv = document.createElement('div');
     versionDiv.className = 'version-display';
   versionDiv.textContent = (TEXT && TEXT.version) || (TEXT_CONFIG && TEXT_CONFIG.version) || '';

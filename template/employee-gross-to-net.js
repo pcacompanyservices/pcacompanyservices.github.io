@@ -2,7 +2,7 @@
 
 import { simulateSalary } from '../be/cal.js';
 import { TEXT } from '../lang/eng.js';
-import { exportResultToPdf, buildStandardPdfFilename } from './download-pdf.js';
+import { exportResultToPdf, buildStandardPdfFilename } from '../module/download-pdf.js';
 
 // Simple HTML template helper (same as employer path)
 const html = (strings, ...values) =>

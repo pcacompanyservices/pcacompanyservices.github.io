@@ -1,9 +1,6 @@
-// Centralized PDF download utilities
-// Provides: ensure PDF libs, build filename, create export container helpers, and exportResultToPdf
-// Usage in scenario scripts:
-//   import { buildStandardPdfFilename, exportResultToPdf, ensurePdfLibsLoaded } from './download-pdf.js';
-//   const filename = buildStandardPdfFilename();
-//   await exportResultToPdf({ exportContainer, filename });
+// Centralized PDF download utilities (moved to /module)
+// Usage:
+// import { buildStandardPdfFilename, exportResultToPdf } from '../module/download-pdf.js';
 
 let _pdfLibPromise = null;
 
