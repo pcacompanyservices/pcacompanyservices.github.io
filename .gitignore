@@ -1,3 +1,4 @@
 be/test/
 .DS_Store
 **/.DS_Store
+.idx/dev.nix
