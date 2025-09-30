@@ -9,13 +9,13 @@
   --color-secondary: #6c757d;
   --color-secondary-hover: #5a6268;
   --color-success: #1a7f3c;
-  --color-text-primary: #212529;
+  --color-text-primary: #343434;
   --color-text-secondary: #555;
   --color-border: #ccc;
   --color-background-light: #f3f3f3;
   --color-disabled-bg: #e0e0e0;
   --color-disabled-text: #aaa;
-  --color-title-text: #333;
+  --color-title-text: #343434;
 
   /* Fonts */
   --font-primary: 'EB Garamond', serif;

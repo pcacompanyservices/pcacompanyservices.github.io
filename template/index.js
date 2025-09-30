@@ -1,10 +1,10 @@
 // ============================================================================
 // UTILITY FUNCTIONS (formerly from util/ directory)
 // ============================================================================
-
 // HTML template literal utility
-const html = (strings, ...values) =>
-  strings.reduce((acc, str, i) => acc + str + (values[i] || ''), '');
+function html(strings, ...values) {
+  return strings.reduce((acc, str, i) => acc + str + (values[i] || ''), '');
+}
 
 // Language pack
 import { TEXT } from '../lang/eng.js';
