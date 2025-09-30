@@ -3,7 +3,8 @@
 import { simulateSalary } from '../be/cal.js';
 import { TEXT } from '../lang/eng.js';
 import { exportResultToPdf, buildStandardPdfFilename } from '../module/download-pdf.js';
-import { buildProgressBar } from '../module/progress-bar.js';
+import { initMultiStepNavigation } from '../module/multi-step.js';
+import { buildProgressBar, setProgressBarActiveStep } from '../module/progress-bar.js';
 
 // Simple HTML template helper (same as employer path)
 const html = (strings, ...values) =>
@@ -353,114 +354,19 @@ document.addEventListener('DOMContentLoaded', () => {
   // Footer (disclaimer and important notes)
   createFooter(document.body);
 
-  // --- Multi-step form navigation (centralized, like Employer Gross→Net) ---
+  // Multi-step navigation via module
   const steps = [step1, step2, step3, step4, step5];
-  let currentStep = 0;
-  const returnBtn = getElement('return-btn');
-  let continueBtn = getElement('continue-btn');
-  let calculateBtn = getElement('calculate-btn');
-
-  function updateProgressBar(idx) {
-    const stepsEls = document.querySelectorAll('#progress-bar .progress-step');
-    stepsEls.forEach((el, i) => {
-      if (i < idx) {
-        el.classList.add('completed');
-        el.classList.remove('active');
-      } else if (i === idx) {
-        el.classList.add('active');
-        el.classList.remove('completed');
-      } else {
-        el.classList.remove('active', 'completed');
-      }
-    });
-    const lines = document.querySelectorAll('#progress-bar .progress-bar-line');
-    lines.forEach((line, i) => {
-      if (i < idx) line.classList.add('completed');
-      else line.classList.remove('completed');
-    });
-  }
-
-  function updateContinueButtonState(idx) {
-    if (!continueBtn) return;
-    let isValid = false;
-    const taxResidentStatusSelect = document.getElementById('tax-resident-status');
-    const grossSalaryInput = document.getElementById('gross-salary');
-    switch (idx) {
-      case 0:
-        isValid = !!(taxResidentStatusSelect && taxResidentStatusSelect.value);
-        break;
-      case 1:
-        if (grossSalaryInput) {
-          const val = parseInt(grossSalaryInput.value.replace(/\D/g, '')) || 0;
-          isValid = val >= 5000000;
-        }
-        break;
-  case 2:
-  case 3:
-  case 4:
-        isValid = true;
-        break;
-      default:
-        isValid = false;
-    }
-    continueBtn.classList.toggle('unavailable', !isValid);
-    continueBtn.disabled = !isValid;
-  }
-
-  function showStep(idx) {
-    steps.forEach((step, i) => {
-      if (!step) return;
-      if (i === idx) step.classList.add('active');
-      else step.classList.remove('active');
-    });
-
-    // Buttons visibility
-    if (returnBtn) {
-      returnBtn.classList.add('show');
-      if (idx === 0) { returnBtn.disabled = true; returnBtn.classList.add('disabled'); }
-      else { returnBtn.disabled = false; returnBtn.classList.remove('disabled'); }
-    }
-    if (continueBtn) {
-      if (idx < steps.length - 1) continueBtn.classList.add('show');
-      else continueBtn.classList.remove('show');
-    }
-    if (calculateBtn) {
-      if (idx === steps.length - 1) calculateBtn.classList.add('show');
-      else calculateBtn.classList.remove('show');
-    }
-
-    // Focus gross salary on step 2
-    if (idx === 1) {
-      const grossSalaryInput = document.getElementById('gross-salary');
-      if (grossSalaryInput) { grossSalaryInput.focus(); grossSalaryInput.select && grossSalaryInput.select(); }
-    }
-
-    updateContinueButtonState(idx);
-    updateProgressBar(idx);
-  }
-
-  // Input listeners for validation
-  const taxResidentStatusSelect = getElement('tax-resident-status');
-  taxResidentStatusSelect && taxResidentStatusSelect.addEventListener('change', () => updateContinueButtonState(currentStep));
-  const grossSalaryInput = getElement('gross-salary');
-  grossSalaryInput && grossSalaryInput.addEventListener('input', () => updateContinueButtonState(currentStep));
-
-  // Nav handlers
-  continueBtn && continueBtn.addEventListener('click', () => {
-    if (currentStep < steps.length - 1 && !continueBtn.disabled) {
-      currentStep++;
-      showStep(currentStep);
-    }
+  const nav = initMultiStepNavigation({
+    steps,
+    minSalary: 5000000,
+    salaryInputId: 'gross-salary',
+    taxSelectId: 'tax-resident-status',
+    continueBtn: getElement('continue-btn'),
+    returnBtn: getElement('return-btn'),
+    calculateBtn: getElement('calculate-btn'),
+    progressUpdater: (idx) => setProgressBarActiveStep(idx),
+    focusSalaryStepIndex: 1
   });
-  returnBtn && returnBtn.addEventListener('click', () => {
-    if (currentStep > 0 && !returnBtn.disabled) {
-      currentStep--;
-      showStep(currentStep);
-    }
-  });
-
-  // Initial render
-  showStep(currentStep);
 
   // (Charts removed)
 

@@ -14,3 +14,19 @@ export function buildProgressBar(root, stepLabels = [], { id = 'progress-bar' } 
   root.appendChild(bar);
   return bar;
 }
+
+// Update the classes on a built progress bar to reflect active/completed steps
+export function setProgressBarActiveStep(stepIndex, { selector = '#progress-bar' } = {}) {
+  const bar = document.querySelector(selector);
+  if (!bar) return;
+  const steps = bar.querySelectorAll('.progress-step');
+  steps.forEach((el, i) => {
+    if (i < stepIndex) { el.classList.add('completed'); el.classList.remove('active'); }
+    else if (i === stepIndex) { el.classList.add('active'); el.classList.remove('completed'); }
+    else { el.classList.remove('active', 'completed'); }
+  });
+  const lines = bar.querySelectorAll('.progress-bar-line');
+  lines.forEach((line, i) => {
+    if (i < stepIndex) line.classList.add('completed'); else line.classList.remove('completed');
+  });
+}

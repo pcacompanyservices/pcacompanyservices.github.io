@@ -3,7 +3,8 @@
 import { simulateSalary } from '../be/cal.js';
 import { TEXT } from '../lang/eng.js';
 import { exportResultToPdf, buildStandardPdfFilename } from '../module/download-pdf.js';
-import { buildProgressBar } from '../module/progress-bar.js';
+import { initMultiStepNavigation } from '../module/multi-step.js';
+import { buildProgressBar, setProgressBarActiveStep } from '../module/progress-bar.js';
 
 // ============================================================================
 // UTILITY FUNCTIONS (formerly from util/ directory)
@@ -333,151 +334,19 @@ document.addEventListener('DOMContentLoaded', () => {
   // Footer (disclaimer and important notes)
   createFooter(document.body);
 
-// --- Multi-step form navigation logic ---
-  const steps = [step1, step2, step3, step4, step5];
-  const returnBtn = getElement('return-btn');
-  const continueBtn = getElement('continue-btn');
-  const calculateBtn = getElement('calculate-btn');
-  let currentStep = 0;
-
-  function showStep(idx) {
-    steps.forEach((step, i) => {
-      if (!step) return;
-      if (i === idx) step.classList.add('active');
-      else step.classList.remove('active');
-    });
-    if (returnBtn) {
-      returnBtn.classList.add('show');
-      returnBtn.disabled = idx === 0;
-      returnBtn.classList.toggle('disabled', idx === 0);
-    }
-    if (continueBtn) {
-      if (idx < steps.length - 1) continueBtn.classList.add('show');
-      else continueBtn.classList.remove('show');
-    }
-    if (calculateBtn) {
-      if (idx === steps.length - 1) calculateBtn.classList.add('show');
-      else calculateBtn.classList.remove('show');
-    }
-    if (idx === 1) {
-      const netSalaryInput = document.getElementById('net-salary');
-      if (netSalaryInput) {
-        netSalaryInput.focus();
-        netSalaryInput.select && netSalaryInput.select();
-      }
-    }
-    const stepsEls = document.querySelectorAll('#progress-bar .progress-step');
-    stepsEls.forEach((el, i) => {
-      if (i < idx) {
-        el.classList.add('completed');
-        el.classList.remove('active');
-      } else if (i === idx) {
-        el.classList.add('active');
-        el.classList.remove('completed');
-      } else {
-        el.classList.remove('active', 'completed');
-      }
-    });
-    const lines = document.querySelectorAll('#progress-bar .progress-bar-line');
-    lines.forEach((line, i) => {
-      if (i < idx) {
-        line.classList.add('completed');
-      } else {
-        line.classList.remove('completed');
-      }
-    });
-    updateContinueButtonState(idx);
-  }
-
-  function updateContinueButtonState(idx) {
-    if (!continueBtn) return;
-    let valid = false;
-    const statusSelect = getElement('tax-resident-status');
-    const netInput = getElement('net-salary');
-    switch (idx) {
-      case 0: valid = !!(statusSelect && statusSelect.value); break;
-      case 1: {
-        if (netInput) {
-          const v = parseInt(netInput.value.replace(/\D/g, '')) || 0;
-          valid = v >= 4475000;
-        }
-        break;
-      }
-      case 2: valid = true; break;
-      case 3: valid = true; break;
-      case 4: valid = true; break;
-      default: valid = false;
-    }
-    continueBtn.classList.toggle('unavailable', !valid);
-    continueBtn.disabled = !valid;
-  }
-
-  if (continueBtn) continueBtn.addEventListener('click', () => {
-    if (!continueBtn.disabled && currentStep < steps.length - 1) {
-      currentStep++;
-      showStep(currentStep);
-    }
+  // Multi-step navigation (module)
+  const steps = [step1, step2, step3, step4, step5]; // steps for navigation
+  const nav = initMultiStepNavigation({
+    steps,
+    minSalary: 4475000,
+    salaryInputId: 'net-salary',
+    taxSelectId: 'tax-resident-status',
+    continueBtn: getElement('continue-btn'),
+    returnBtn: getElement('return-btn'),
+    calculateBtn: getElement('calculate-btn'),
+    progressUpdater: (idx) => setProgressBarActiveStep(idx),
+    focusSalaryStepIndex: 1
   });
-  if (returnBtn) returnBtn.addEventListener('click', () => {
-    if (currentStep > 0) {
-      currentStep--;
-      showStep(currentStep);
-    }
-  });
-  // Keep continue button state in sync with inputs
-  const statusSelect = getElement('tax-resident-status');
-  const netInput = getElement('net-salary');
-  statusSelect && statusSelect.addEventListener('change', () => updateContinueButtonState(currentStep));
-  netInput && netInput.addEventListener('input', () => updateContinueButtonState(currentStep));
-  showStep(currentStep);
-
-  // Charts removed
-
-  // --- DOM references ---
-  const DOM = {
-    salaryForm,
-    calculateBtn,
-    downloadPdfBtn: downloadBtn,
-    buttonContainer,
-    resultDiv,
-    // No chart refs
-  };
-  // No checkbox gating; inputs are always visible
-
-  // --- Format number input fields and restrict max value ---
-  function formatNumberInput(input) {
-    let raw = input.value.replace(/[^\d]/g, '');
-    let warning = null;
-    if (input.id === 'net-salary') {
-      warning = document.getElementById('net-salary-warning');
-    } else if (input.closest('#allowance-inputs')) {
-      warning = document.getElementById('allowance-warning');
-    } else if (input.id === 'total-bonus') {
-      warning = document.getElementById('bonus-warning');
-    } else if (input.closest('#benefit-inputs')) {
-      warning = document.getElementById('benefit-warning');
-    }
-    if (raw.length > 9) {
-      if (warning) warning.style.display = '';
-      raw = raw.slice(0, 9);
-    } else {
-      if (warning) warning.style.display = 'none';
-    }
-    if (raw) {
-      let num = parseInt(raw, 10);
-      input.value = num ? num.toLocaleString('vi-VN') : '';
-    } else {
-      input.value = '';
-    }
-  }
-  document.addEventListener('input', (e) => {
-    if (e.target.tagName === 'INPUT' && e.target.classList.contains('number-input')) {
-      formatNumberInput(e.target);
-    }
-  });
-
-  // Charts removed
-
   // --- Calculation handler ---
   function parseNumber(val) {
     if (typeof val === 'number') return val;

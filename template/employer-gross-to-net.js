@@ -1,7 +1,8 @@
 import { simulateSalary } from '../be/cal.js';
 import { TEXT } from '../lang/eng.js';
 import { exportResultToPdf, buildStandardPdfFilename } from '../module/download-pdf.js';
-import { buildProgressBar } from '../module/progress-bar.js';
+import { initMultiStepNavigation } from '../module/multi-step.js';
+import { buildProgressBar, setProgressBarActiveStep } from '../module/progress-bar.js';
 
 // ============================================================================
 // CONSTANTS AND CONFIGURATION
@@ -470,173 +471,23 @@ document.addEventListener('DOMContentLoaded', () => {
   // ============================================================================
   
   const steps = [step1, step2, step3, step4, step5];
-  let currentStep = 0;
-
-  // Get button references after they're created and added to DOM
-  const returnBtn = getElement('return-btn');
-  const continueBtn = getElement('continue-btn');
-  const calculateBtn = getElement('calculate-btn');
-
-  /**
-   * Show the specified step and update navigation buttons
-   * @param {number} idx - Step index to show
-   */
-  function showStep(idx) {
-    steps.forEach((step, i) => {
-      if (step) {
-        if (i === idx) {
-          step.classList.add('active');
-        } else {
-          step.classList.remove('active');
-        }
-      }
-    });
-    
-    // Show/hide navigation buttons based on current step
-    // Always show return button, but disable it on first step
-    if (returnBtn) {
-      returnBtn.classList.add('show');
-      if (idx === 0) {
-        returnBtn.disabled = true;
-        returnBtn.classList.add('disabled');
-      } else {
-        returnBtn.disabled = false;
-        returnBtn.classList.remove('disabled');
-      }
-    }
-    
-    if (continueBtn) {
-      if (idx < steps.length - 1) {
-        continueBtn.classList.add('show');
-      } else {
-        continueBtn.classList.remove('show');
-      }
-    }
-    if (calculateBtn) {
-      if (idx === steps.length - 1) {
-        calculateBtn.classList.add('show');
-      } else {
-        calculateBtn.classList.remove('show');
-      }
-    }
-    
-    // Update continue button state based on step validation
-    updateContinueButtonState(idx);
-    
-    // Auto-focus gross base salary input on step 2
-    if (idx === 1) {
-      const grossSalaryInput = document.getElementById('gross-salary');
-      if (grossSalaryInput) {
-        grossSalaryInput.focus();
-        grossSalaryInput.select && grossSalaryInput.select();
-      }
-    }
-    
-    updateProgressBar(idx);
-  }
-
-  /**
-   * Update progress bar visual state
-   * @param {number} idx - Current step index
-   */
-  function updateProgressBar(idx) {
-    const stepsEls = document.querySelectorAll('#progress-bar .progress-step');
-    stepsEls.forEach((el, i) => {
-      if (i < idx) {
-        el.classList.add('completed');
-        el.classList.remove('active');
-      } else if (i === idx) {
-        el.classList.add('active');
-        el.classList.remove('completed');
-      } else {
-        el.classList.remove('active', 'completed');
-      }
-    });
-    
-    const lines = document.querySelectorAll('#progress-bar .progress-bar-line');
-    lines.forEach((line, i) => {
-      if (i < idx) {
-        line.classList.add('completed');
-      } else {
-        line.classList.remove('completed');
-      }
-    });
-  }
-
-  /**
-   * Update continue button state based on current step validation
-   * @param {number} idx - Current step index
-   */
-  function updateContinueButtonState(idx) {
-    if (!continueBtn) return;
-    
-    let isValid = false;
-    
-    switch (idx) {
-      case 0: // Tax Resident Status step
-        isValid = taxResidentStatusSelect && taxResidentStatusSelect.value;
-        break;
-      case 1: // Gross base salary step
-        if (grossSalaryInput) {
-          const numericValue = parseInt(grossSalaryInput.value.replace(/\D/g, '')) || 0;
-          isValid = numericValue >= MIN_SALARY;
-        }
-        break;
-      case 2: // Allowance step (always valid, can skip)
-        isValid = true;
-        break;
-      case 3: // Bonus step (always valid, can skip)
-        isValid = true;
-        break;
-      case 4: // Benefit step (always valid, can skip)
-        isValid = true;
-        break;
-      default:
-        isValid = false;
-    }
-    
-    continueBtn.classList.toggle('unavailable', !isValid);
-    continueBtn.disabled = !isValid;
-  }
+  const nav = initMultiStepNavigation({
+    steps,
+    minSalary: MIN_SALARY,
+    salaryInputId: 'gross-salary',
+    taxSelectId: 'tax-resident-status',
+    continueBtn: getElement('continue-btn'),
+    returnBtn: getElement('return-btn'),
+    calculateBtn: getElement('calculate-btn'),
+    progressUpdater: (idx) => setProgressBarActiveStep(idx),
+    focusSalaryStepIndex: 1
+  });
 
   // ============================================================================
   // STEP VALIDATION AND EVENT HANDLERS
   // ============================================================================
 
-  // Step 1: Tax Resident Status Selection
-  const taxResidentStatusSelect = getElement('tax-resident-status');
-  if (taxResidentStatusSelect) {
-    taxResidentStatusSelect.addEventListener('change', () => updateContinueButtonState(currentStep));
-  }
-
-  // Step 2: Gross Base Salary Input
-  const grossSalaryInput = getElement('gross-salary');
-  if (grossSalaryInput) {
-    grossSalaryInput.addEventListener('input', () => updateContinueButtonState(currentStep));
-  }
-
-  // Continue button handler
-  if (continueBtn) {
-    continueBtn.addEventListener('click', () => {
-      if (currentStep < steps.length - 1 && !continueBtn.disabled) {
-        currentStep++;
-        showStep(currentStep);
-      }
-    });
-  }
-
-  // Return button handler
-  if (returnBtn) {
-    returnBtn.addEventListener('click', () => {
-      if (currentStep > 0 && !returnBtn.disabled) {
-        currentStep--;
-        showStep(currentStep);
-      }
-    });
-  }
-
-  // Initialize first step
-  showStep(currentStep);
+  // Nav events handled by module; remove local listeners
 
   // ============================================================================
   // DOM REFERENCES AND INPUT HANDLING
