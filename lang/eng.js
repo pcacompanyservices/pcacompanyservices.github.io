@@ -56,8 +56,10 @@ export const TEXT = {
     totalBonusPlaceholder: 'Total bonus (VND)',
     childTuition: "Child's Tuition Fee",
     rental: 'Rental',
-    healthInsurance: 'Health Insurance',
-  idLabel: 'ID:' ,
+  healthInsurance: 'Health Insurance',
+	idLabel: 'ID:',
+  appTitle: 'Salary Simulation Tool',
+  allowanceTypes: { lunch: 'Lunch', fuel: 'Fuel', phone: 'Phone', travel: 'Travel', uniform: 'Uniform', other: 'Other Allowance' },
     pdf: {
       filenamePrefix: '[PCA_Salary_Simulation]',
       errorLibs: 'PDF export libraries not available',

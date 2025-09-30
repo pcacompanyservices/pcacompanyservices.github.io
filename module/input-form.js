@@ -44,8 +44,8 @@ export function createAllowanceStep(textConfig) {
   const tooltip = (textConfig.infoTooltips && textConfig.infoTooltips.allowance) || allowanceCfg.tooltip || '';
   const warning = (textConfig.warnings && textConfig.warnings.maxDigits) || allowanceCfg.warningMaxDigits || TEXT.defaults.maxDigitsWarning;
   const keys = ['lunch', 'fuel', 'phone', 'travel', 'uniform', 'other'];
-  step.innerHTML = html`<div class="step-title-row"><h2>${allowanceCfg.title || 'Allowance'}</h2><span class="question-icon" tabindex="0"><img src="asset/question_icon.webp" alt="info" /><span class="info-box">${tooltip}</span></span></div><div id="allowance-inputs"><div id="allowance-warning" class="input-warning hidden-initial">${warning}</div>${keys.map(k => {
-  const labelText = (allowanceCfg.types && allowanceCfg.types[k]) || (k === 'other' ? TEXT.defaults.allowanceTitle : k);
+  step.innerHTML = html`<div class="step-title-row"><h2>${allowanceCfg.title || TEXT.defaults.allowanceTitle}</h2><span class="question-icon" tabindex="0"><img src="asset/question_icon.webp" alt="info" /><span class="info-box">${tooltip}</span></span></div><div id="allowance-inputs"><div id="allowance-warning" class="input-warning hidden-initial">${warning}</div>${keys.map(k => {
+  const labelText = (allowanceCfg.types && allowanceCfg.types[k]) || (TEXT.defaults.allowanceTypes && TEXT.defaults.allowanceTypes[k]) || (k === 'other' ? TEXT.defaults.allowanceTitle : k);
     const tip = (textConfig.infoTooltips && textConfig.infoTooltips[k]) || (allowanceCfg.tooltips && allowanceCfg.tooltips[k]) || '';
     return html`<label class="input-label">${labelText} <span class="question-icon" tabindex="0"><img src="asset/question_icon.webp" alt="info" /><span class="info-box">${tip}</span></span></label><input type="text" class="number-input" id="allowance-${k}" placeholder="${(allowanceCfg.placeholders && allowanceCfg.placeholders[k]) || ''}" min="0" />`;
   }).join('')}</div>`;

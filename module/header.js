@@ -3,28 +3,34 @@
 
 import { TEXT } from '../lang/eng.js';
 
-export function createPageHeader({ root, title, logoSelector = '.logo', addHr = true } = {}) {
+function buildLogoElement() {
+  const anchor = document.createElement('a');
+  anchor.href = 'index.html';
+  const img = document.createElement('img');
+  img.src = 'asset/pca-logo.webp';
+  img.alt = 'PCA Logo';
+  img.className = 'logo';
+  anchor.appendChild(img);
+  return anchor;
+}
+
+export function createPageHeader({ root, title, addHr = true } = {}) {
   if(!root) return null;
-  const existingLogo = document.querySelector(logoSelector);
-  if(existingLogo) {
-    const clone = existingLogo.cloneNode(true);
-    clone.classList.add('header-logo');
-    root.appendChild(clone);
-  }
+  // Always inject logo (removed from static HTML templates)
+  root.appendChild(buildLogoElement());
   const h1 = document.createElement('h1');
-  h1.textContent = title || (TEXT && TEXT.index && TEXT.index.title) || 'Salary Simulation';
+  h1.textContent = title || (TEXT && TEXT.index && TEXT.index.title) || TEXT.defaults.appTitle;
   root.appendChild(h1);
   if(addHr) root.appendChild(document.createElement('hr'));
   return h1;
 }
 
-export function buildExportHeader({ title, payslipTitle, logoSelector = '.logo' }) {
+export function buildExportHeader({ title, payslipTitle }) {
   const frag = document.createDocumentFragment();
-  const logo = document.querySelector(logoSelector);
-  if(logo) frag.appendChild(logo.cloneNode(true));
+  frag.appendChild(buildLogoElement());
   const main = document.createElement('h1');
   main.className='pdf-export-title';
-  main.textContent = title || (TEXT.index && TEXT.index.title) || 'Salary Simulation Tool';
+  main.textContent = title || (TEXT.index && TEXT.index.title) || TEXT.defaults.appTitle;
   frag.appendChild(main);
   if(payslipTitle){
     const pay = document.createElement('h1');
