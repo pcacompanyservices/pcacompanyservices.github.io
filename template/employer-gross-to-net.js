@@ -1,8 +1,7 @@
 import { simulateSalary } from '../be/cal.js';
 import { TEXT } from '../lang/eng.js';
 import { exportResultToPdf, buildStandardPdfFilename } from '../module/download-pdf.js';
-import { initMultiStepNavigation } from '../module/multi-step.js';
-import { buildProgressBar, setProgressBarActiveStep } from '../module/progress-bar.js';
+import { initStandardForm } from '../module/input-form.js';
 
 // ============================================================================
 // CONSTANTS AND CONFIGURATION
@@ -92,216 +91,43 @@ function createTitleBlock(root) {
  * @param {HTMLElement} root - Root element to append form to
  * @returns {HTMLElement} The created form element
  */
-function createSalaryForm(root) {
-  const salaryForm = createAndAppend(root, 'form', { id: 'salary-form' });
-  return salaryForm;
-}
+// (Local createSalaryForm removed; using shared createSharedSalaryForm)
 
 /**
  * Create Step 1: Tax Resident Status Selection
  * @returns {HTMLElement} The created step element
  */
-function createStep1() {
-  const step1 = document.createElement('div');
-  step1.className = 'form-step';
-  step1.id = 'step-1';
-  step1.innerHTML = html`
-    <div class="step-title-row">
-      <h2>${TEXT_CONFIG.steps.taxResidentStatus.title}</h2>
-      <span class="question-icon" tabindex="0">
-        <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">${TEXT_CONFIG.infoTooltips.taxResidentStatus}</span>
-      </span>
-    </div>
-    <select id="tax-resident-status">
-      <option value="" disabled selected>${TEXT_CONFIG.steps.taxResidentStatus.selectPlaceholder}</option>
-      <option value="local">${TEXT_CONFIG.steps.taxResidentStatus.options.local}</option>
-      <option value="expat">${TEXT_CONFIG.steps.taxResidentStatus.options.expat}</option>
-    </select>
-  `;
-  return step1;
-}
+// (createStep1 removed; shared module supplies this step)
 
 /**
  * Create Step 2: Gross Salary Input
  * @returns {HTMLElement} The created step element
  */
-function createStep2() {
-  const step2 = document.createElement('div');
-  step2.className = 'form-step';
-  step2.id = 'step-2';
-  step2.innerHTML = html`
-    <div class="step-title-row">
-      <h2>${TEXT_CONFIG.steps.grossSalary.title}</h2>
-      <span class="question-icon" tabindex="0">
-        <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">${TEXT_CONFIG.infoTooltips.grossSalary}</span>
-      </span>
-    </div>
-    <input type="text" class="number-input" id="gross-salary" placeholder="${TEXT_CONFIG.steps.grossSalary.placeholder}" />
-    <div id="gross-salary-warning" class="input-warning">${TEXT_CONFIG.warnings.maxDigits}</div>
-  `;
-  return step2;
-}
+// (createStep2 removed; shared module supplies salary step)
 
 /**
  * Create Step 3: Allowance Inputs
  * @returns {HTMLElement} The created step element
  */
-function createStep3() {
-  const step3 = document.createElement('div');
-  step3.className = 'form-step';
-  step3.id = 'step-3';
-  step3.innerHTML = html`
-    <div class="step-title-row">
-      <h2>${TEXT_CONFIG.steps.allowance.title}</h2>
-      <span class="question-icon" tabindex="0">
-        <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">${TEXT_CONFIG.infoTooltips.allowance}</span>
-      </span>
-    </div>
-    <div id="allowance-container">
-      <div id="allowance-inputs">
-        <div id="allowance-warning" class="input-warning">${TEXT_CONFIG.warnings.maxDigits}</div>
-        
-        <label class="input-label">${TEXT_CONFIG.steps.allowance.types.lunch}
-          <span class="question-icon" tabindex="0">
-            <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">${TEXT_CONFIG.infoTooltips.lunch}</span>
-          </span>
-        </label>
-        <input type="text" class="number-input" id="allowance-lunch" placeholder="${TEXT_CONFIG.steps.allowance.placeholders.lunch}" min="0" />
-        
-        <label class="input-label">${TEXT_CONFIG.steps.allowance.types.fuel}
-          <span class="question-icon" tabindex="0">
-            <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">${TEXT_CONFIG.infoTooltips.fuel}</span>
-          </span>
-        </label>
-        <input type="text" class="number-input" id="allowance-fuel" placeholder="${TEXT_CONFIG.steps.allowance.placeholders.fuel}" min="0" />
-        
-        <label class="input-label">${TEXT_CONFIG.steps.allowance.types.phone}
-          <span class="question-icon" tabindex="0">
-            <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">${TEXT_CONFIG.infoTooltips.phone}</span>
-          </span>
-        </label>
-        <input type="text" class="number-input" id="allowance-phone" placeholder="${TEXT_CONFIG.steps.allowance.placeholders.phone}" min="0" />
-        
-        <label class="input-label">${TEXT_CONFIG.steps.allowance.types.travel}
-          <span class="question-icon" tabindex="0">
-            <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">${TEXT_CONFIG.infoTooltips.travel}</span>
-          </span>
-        </label>
-        <input type="text" class="number-input" id="allowance-travel" placeholder="${TEXT_CONFIG.steps.allowance.placeholders.travel}" min="0" />
-        
-        <label class="input-label">${TEXT_CONFIG.steps.allowance.types.uniform}
-          <span class="question-icon" tabindex="0">
-            <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">${TEXT_CONFIG.infoTooltips.uniform}</span>
-          </span>
-        </label>
-        <input type="text" class="number-input" id="allowance-uniform" placeholder="${TEXT_CONFIG.steps.allowance.placeholders.uniform}" min="0" />
-        
-        <label class="input-label">${TEXT_CONFIG.steps.allowance.types.other}
-          <span class="question-icon" tabindex="0">
-            <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">${TEXT_CONFIG.infoTooltips.otherAllowance}</span>
-          </span>
-        </label>
-        <input type="text" class="number-input" id="allowance-other" placeholder="${TEXT_CONFIG.steps.allowance.placeholders.other}" min="0" />
-      </div>
-    </div>
-  `;
-  return step3;
-}
+// (createStep3 removed; shared module supplies allowance step)
 
 /**
  * Create Step 4: Bonus Input
  * @returns {HTMLElement} The created step element
  */
-function createStep4() {
-  const step4 = document.createElement('div');
-  step4.className = 'form-step';
-  step4.id = 'step-4';
-  step4.innerHTML = html`
-    <div class="step-title-row">
-      <h2>${TEXT_CONFIG.steps.bonus.title}</h2>
-      <span class="question-icon" tabindex="0">
-        <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">${TEXT_CONFIG.infoTooltips.bonus}</span>
-      </span>
-    </div>
-    <input type="text" class="number-input" id="total-bonus" placeholder="${TEXT_CONFIG.steps.bonus.placeholder}" />
-    <div id="bonus-warning" class="input-warning">${TEXT_CONFIG.warnings.maxDigits}</div>
-  `;
-  return step4;
-}
+// (createStep4 removed; shared module supplies bonus step)
 
 /**
  * Create Step 5: Benefit Inputs
  * @returns {HTMLElement} The created step element
  */
-function createStep5() {
-  const step5 = document.createElement('div');
-  step5.className = 'form-step';
-  step5.id = 'step-5';
-  step5.innerHTML = html`
-    <div class="step-title-row">
-      <h2>${TEXT_CONFIG.steps.benefit.title}</h2>
-      <span class="question-icon" tabindex="0">
-        <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">${TEXT_CONFIG.infoTooltips.benefit}</span>
-      </span>
-    </div>
-    <div id="benefit-container">
-      <div id="benefit-inputs">
-        <div id="benefit-warning" class="input-warning">${TEXT_CONFIG.warnings.maxDigits}</div>
-        
-        <label class="input-label">${TEXT_CONFIG.steps.benefit.types.childTuition}
-          <span class="question-icon" tabindex="0">
-            <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">${TEXT_CONFIG.infoTooltips.childTuition}</span>
-          </span>
-        </label>
-        <input type="text" class="number-input" id="benefit-child-tuition" placeholder="${TEXT_CONFIG.steps.benefit.placeholders.childTuition}" min="0" />
-        
-        <label class="input-label">${TEXT_CONFIG.steps.benefit.types.rental}
-          <span class="question-icon" tabindex="0">
-            <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">${TEXT_CONFIG.infoTooltips.rental}</span>
-          </span>
-        </label>
-        <input type="text" class="number-input" id="benefit-rental" placeholder="${TEXT_CONFIG.steps.benefit.placeholders.rental}" min="0" />
-        
-        <label class="input-label">${TEXT_CONFIG.steps.benefit.types.healthInsurance}
-          <span class="question-icon" tabindex="0">
-            <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">${TEXT_CONFIG.infoTooltips.healthInsurance}</span>
-          </span>
-        </label>
-        <input type="text" class="number-input" id="benefit-health-insurance" placeholder="${TEXT_CONFIG.steps.benefit.placeholders.healthInsurance}" min="0" />
-      </div>
-    </div>
-  `;
-  return step5;
-}
+// (createStep5 removed; shared module supplies benefit step)
 
 /**
  * Create navigation buttons container with continue, return, and calculate buttons
  * @returns {HTMLElement} The created navigation container
  */
-function createNavButtons() {
-  const navDiv = document.createElement('div');
-  navDiv.className = 'form-navigation';
-  navDiv.innerHTML = html`
-    <button type="button" id="return-btn" class="simulation-button return-button">${TEXT_CONFIG.buttons.return}</button>
-    <button type="button" id="continue-btn" class="simulation-button">${TEXT_CONFIG.buttons.continue}</button>
-    <button type="button" id="calculate-btn" class="simulation-button">${TEXT_CONFIG.buttons.calculate}</button>
-  `;
-  return navDiv;
-}
+// (createNavButtons removed; using shared createNavigationButtons)
 
 /**
  * Create the result section container
@@ -431,33 +257,16 @@ function createFooter(root) {
 // ============================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
-  const root = getElement('gross-to-net-root');
-  root.innerHTML = '';
-
-  // Create UI components
-  createTitleBlock(root);
-  buildProgressBar(root, [
-    TEXT_CONFIG.progressSteps.taxResidentStatus,
-    TEXT_CONFIG.progressSteps.grossSalary,
-    TEXT_CONFIG.progressSteps.allowance,
-    TEXT_CONFIG.progressSteps.bonus,
-    TEXT_CONFIG.progressSteps.benefit
-  ]);
-  const salaryForm = createSalaryForm(root);
-  
-  // Create form steps
-  const step1 = createStep1();
-  const step2 = createStep2();
-  const step3 = createStep3();
-  const step4 = createStep4();
-  const step5 = createStep5();
-  
-  salaryForm.appendChild(step1);
-  salaryForm.appendChild(step2);
-  salaryForm.appendChild(step3);
-  salaryForm.appendChild(step4);
-  salaryForm.appendChild(step5);
-  salaryForm.appendChild(createNavButtons());
+  const init = initStandardForm({
+    rootId: 'gross-to-net-root',
+    textConfig: TEXT_CONFIG,
+    salaryType: 'gross',
+    maxDigits: MAX_DIGITS,
+    minSalary: MIN_SALARY,
+    focusSalaryStepIndex: 1
+  });
+  if(!init) return;
+  const { root, form: salaryForm, nav } = init;
   
   // Create result containers and buttons
   const { resultDiv } = createResultSection(root);
@@ -469,19 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ============================================================================
   // FORM NAVIGATION SYSTEM
   // ============================================================================
-  
-  const steps = [step1, step2, step3, step4, step5];
-  const nav = initMultiStepNavigation({
-    steps,
-    minSalary: MIN_SALARY,
-    salaryInputId: 'gross-salary',
-    taxSelectId: 'tax-resident-status',
-    continueBtn: getElement('continue-btn'),
-    returnBtn: getElement('return-btn'),
-    calculateBtn: getElement('calculate-btn'),
-    progressUpdater: (idx) => setProgressBarActiveStep(idx),
-    focusSalaryStepIndex: 1
-  });
+  // nav already provided by initStandardForm
 
   // ============================================================================
   // STEP VALIDATION AND EVENT HANDLERS
@@ -507,44 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
    * Format number input with Vietnamese locale and handle max digits validation
    * @param {HTMLInputElement} input - Input element to format
    */
-  function formatNumberInput(input) {
-    let rawValue = input.value.replace(/[^\d]/g, '');
-    let warningElement = null;
-    
-    // Get appropriate warning element
-    if (input.id === 'gross-salary') {
-      warningElement = document.getElementById('gross-salary-warning');
-    } else if (input.closest('#allowance-inputs')) {
-      warningElement = document.getElementById('allowance-warning');
-    } else if (input.closest('#bonus-inputs')) {
-      warningElement = document.getElementById('bonus-warning');
-    } else if (input.closest('#benefit-inputs')) {
-      warningElement = document.getElementById('benefit-warning');
-    }
-    
-    // Check max digits limit
-    if (rawValue.length > MAX_DIGITS) {
-      if (warningElement) warningElement.classList.add('show');
-      rawValue = rawValue.slice(0, MAX_DIGITS);
-    } else {
-      if (warningElement) warningElement.classList.remove('show');
-    }
-    
-    // Format with commas
-    if (rawValue) {
-      const numericValue = parseInt(rawValue, 10);
-      input.value = numericValue ? numericValue.toLocaleString('vi-VN') : '';
-    } else {
-      input.value = '';
-    }
-  }
-
-  // Apply number formatting to all number inputs
-  document.addEventListener('input', (e) => {
-    if (e.target.tagName === 'INPUT' && e.target.classList.contains('number-input')) {
-      formatNumberInput(e.target);
-    }
-  });
+  // Number formatting handled by initStandardForm
 
   // ============================================================================
   // CALCULATION AND RESULT HANDLING
@@ -861,8 +621,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Show progress bar and reset to first step
       const progressBar = document.getElementById('progress-bar');
       if (progressBar) progressBar.classList.remove('progress-bar-hidden');
-      currentStep = 0;
-      showStep(currentStep);
+  nav.goTo(0);
     };
 
     hardResetBtn.onclick = () => {

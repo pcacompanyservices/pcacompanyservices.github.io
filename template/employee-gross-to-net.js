@@ -3,14 +3,13 @@
 import { simulateSalary } from '../be/cal.js';
 import { TEXT } from '../lang/eng.js';
 import { exportResultToPdf, buildStandardPdfFilename } from '../module/download-pdf.js';
-import { initMultiStepNavigation } from '../module/multi-step.js';
-import { buildProgressBar, setProgressBarActiveStep } from '../module/progress-bar.js';
+import { initStandardForm } from '../module/input-form.js';
 
 // Simple HTML template helper (same as employer path)
 const html = (strings, ...values) =>
   strings.reduce((acc, str, i) => acc + str + (values[i] ?? ''), '');
 
-const MAX_DIGITS = 9;
+const MAX_DIGITS = 9; // formatting & warnings now centralized in initStandardForm
 
 // ============================================================================
 // UTILITY FUNCTIONS (formerly from util/ directory)
@@ -30,204 +29,11 @@ function createAndAppend(parent, tag, props = {}, innerHTML = '') {
 }
 // HTML template literal helper ends
 
-function createTitleBlock(root) {
-  const h1 = createAndAppend(root, 'h1');
-  h1.textContent = TEXT.employeeGrossToNet.pageTitle;
-  root.appendChild(document.createElement('hr'));
-  return h1;
-}
-
-function createSalaryForm(root) {
-  const salaryForm = createAndAppend(root, 'form', { id: 'salary-form' });
-  return salaryForm;
-}
+// Title / form / steps now created by initStandardForm
 
 // Progress bar now centralized via buildProgressBar (removed duplicate implementation)
 
-function createStep1() {
-  const step1 = document.createElement('div');
-  step1.className = 'form-step active';
-  step1.id = 'step-1';
-  step1.innerHTML = html`
-    <div class="step-title-row">
-  <h2>${TEXT.employeeGrossToNet.steps.taxResidentStatus.title}</h2>
-      <span class="question-icon" tabindex="0">
-        <img src="asset/question_icon.webp" alt="info" />
-  <span class="info-box">${TEXT.employeeGrossToNet.steps.taxResidentStatus.tooltip}</span>
-      </span>
-    </div>
-    <select id="tax-resident-status">
-      <option value="" disabled selected>${TEXT.employeeGrossToNet.steps.taxResidentStatus.selectPlaceholder}</option>
-      <option value="local">${TEXT.employeeGrossToNet.steps.taxResidentStatus.options.local}</option>
-      <option value="expat">${TEXT.employeeGrossToNet.steps.taxResidentStatus.options.expat}</option>
-    </select>
-  `;
-  return step1;
-}
-
-function createStep2() {
-  const step2 = document.createElement('div');
-  step2.className = 'form-step';
-  step2.id = 'step-2';
-  step2.innerHTML = html`
-    <div class="step-title-row">
-      <h2>${TEXT.employeeGrossToNet.steps.grossSalary.title}</h2>
-      <span class="question-icon" tabindex="0">
-        <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">${TEXT.employeeGrossToNet.steps.grossSalary.tooltip}</span>
-      </span>
-    </div>
-    <input type="text" class="number-input" id="gross-salary" placeholder="${TEXT.employeeGrossToNet.steps.grossSalary.placeholder}" />
-  <div id="gross-salary-warning" class="input-warning hidden-initial">${TEXT.employeeGrossToNet.steps.grossSalary.warningMaxDigits}</div>
-  `;
-  return step2;
-}
-
-function createStep3() {
-  const step3 = document.createElement('div');
-  step3.className = 'form-step';
-  step3.id = 'step-3';
-  step3.innerHTML = html`
-    <div class="step-title-row">
-      <h2>${TEXT.employeeGrossToNet.steps.allowance.title}</h2>
-      <span class="question-icon" tabindex="0">
-        <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">${TEXT.employeeGrossToNet.steps.allowance.tooltip}</span>
-      </span>
-    </div>
-    <div id="allowance-inputs">
-  <div id="allowance-warning" class="input-warning hidden-initial">${TEXT.employeeGrossToNet.steps.allowance.warningMaxDigits}</div>
-      <label class="input-label">${TEXT.employeeGrossToNet.steps.allowance.types.lunch}
-        <span class="question-icon" tabindex="0">
-          <img src="asset/question_icon.webp" alt="info" />
-          <span class="info-box">${TEXT.employeeGrossToNet.steps.allowance.tooltips.lunch}</span>
-        </span>
-      </label>
-      <input type="text" class="number-input" id="allowance-lunch" placeholder="${TEXT.employeeGrossToNet.steps.allowance.placeholders.lunch}" min="0" />
-
-      <label class="input-label">${TEXT.employeeGrossToNet.steps.allowance.types.fuel}
-        <span class="question-icon" tabindex="0">
-          <img src="asset/question_icon.webp" alt="info" />
-          <span class="info-box">${TEXT.employeeGrossToNet.steps.allowance.tooltips.fuel}</span>
-        </span>
-      </label>
-      <input type="text" class="number-input" id="allowance-fuel" placeholder="${TEXT.employeeGrossToNet.steps.allowance.placeholders.fuel}" min="0" />
-
-      <label class="input-label">${TEXT.employeeGrossToNet.steps.allowance.types.phone}
-        <span class="question-icon" tabindex="0">
-          <img src="asset/question_icon.webp" alt="info" />
-          <span class="info-box">${TEXT.employeeGrossToNet.steps.allowance.tooltips.phone}</span>
-        </span>
-      </label>
-      <input type="text" class="number-input" id="allowance-phone" placeholder="${TEXT.employeeGrossToNet.steps.allowance.placeholders.phone}" min="0" />
-
-      <label class="input-label">${TEXT.employeeGrossToNet.steps.allowance.types.travel}
-        <span class="question-icon" tabindex="0">
-          <img src="asset/question_icon.webp" alt="info" />
-          <span class="info-box">${TEXT.employeeGrossToNet.steps.allowance.tooltips.travel}</span>
-        </span>
-      </label>
-      <input type="text" class="number-input" id="allowance-travel" placeholder="${TEXT.employeeGrossToNet.steps.allowance.placeholders.travel}" min="0" />
-
-      <label class="input-label">${TEXT.employeeGrossToNet.steps.allowance.types.uniform}
-        <span class="question-icon" tabindex="0">
-          <img src="asset/question_icon.webp" alt="info" />
-          <span class="info-box">${TEXT.employeeGrossToNet.steps.allowance.tooltips.uniform}</span>
-        </span>
-      </label>
-      <input type="text" class="number-input" id="allowance-uniform" placeholder="${TEXT.employeeGrossToNet.steps.allowance.placeholders.uniform}" min="0" />
-
-      <label class="input-label">${TEXT.employeeGrossToNet.steps.allowance.types.other}
-        <span class="question-icon" tabindex="0">
-          <img src="asset/question_icon.webp" alt="info" />
-          <span class="info-box">${TEXT.employeeGrossToNet.steps.allowance.tooltips.other}</span>
-        </span>
-      </label>
-      <input type="text" class="number-input" id="allowance-other" placeholder="${TEXT.employeeGrossToNet.steps.allowance.placeholders.other}" min="0" />
-    </div>
-  `;
-  return step3;
-}
-
-function createStep4() {
-  const step4 = document.createElement('div');
-  step4.className = 'form-step';
-  step4.id = 'step-4';
-  step4.innerHTML = html`
-    <div class="step-title-row">
-      <h2>${TEXT.employeeGrossToNet.steps.bonus.title}</h2>
-      <span class="question-icon" tabindex="0">
-        <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">${TEXT.employeeGrossToNet.steps.bonus.tooltip}</span>
-      </span>
-    </div>
-    <div id="bonus-inputs">
-  <div id="bonus-warning" class="input-warning hidden-initial">${TEXT.employeeGrossToNet.steps.bonus.warningMaxDigits}</div>
-      <label class="input-label">${TEXT.employeeGrossToNet.steps.bonus.totalLabel || 'Total Bonus'}
-        <span class="question-icon" tabindex="0">
-          <img src="asset/question_icon.webp" alt="info" />
-          <span class="info-box">${TEXT.employeeGrossToNet.steps.bonus.tooltip}</span>
-        </span>
-      </label>
-      <input type="text" class="number-input" id="total-bonus" placeholder="${TEXT.employeeGrossToNet.steps.bonus.placeholders.other}" />
-    </div>
-  `;
-  return step4;
-}
-
-// Benefit step (aligned with Employer flows)
-function createStep5() {
-  const step5 = document.createElement('div');
-  step5.className = 'form-step';
-  step5.id = 'step-5';
-  step5.innerHTML = html`
-    <div class="step-title-row">
-      <h2>${(TEXT.employeeGrossToNet.steps.benefit && TEXT.employeeGrossToNet.steps.benefit.title) || 'Benefit'}</h2>
-      <span class="question-icon" tabindex="0">
-        <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">${TEXT.employerGrossToNet.infoTooltips.benefit}</span>
-      </span>
-    </div>
-    <div id="benefit-container">
-      <div id="benefit-inputs">
-  <div id="benefit-warning" class="input-warning hidden-initial">${TEXT.employeeGrossToNet.steps.bonus.warningMaxDigits}</div>
-        <label class="input-label">${(TEXT.employeeGrossToNet.steps.benefit?.types?.childTuition) || "Child's Tuition Fee"}
-          <span class="question-icon" tabindex="0">
-            <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">${TEXT.employerGrossToNet.infoTooltips.childTuition}</span>
-          </span>
-        </label>
-        <input type="text" class="number-input" id="benefit-child-tuition" placeholder="${(TEXT.employeeGrossToNet.steps.benefit?.placeholders?.childTuition) || "Child's tuition fee (VND)"}" min="0" />
-        <label class="input-label">${(TEXT.employeeGrossToNet.steps.benefit?.types?.rental) || 'Rental'}
-          <span class="question-icon" tabindex="0">
-            <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">${TEXT.employerGrossToNet.infoTooltips.rental}</span>
-          </span>
-        </label>
-        <input type="text" class="number-input" id="benefit-rental" placeholder="${(TEXT.employeeGrossToNet.steps.benefit?.placeholders?.rental) || 'Rental benefit (VND)'}" min="0" />
-        <label class="input-label">${(TEXT.employeeGrossToNet.steps.benefit?.types?.healthInsurance) || 'Health Insurance'}
-          <span class="question-icon" tabindex="0">
-            <img src="asset/question_icon.webp" alt="info" />
-            <span class="info-box">${TEXT.employerGrossToNet.infoTooltips.healthInsurance}</span>
-          </span>
-        </label>
-        <input type="text" class="number-input" id="benefit-health-insurance" placeholder="${(TEXT.employeeGrossToNet.steps.benefit?.placeholders?.healthInsurance) || 'Health insurance benefit (VND)'}" min="0" />
-      </div>
-    </div>
-  `;
-  return step5;
-}
-
-function createNavButtons() {
-  const navDiv = document.createElement('div');
-  navDiv.className = 'form-navigation';
-  navDiv.innerHTML = html`
-    <button type="button" id="return-btn" class="simulation-button return-button">${TEXT.employeeGrossToNet.buttons.return}</button>
-    <button type="button" id="continue-btn" class="simulation-button">${TEXT.employeeGrossToNet.buttons.continue}</button>
-    <button type="submit" id="calculate-btn" class="simulation-button">${TEXT.employeeGrossToNet.buttons.calculate}</button>
-  `;
-  return navDiv;
-}
+// (All step creation now handled by initStandardForm)
 
 function createResultSection(root) {
   const resultDiv = createAndAppend(root, 'div', { className: 'result', id: 'result', 'aria-live': 'polite' });
@@ -319,31 +125,15 @@ document.addEventListener('DOMContentLoaded', () => {
   root.innerHTML = '';
 
   // Title and header
-  createTitleBlock(root);
-  // Progress bar (shared builder)
-  buildProgressBar(root, [
-    TEXT.employeeGrossToNet.progressSteps.taxResidentStatus,
-    TEXT.employeeGrossToNet.progressSteps.grossSalary,
-    TEXT.employeeGrossToNet.progressSteps.allowance,
-    TEXT.employeeGrossToNet.progressSteps.bonus,
-    TEXT.employeeGrossToNet.progressSteps.benefit
-  ]);
-  // Form
-  const salaryForm = createSalaryForm(root);
-  // Steps
-  const step1 = createStep1();
-  const step2 = createStep2();
-  const step3 = createStep3();
-  const step4 = createStep4();
-  const step5 = createStep5();
-  salaryForm.appendChild(step1);
-  salaryForm.appendChild(step2);
-  salaryForm.appendChild(step3);
-  salaryForm.appendChild(step4);
-  salaryForm.appendChild(step5);
-  // Navigation buttons
-  const navDiv = createNavButtons();
-  salaryForm.appendChild(navDiv);
+  const { form: salaryForm, steps, nav } = initStandardForm({
+    rootId: 'gross-to-net-root',
+    textConfig: TEXT.employeeGrossToNet,
+    salaryType: 'gross',
+    maxDigits: MAX_DIGITS,
+    minSalary: 5000000,
+    focusSalaryStepIndex: 1
+  }) || {};
+  if(!salaryForm) return; // abort if root missing
   // Results and charts
   const { resultDiv } = createResultSection(root);
   const buttonContainer = createAndAppend(root, 'div', { className: 'result-buttons-container', id: 'result-buttons-container' });
@@ -355,18 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
   createFooter(document.body);
 
   // Multi-step navigation via module
-  const steps = [step1, step2, step3, step4, step5];
-  const nav = initMultiStepNavigation({
-    steps,
-    minSalary: 5000000,
-    salaryInputId: 'gross-salary',
-    taxSelectId: 'tax-resident-status',
-    continueBtn: getElement('continue-btn'),
-    returnBtn: getElement('return-btn'),
-    calculateBtn: getElement('calculate-btn'),
-    progressUpdater: (idx) => setProgressBarActiveStep(idx),
-    focusSalaryStepIndex: 1
-  });
+  // nav already provided
 
   // (Charts removed)
 
@@ -384,36 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Always-on inputs (no checkbox toggles). Nothing to do here, but keep section for parity.
 
   // --- Format number input fields and restrict max value ---
-  function formatNumberInput(input) {
-    let raw = input.value.replace(/[^\d]/g, '');
-    let warning = null;
-    if (input.id === 'gross-salary') {
-      warning = document.getElementById('gross-salary-warning');
-    } else if (input.closest('#allowance-inputs')) {
-      warning = document.getElementById('allowance-warning');
-    } else if (input.closest('#bonus-inputs')) {
-      warning = document.getElementById('bonus-warning');
-    } else if (input.closest('#benefit-inputs')) {
-      warning = document.getElementById('benefit-warning');
-    }
-    if (raw.length > MAX_DIGITS) {
-      if (warning) warning.style.display = '';
-      raw = raw.slice(0, MAX_DIGITS);
-    } else {
-      if (warning) warning.style.display = 'none';
-    }
-    if (raw) {
-      let num = parseInt(raw, 10);
-      input.value = num ? num.toLocaleString('vi-VN') : '';
-    } else {
-      input.value = '';
-    }
-  }
-  document.addEventListener('input', (e) => {
-    if (e.target.tagName === 'INPUT' && e.target.classList.contains('number-input')) {
-      formatNumberInput(e.target);
-    }
-  });
+  // Number formatting handled by module's attachNumberFormatting
 
   // (Chart helpers removed)
 
@@ -623,8 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const progressBar = document.getElementById('progress-bar');
       if (progressBar) progressBar.style.display = 'flex';
       // Reset to the first step
-      currentStep = 0;
-      showStep(currentStep);
+  nav.goTo(0);
     };
     // --- Hard Reset button logic ---
     hardResetBtn.onclick = () => {

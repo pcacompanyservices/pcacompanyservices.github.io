@@ -1,8 +1,7 @@
 import { simulateSalary } from '../be/cal.js';
 import { TEXT } from '../lang/eng.js';
 import { exportResultToPdf, buildStandardPdfFilename } from '../module/download-pdf.js';
-import { initMultiStepNavigation } from '../module/multi-step.js';
-import { buildProgressBar, setProgressBarActiveStep } from '../module/progress-bar.js';
+import { initStandardForm } from '../module/input-form.js';
 
 // ============================================================================
 // MIRRORED STRUCTURE (align with employer-gross-to-net)
@@ -16,13 +15,6 @@ function createAndAppend(parent, tag, props = {}, innerHTML=''){ const el=docume
 function formatCurrency(val){ const unit = TEXT_CONFIG.currencyUnit || 'VND'; return (val||val===0)?`${Number(val).toLocaleString('vi-VN')} ${unit}`:'-'; }
 
 function createTitleBlock(root){ const h1=createAndAppend(root,'h1'); h1.textContent=TEXT_CONFIG.pageTitle; root.appendChild(document.createElement('hr')); return h1; }
-function createSalaryForm(root){ return createAndAppend(root,'form',{id:'salary-form'}); }
-function createStep1(){ const d=document.createElement('div'); d.className='form-step active'; d.id='step-1'; d.innerHTML=html`<div class="step-title-row"><h2>${TEXT_CONFIG.steps.taxResidentStatus.title}</h2><span class="question-icon" tabindex="0"><img src="asset/question_icon.webp" alt="info" /><span class="info-box">${TEXT_CONFIG.infoTooltips.taxResidentStatus}</span></span></div><select id="tax-resident-status"><option value="" disabled selected>${TEXT_CONFIG.steps.taxResidentStatus.selectPlaceholder}</option><option value="local">${TEXT_CONFIG.steps.taxResidentStatus.options.local}</option><option value="expat">${TEXT_CONFIG.steps.taxResidentStatus.options.expat}</option></select>`; return d; }
-function createStep2(){ const d=document.createElement('div'); d.className='form-step'; d.id='step-2'; d.innerHTML=html`<div class="step-title-row"><h2>${TEXT_CONFIG.steps.netSalary.title}</h2><span class="question-icon" tabindex="0"><img src="asset/question_icon.webp" alt="info" /><span class="info-box">${TEXT_CONFIG.infoTooltips.netSalary}</span></span></div><input type="text" class="number-input" id="net-salary" placeholder="${TEXT_CONFIG.steps.netSalary.placeholder}" /><div id="net-salary-warning" class="input-warning">${TEXT_CONFIG.warnings.maxDigits}</div>`; return d; }
-function createStep3(){ const keys=['lunch','fuel','phone','travel','uniform','other']; const d=document.createElement('div'); d.className='form-step'; d.id='step-3'; d.innerHTML=html`<div class="step-title-row"><h2>${TEXT_CONFIG.steps.allowance.title}</h2><span class="question-icon" tabindex="0"><img src="asset/question_icon.webp" alt="info" /><span class="info-box">${TEXT_CONFIG.infoTooltips.allowance}</span></span></div><div id="allowance-inputs"><div id="allowance-warning" class="input-warning">${TEXT_CONFIG.warnings.maxDigits}</div>${keys.map(k=>html`<label class="input-label">${TEXT_CONFIG.steps.allowance.types[k]}<span class="question-icon" tabindex="0"><img src="asset/question_icon.webp" alt="info" /><span class="info-box">${TEXT_CONFIG.infoTooltips[k]||''}</span></span></label><input type="text" class="number-input" id="allowance-${k}" placeholder="${TEXT_CONFIG.steps.allowance.placeholders[k]||''}" min="0" />`).join('')}</div>`; return d; }
-function createStep4(){ const d=document.createElement('div'); d.className='form-step'; d.id='step-4'; d.innerHTML=html`<div class="step-title-row"><h2>${TEXT_CONFIG.steps.bonus.title}</h2><span class="question-icon" tabindex="0"><img src="asset/question_icon.webp" alt="info" /><span class="info-box">${TEXT_CONFIG.infoTooltips.bonus}</span></span></div><div id="bonus-inputs"><div id="bonus-warning" class="input-warning">${TEXT_CONFIG.warnings.maxDigits}</div><label class="input-label">${TEXT_CONFIG.steps.bonus.totalBonusLabel}</label><input type="text" class="number-input" id="total-bonus" placeholder="${TEXT_CONFIG.steps.bonus.placeholder}" /></div>`; return d; }
-function createStep5(){ const d=document.createElement('div'); d.className='form-step'; d.id='step-5'; d.innerHTML=html`<div class="step-title-row"><h2>${TEXT_CONFIG.steps.benefit.title}</h2><span class="question-icon" tabindex="0"><img src="asset/question_icon.webp" alt="info" /><span class="info-box">${TEXT_CONFIG.infoTooltips.benefit}</span></span></div><div id="benefit-inputs"><div id="benefit-warning" class="input-warning">${TEXT_CONFIG.warnings.maxDigits}</div><label class="input-label">${TEXT_CONFIG.steps.benefit.types.childTuition}</label><input type="text" class="number-input" id="benefit-child-tuition" placeholder="${TEXT_CONFIG.steps.benefit.placeholders.childTuition||''}" /><label class="input-label">${TEXT_CONFIG.steps.benefit.types.rental}</label><input type="text" class="number-input" id="benefit-rental" placeholder="${TEXT_CONFIG.steps.benefit.placeholders.rental||''}" /><label class="input-label">${TEXT_CONFIG.steps.benefit.types.healthInsurance}</label><input type="text" class="number-input" id="benefit-health-insurance" placeholder="${TEXT_CONFIG.steps.benefit.placeholders.healthInsurance||''}" /></div>`; return d; }
-function createNavButtons(){ const nav=document.createElement('div'); nav.className='form-navigation'; nav.innerHTML=html`<button type="button" id="return-btn" class="simulation-button return-button">${TEXT_CONFIG.buttons.return}</button><button type="button" id="continue-btn" class="simulation-button">${TEXT_CONFIG.buttons.continue}</button><button type="button" id="calculate-btn" class="simulation-button">${TEXT_CONFIG.buttons.calculate}</button>`; return nav; }
 function createResultSection(root){ const resultDiv=createAndAppend(root,'div',{className:'result',id:'result','aria-live':'polite'}); return { resultDiv }; }
 function createResultButtonsContainer(root){ const container=createAndAppend(root,'div',{className:'result-buttons-container',id:'result-buttons-container'}); const hardResetBtn=createAndAppend(container,'button',{className:'simulation-button return-button',id:'hard-reset-btn',textContent:TEXT_CONFIG.buttons.reset}); const resetBtn=createAndAppend(container,'button',{className:'simulation-button return-button',id:'reset-btn',textContent:TEXT_CONFIG.buttons.modify}); const downloadBtn=createAndAppend(container,'button',{className:'simulation-button',id:'download-pdf-btn',textContent:TEXT_CONFIG.buttons.downloadPdf}); return { buttonContainer:container, downloadBtn, resetBtn, hardResetBtn }; }
 function createFooter(root){
@@ -69,20 +61,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const root = getElement('gross-to-net-root');
   if(!root) return;
   root.innerHTML='';
-  createTitleBlock(root);
-  buildProgressBar(root,[TEXT_CONFIG.progressSteps.taxResidentStatus,TEXT_CONFIG.progressSteps.netSalary,TEXT_CONFIG.progressSteps.allowance,TEXT_CONFIG.progressSteps.bonus,TEXT_CONFIG.progressSteps.benefit]);
-  const salaryForm=createSalaryForm(root);
-  const step1=createStep1(); const step2=createStep2(); const step3=createStep3(); const step4=createStep4(); const step5=createStep5();
-  [step1,step2,step3,step4,step5].forEach(s=>salaryForm.appendChild(s));
-  salaryForm.appendChild(createNavButtons());
+  const init = initStandardForm({
+    rootId: 'gross-to-net-root',
+    textConfig: TEXT_CONFIG,
+    salaryType: 'net',
+    maxDigits: MAX_DIGITS,
+    minSalary: MIN_SALARY,
+    focusSalaryStepIndex: 1
+  });
+  if(!init) return;
+  const { form: salaryForm, nav } = init;
   const { resultDiv } = createResultSection(root);
   const { buttonContainer, downloadBtn, resetBtn, hardResetBtn } = createResultButtonsContainer(root);
   createFooter(root);
-  const steps=[step1,step2,step3,step4,step5];
-  const nav = initMultiStepNavigation({ steps, minSalary: MIN_SALARY, salaryInputId:'net-salary', taxSelectId:'tax-resident-status', continueBtn:getElement('continue-btn'), returnBtn:getElement('return-btn'), calculateBtn:getElement('calculate-btn'), progressUpdater:(i)=>setProgressBarActiveStep(i), focusSalaryStepIndex:1 });
+  // nav already provided by initStandardForm
 
-  function formatNumberInput(input){ let raw=input.value.replace(/[^\d]/g,''); let warn=null; if(input.id==='net-salary') warn=getElement('net-salary-warning'); else if(input.closest('#allowance-inputs')) warn=getElement('allowance-warning'); else if(input.closest('#bonus-inputs')) warn=getElement('bonus-warning'); else if(input.closest('#benefit-inputs')) warn=getElement('benefit-warning'); if(raw.length>MAX_DIGITS){ if(warn) warn.classList.add('show'); raw=raw.slice(0,MAX_DIGITS);} else if(warn) warn.classList.remove('show'); input.value=raw?Number(raw).toLocaleString('vi-VN'):''; }
-  document.addEventListener('input',e=>{ if(e.target.tagName==='INPUT' && e.target.classList.contains('number-input')) formatNumberInput(e.target); });
+  // Number formatting handled by initStandardForm
   const parseNumber = v => { if(typeof v==='number') return v; if(!v) return 0; return parseFloat(String(v).replace(/[,.]/g,''))||0; };
   const getVal = id => { const el=getElement(id); return el?el.value:''; };
 

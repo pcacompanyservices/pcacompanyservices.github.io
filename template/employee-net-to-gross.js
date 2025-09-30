@@ -3,8 +3,7 @@
 import { simulateSalary } from '../be/cal.js';
 import { TEXT } from '../lang/eng.js';
 import { exportResultToPdf, buildStandardPdfFilename } from '../module/download-pdf.js';
-import { initMultiStepNavigation } from '../module/multi-step.js';
-import { buildProgressBar, setProgressBarActiveStep } from '../module/progress-bar.js';
+import { initStandardForm } from '../module/input-form.js';
 
 // ============================================================================
 // UTILITY FUNCTIONS (formerly from util/ directory)
@@ -43,181 +42,6 @@ function formatCurrency(val) {
 }
 
 
-
-// --- UI creation functions ---
-// Progress bar now centralized via buildProgressBar (removed duplicate implementation)
-
-function createTitleBlock(root) {
-  const h1 = createAndAppend(root, 'h1');
-  h1.textContent = TEXT.employeeNetToGross.pageTitle;
-  root.appendChild(document.createElement('hr'));
-  return h1;
-}
-
-function createSalaryForm(root) {
-  const salaryForm = createAndAppend(root, 'form', { id: 'salary-form' });
-  return salaryForm;
-}
-
-function createStep1() {
-  const step1 = document.createElement('div');
-  step1.className = 'form-step';
-  step1.id = 'step-1';
-  step1.innerHTML = html`
-    <div class="step-title-row">
-  <h2>${TEXT.employeeNetToGross.steps.taxResidentStatus.title}</h2>
-      <span class="question-icon" tabindex="0">
-        <img src="asset/question_icon.webp" alt="info" />
-  <span class="info-box">${TEXT.employeeNetToGross.steps.taxResidentStatus.tooltip}</span>
-      </span>
-    </div>
-  <select id="tax-resident-status">
-  <option value="" disabled selected>${TEXT.employeeNetToGross.steps.taxResidentStatus.selectPlaceholder}</option>
-  <option value="local">${TEXT.employeeNetToGross.steps.taxResidentStatus.options.local}</option>
-  <option value="expat">${TEXT.employeeNetToGross.steps.taxResidentStatus.options.expat}</option>
-    </select>
-  `;
-  return step1;
-}
-
-function createStep2() {
-  const step2 = document.createElement('div');
-  step2.className = 'form-step';
-  step2.id = 'step-2';
-  step2.innerHTML = html`
-    <div class="step-title-row">
-      <h2>${TEXT.employeeNetToGross.steps.netSalary.title}</h2>
-      <span class="question-icon" tabindex="0">
-        <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">${TEXT.employeeNetToGross.steps.netSalary.tooltip}</span>
-      </span>
-    </div>
-    <input type="text" class="number-input" id="net-salary" placeholder="${TEXT.employeeNetToGross.steps.netSalary.placeholder}" />
-  <div id="net-salary-warning" class="input-warning hidden-initial">${TEXT.employeeNetToGross.steps.netSalary.warningMaxDigits}</div>
-  `;
-  return step2;
-}
-
-function createStep3() {
-  const step3 = document.createElement('div');
-  step3.className = 'form-step';
-  step3.id = 'step-3';
-  step3.innerHTML = html`
-    <div class="step-title-row">
-      <h2>${TEXT.employeeNetToGross.steps.allowance.title}</h2>
-      <span class="question-icon" tabindex="0">
-        <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">${TEXT.employeeNetToGross.steps.allowance.tooltip}</span>
-      </span>
-    </div>
-    <div id="allowance-inputs">
-  <div id="allowance-warning" class="input-warning hidden-initial">${TEXT.employeeNetToGross.steps.allowance.warningMaxDigits}</div>
-      <label class="input-label">${TEXT.employeeNetToGross.steps.allowance.types.lunch}
-        <span class="question-icon" tabindex="0">
-          <img src="asset/question_icon.webp" alt="info" />
-          <span class="info-box">${TEXT.employeeNetToGross.steps.allowance.tooltips.lunch}</span>
-        </span>
-      </label>
-      <input type="text" class="number-input" id="allowance-lunch" placeholder="${TEXT.employeeNetToGross.steps.allowance.placeholders.lunch}" min="0" />
-
-      <label class="input-label">${TEXT.employeeNetToGross.steps.allowance.types.fuel}
-        <span class="question-icon" tabindex="0">
-          <img src="asset/question_icon.webp" alt="info" />
-          <span class="info-box">${TEXT.employeeNetToGross.steps.allowance.tooltips.fuel}</span>
-        </span>
-      </label>
-      <input type="text" class="number-input" id="allowance-fuel" placeholder="${TEXT.employeeNetToGross.steps.allowance.placeholders.fuel}" min="0" />
-
-      <label class="input-label">${TEXT.employeeNetToGross.steps.allowance.types.phone}
-        <span class="question-icon" tabindex="0">
-          <img src="asset/question_icon.webp" alt="info" />
-          <span class="info-box">${TEXT.employeeNetToGross.steps.allowance.tooltips.phone}</span>
-        </span>
-      </label>
-      <input type="text" class="number-input" id="allowance-phone" placeholder="${TEXT.employeeNetToGross.steps.allowance.placeholders.phone}" min="0" />
-
-      <label class="input-label">${TEXT.employeeNetToGross.steps.allowance.types.travel}
-        <span class="question-icon" tabindex="0">
-          <img src="asset/question_icon.webp" alt="info" />
-          <span class="info-box">${TEXT.employeeNetToGross.steps.allowance.tooltips.travel}</span>
-        </span>
-      </label>
-      <input type="text" class="number-input" id="allowance-travel" placeholder="${TEXT.employeeNetToGross.steps.allowance.placeholders.travel}" min="0" />
-
-      <label class="input-label">${TEXT.employeeNetToGross.steps.allowance.types.uniform}
-        <span class="question-icon" tabindex="0">
-          <img src="asset/question_icon.webp" alt="info" />
-          <span class="info-box">${TEXT.employeeNetToGross.steps.allowance.tooltips.uniform}</span>
-        </span>
-      </label>
-      <input type="text" class="number-input" id="allowance-uniform" placeholder="${TEXT.employeeNetToGross.steps.allowance.placeholders.uniform}" min="0" />
-
-      <label class="input-label">${TEXT.employeeNetToGross.steps.allowance.types.other}
-        <span class="question-icon" tabindex="0">
-          <img src="asset/question_icon.webp" alt="info" />
-          <span class="info-box">${TEXT.employeeNetToGross.steps.allowance.tooltips.other}</span>
-        </span>
-      </label>
-      <input type="text" class="number-input" id="allowance-other" placeholder="${TEXT.employeeNetToGross.steps.allowance.placeholders.other}" min="0" />
-    </div>
-  `;
-  return step3;
-}
-
-function createStep4() {
-  const step4 = document.createElement('div');
-  step4.className = 'form-step';
-  step4.id = 'step-4';
-  step4.innerHTML = html`
-    <div class="step-title-row">
-      <h2>${TEXT.employeeNetToGross.steps.bonus.title}</h2>
-      <span class="question-icon" tabindex="0">
-        <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">${TEXT.employeeNetToGross.steps.bonus.tooltip}</span>
-      </span>
-    </div>
-    <input type="text" class="number-input" id="total-bonus" placeholder="${TEXT.employeeNetToGross.steps.bonus.placeholders.other}" />
-  <div id="bonus-warning" class="input-warning hidden-initial">${TEXT.employeeNetToGross.steps.bonus.warningMaxDigits}</div>
-  `;
-  return step4;
-}
-
-function createStep5() {
-  const step5 = document.createElement('div');
-  step5.className = 'form-step';
-  step5.id = 'step-5';
-  const benefit = TEXT.employeeNetToGross.steps.benefit || {};
-  step5.innerHTML = html`
-    <div class="step-title-row">
-      <h2>${benefit.title || 'Benefit'}</h2>
-      <span class="question-icon" tabindex="0">
-        <img src="asset/question_icon.webp" alt="info" />
-        <span class="info-box">${(benefit.tooltip) || ''}</span>
-      </span>
-    </div>
-    <div id="benefit-inputs">
-  <div id="benefit-warning" class="input-warning hidden-initial">${benefit.warningMaxDigits || 'Maximum 9 digits allowed.'}</div>
-      <label class="input-label">${(benefit.types && benefit.types.childTuition) || "Child's Tuition Fee"}</label>
-      <input type="text" class="number-input" id="benefit-child-tuition" placeholder="${(benefit.placeholders && benefit.placeholders.childTuition) || "Child's tuition fee (VND)"}" />
-      <label class="input-label">${(benefit.types && benefit.types.rental) || 'Rental'}</label>
-      <input type="text" class="number-input" id="benefit-rental" placeholder="${(benefit.placeholders && benefit.placeholders.rental) || 'Rental benefit (VND)'}" />
-      <label class="input-label">${(benefit.types && benefit.types.healthInsurance) || 'Health Insurance'}</label>
-      <input type="text" class="number-input" id="benefit-health-insurance" placeholder="${(benefit.placeholders && benefit.placeholders.healthInsurance) || 'Health insurance benefit (VND)'}" />
-    </div>
-  `;
-  return step5;
-}
-
-function createNavButtons() {
-  const navDiv = document.createElement('div');
-  navDiv.className = 'form-navigation';
-  navDiv.innerHTML = html`
-    <button type="button" id="return-btn" class="simulation-button return-button">${TEXT.employeeNetToGross.buttons.return}</button>
-  <button type="button" id="continue-btn" class="simulation-button">${TEXT.employeeNetToGross.buttons.continue}</button>
-    <button type="submit" id="calculate-btn" class="simulation-button">${TEXT.employeeNetToGross.buttons.calculate}</button>
-  `;
-  return navDiv;
-}
 
 function createResultAndCharts(root) {
   const resultDiv = createAndAppend(root, 'div', { className: 'result', id: 'result', 'aria-live': 'polite' });
@@ -297,56 +121,30 @@ function createFooter(root) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // --- Dynamic UI creation ---
-  const root = getElement('gross-to-net-root');
-  root.innerHTML = '';
-
-  // Title and header
-  createTitleBlock(root);
-  // Progress bar
-  buildProgressBar(root, [
-    TEXT.employeeNetToGross.progressSteps.taxResidentStatus,
-    TEXT.employeeNetToGross.progressSteps.netSalary,
-    TEXT.employeeNetToGross.progressSteps.allowance,
-    TEXT.employeeNetToGross.progressSteps.bonus,
-    TEXT.employeeNetToGross.progressSteps.benefit
-  ]);
-  // Form
-  const salaryForm = createSalaryForm(root);
-  // Steps
-  const step1 = createStep1();
-  const step2 = createStep2();
-  const step3 = createStep3();
-  const step4 = createStep4();
-  const step5 = createStep5();
-  salaryForm.appendChild(step1);
-  salaryForm.appendChild(step2);
-  salaryForm.appendChild(step3);
-  salaryForm.appendChild(step4);
-  salaryForm.appendChild(step5);
-  // Navigation buttons
-  const navDiv = createNavButtons();
-  salaryForm.appendChild(navDiv);
+  const { root, form: salaryForm, steps, nav } = initStandardForm({
+    rootId: 'gross-to-net-root',
+    textConfig: TEXT.employeeNetToGross,
+    salaryType: 'net',
+    maxDigits: 9,
+    minSalary: 4475000,
+    focusSalaryStepIndex: 1
+  }) || {};
+  if(!salaryForm) return;
+  const DOM = {
+    resultDiv: null,
+    buttonContainer: null,
+    calculateBtn: document.getElementById('calculate-btn')
+  };
   // Results container
   const { resultDiv } = createResultAndCharts(root);
-  // Result buttons container (Reset, Modify, Download)
+  DOM.resultDiv = resultDiv;
   const { container: buttonContainer, downloadBtn, resetBtn, hardResetBtn } = createResultButtonsContainer(root);
+  DOM.buttonContainer = buttonContainer;
   // Footer (disclaimer and important notes)
   createFooter(document.body);
 
   // Multi-step navigation (module)
-  const steps = [step1, step2, step3, step4, step5]; // steps for navigation
-  const nav = initMultiStepNavigation({
-    steps,
-    minSalary: 4475000,
-    salaryInputId: 'net-salary',
-    taxSelectId: 'tax-resident-status',
-    continueBtn: getElement('continue-btn'),
-    returnBtn: getElement('return-btn'),
-    calculateBtn: getElement('calculate-btn'),
-    progressUpdater: (idx) => setProgressBarActiveStep(idx),
-    focusSalaryStepIndex: 1
-  });
+  // nav provided by initStandardForm
   // --- Calculation handler ---
   function parseNumber(val) {
     if (typeof val === 'number') return val;
@@ -551,8 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const progressBar = document.getElementById('progress-bar');
       if (progressBar) progressBar.style.display = 'flex';
       // Reset to the first step
-      currentStep = 0;
-      showStep(currentStep);
+  nav.goTo(0);
     };
     // --- Hard Reset button logic ---
   hardResetBtn.onclick = () => {
