@@ -11,6 +11,7 @@ import { simulateSalary } from '../be/cal.js';
 import { createStandardFooter } from './footer.js';
 import { exportResultToPdf, buildStandardPdfFilename } from './download-pdf.js';
 import { TEXT } from '../lang/eng.js';
+import { createPageHeader, buildExportHeader } from './header.js';
 
 function parseNumber(v){ if(typeof v==='number') return v; if(!v) return 0; return parseFloat(String(v).replace(/[,.]/g,''))||0; }
 
@@ -84,35 +85,40 @@ function createButtons(root, textConfig){
   return { container, hardReset, modify, download };
 }
 
-function buildPdfExport({ textConfig, mode }){
-  return async function(){
+function buildPdfExport({ textConfig, mode }) {
+  return async function () {
     const containers = Array.from(document.querySelectorAll('.result-table-container'));
-    if(!containers.length) return;
+    if (!containers.length) return;
     const exportContainer = document.createElement('div');
-    exportContainer.className='pdf-export-container export-a4';
-    const logo = document.querySelector('.logo'); if(logo) exportContainer.appendChild(logo.cloneNode(true));
-    const headerTitle = document.createElement('h1');
-    try { headerTitle.textContent = (TEXT.index && TEXT.index.title) || TEXT.index.title; } catch(_) { headerTitle.textContent='PCA'; }
-    headerTitle.className='pdf-export-title';
-    exportContainer.appendChild(headerTitle);
-    const payslipTitle=document.createElement('h1'); payslipTitle.textContent=textConfig.payslipTitle; payslipTitle.className='pdf-export-title'; exportContainer.appendChild(payslipTitle);
+    exportContainer.className = 'pdf-export-container export-a4';
+    exportContainer.appendChild(buildExportHeader({ title: (TEXT.index && TEXT.index.title), payslipTitle: textConfig.payslipTitle }));
     exportContainer.appendChild(containers[0].cloneNode(true));
-    if(mode==='employer' && containers[1]){ const ecTitle=document.createElement('h1'); ecTitle.textContent=textConfig.results.employerCostTable.title; ecTitle.className='pdf-export-title'; exportContainer.appendChild(ecTitle); exportContainer.appendChild(containers[1].cloneNode(true)); }
-    const footer=document.createElement('footer'); footer.className='app-footer export-footer'; footer.appendChild(document.createElement('hr'));
-    const impTitle=document.createElement('span'); impTitle.className='footer-title'; impTitle.textContent=textConfig.footer.importantNoteTitle; footer.appendChild(impTitle);
-    const impText=document.createElement('div'); impText.className='footer-text'; const contactSpan=document.createElement('span'); contactSpan.textContent=textConfig.footer.contactLinkText; impText.textContent = textConfig.footer.importantNoteText + ' '; impText.appendChild(contactSpan); impText.appendChild(document.createTextNode('.')); footer.appendChild(impText);
-    const disTitle=document.createElement('span'); disTitle.className='footer-title'; disTitle.textContent=textConfig.footer.disclaimerTitle; footer.appendChild(disTitle);
-    const disText=document.createElement('div'); disText.className='footer-text'; disText.textContent=textConfig.footer.disclaimerText; footer.appendChild(disText);
-    const idDiv=document.createElement('div'); idDiv.className='export-id'; idDiv.textContent='ID: '+Date.now(); footer.appendChild(idDiv);
-    const versionDiv=document.createElement('div'); versionDiv.className='version-display'; versionDiv.textContent=(TEXT && TEXT.version)||''; footer.appendChild(versionDiv);
+    if (mode === 'employer' && containers[1]) {
+      const ecTitle = document.createElement('h1');
+      ecTitle.textContent = textConfig.results.employerCostTable.title;
+      ecTitle.className = 'pdf-export-title';
+      exportContainer.appendChild(ecTitle);
+      exportContainer.appendChild(containers[1].cloneNode(true));
+    }
+    const footer = document.createElement('footer');
+    footer.className = 'app-footer export-footer';
+    footer.appendChild(document.createElement('hr'));
+    const impTitle = document.createElement('span'); impTitle.className = 'footer-title'; impTitle.textContent = textConfig.footer.importantNoteTitle; footer.appendChild(impTitle);
+    const impText = document.createElement('div'); impText.className = 'footer-text'; const contactSpan = document.createElement('span'); contactSpan.textContent = textConfig.footer.contactLinkText; impText.textContent = textConfig.footer.importantNoteText + ' '; impText.appendChild(contactSpan); impText.appendChild(document.createTextNode('.')); footer.appendChild(impText);
+    const disTitle = document.createElement('span'); disTitle.className = 'footer-title'; disTitle.textContent = textConfig.footer.disclaimerTitle; footer.appendChild(disTitle);
+    const disText = document.createElement('div'); disText.className = 'footer-text'; disText.textContent = textConfig.footer.disclaimerText; footer.appendChild(disText);
+    const idDiv = document.createElement('div'); idDiv.className = 'export-id'; idDiv.textContent = 'ID: ' + Date.now(); footer.appendChild(idDiv);
+    const versionDiv = document.createElement('div'); versionDiv.className = 'version-display'; versionDiv.textContent = (TEXT && TEXT.version) || ''; footer.appendChild(versionDiv);
     exportContainer.appendChild(footer);
     document.body.appendChild(exportContainer);
     const filename = buildStandardPdfFilename();
-    await exportResultToPdf({ exportContainer, filename, onComplete: ()=> exportContainer.remove() });
+    await exportResultToPdf({ exportContainer, filename, onComplete: () => exportContainer.remove() });
   };
 }
 
 export function createSalarySimulationPage({ rootId='gross-to-net-root', textConfig, direction='gross-to-net', mode='employee', minSalary= (direction==='gross-to-net'?5000000:0), maxDigits=9 }) {
+  const host = document.getElementById(rootId);
+  if(host){ host.innerHTML=''; createPageHeader({ root: host, title: textConfig.pageTitle }); }
   const init = initStandardForm({
     rootId,
     textConfig,
