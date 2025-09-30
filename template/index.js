@@ -1,227 +1,217 @@
-// ============================================================================
-// UTILITY FUNCTIONS (formerly from util/ directory)
-// ============================================================================
-// HTML template literal utility
-function html(strings, ...values) {
-  return strings.reduce((acc, str, i) => acc + str + (values[i] || ''), '');
-}
+/* login.js — Minimal login form: username + password + single submit button
+   - Vanilla JS, no build tool required
+   - Reuses existing header and classes: 'simulation-button' / 'simulation-list'
+   - Basic validation: 4–26 characters, block emoji/icons (Unicode So/Sk/Cs)
+*/
 
-// Language pack
-import { TEXT } from '../lang/eng.js';
+/* =========================
+   Tiny shims (safe fallbacks when utilities are missing)
+   ========================= */
+(function () {
+  'use strict';
 
-// Global state for terms agreement
-let termsAgreed = false;
-
-// Create and append disclaimer footer
-function createDisclaimer() {
-  const footer = document.createElement('footer');
-  footer.className = 'app-footer';
-  footer.innerHTML = html`
-    <span class="footer-title">${TEXT.index.footer.disclaimerTitle}</span>
-    <div class="footer-text">${TEXT.index.footer.disclaimerText}</div>
-    <div class="terms-agreement">
-      <label class="checkbox-label">
-        <input type="checkbox" id="terms-checkbox" class="terms-checkbox">
-        <span class="checkbox-text">${TEXT.index.footer.terms.checkboxLabel}</span>
-      </label>
-      <div id="terms-warning" class="terms-warning">${TEXT.index.footer.terms.warning}</div>
-    </div>
-  `;
-  document.body.appendChild(footer);
-  
-  // Add event listener for checkbox
-  const checkbox = document.getElementById('terms-checkbox');
-  checkbox.addEventListener('change', handleTermsChange);
-}
-
-// Create and display version information in bottom right corner
-function createVersionDisplay() {
-  if (document.querySelector('.version-display')) return;
-  const versionDiv = document.createElement('div');
-  versionDiv.className = 'version-display';
-  // Centralized version from language pack
-  versionDiv.textContent = (TEXT && TEXT.version) || '';
-  document.body.appendChild(versionDiv);
-}
-
-// Handle terms checkbox change
-function handleTermsChange(event) {
-  termsAgreed = event.target.checked;
-  
-  // Hide warning when checkbox is checked
-  if (termsAgreed) {
-    hideTermsWarning();
-  } else {
-    // If box is unticked, refresh the page to force re-agreement
-    window.location.reload();
-  }
-}
-
-// Show terms warning message
-function showTermsWarning() {
-  const warning = document.getElementById('terms-warning');
-  if (warning) {
-    warning.classList.add('show');
-  }
-}
-
-// Hide terms warning message
-function hideTermsWarning() {
-  const warning = document.getElementById('terms-warning');
-  if (warning) {
-    warning.classList.remove('show');
-  }
-}
-
-// Update all button states based on terms agreement
-function updateButtonStates() {
-  // No longer needed - buttons stay normal looking always
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  const main = document.getElementById('simulation-root');
-  // Sync page title heading from language pack
-  const pageH1 = document.querySelector('h1');
-  if (pageH1) pageH1.textContent = TEXT.index.title;
-
-  // Create disclaimer footer
-  createDisclaimer();
-
-  // Remove all simulation list elements
-  function clearSimulationLists() {
-    document.querySelectorAll('.simulation-list').forEach(el => el.remove());
+  // Get element by id
+  function $id(id) {
+    return document.getElementById(id);
   }
 
-  // Create a button with info box and optional click handler
-  function createButton({ value, text, info, enabled = true, onClick, extraClass = '' }) {
-    const div = document.createElement('div');
-    div.className = 'simulation-list';
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.value = value;
-    btn.className = `simulation-button${extraClass ? ' ' + extraClass : ''}`;
-    btn.innerHTML = html`
-      ${text}
-      <span class="info-box">${info}</span>
-    `;
-    
-    // Set disabled state only for unavailable buttons
-    if (!enabled || extraClass.includes('unavailable')) {
-      btn.disabled = true;
-      btn.setAttribute('aria-disabled', 'true');
-    } else if (typeof onClick === 'function') {
-      // Add click handler with terms check for available buttons
-      btn.addEventListener('click', (event) => {
-        if (!termsAgreed) {
-          event.preventDefault();
-          event.stopPropagation();
-          showTermsWarning();
-          return false;
-        }
-        // If terms agreed, proceed normally
-        onClick(event);
-      });
+  // Create element with attributes & text
+  function createEl(tag, attrs = {}, text = '') {
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (v === undefined || v === null) continue;
+      if (k === 'class' || k === 'className') el.className = v;
+      else if (k === 'dataset' && typeof v === 'object') {
+        Object.entries(v).forEach(([dk, dv]) => (el.dataset[dk] = dv));
+      } else if (k in el) el[k] = v;
+      else el.setAttribute(k, v);
     }
-    
-    div.appendChild(btn);
-    return div;
+    if (text) el.textContent = text;
+    return el;
   }
 
-  // Create a back/return button
-  function createBackButton(onClick) {
-    const div = document.createElement('div');
-    div.className = 'simulation-list';
-
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'simulation-button return-button';
-  btn.textContent = TEXT.index.home.buttons.return;
-    
-    // Return buttons should work regardless of terms agreement
-    btn.addEventListener('click', onClick);
-
-    div.appendChild(btn);
-    return div;
+  // Append child and return it (chaining-friendly)
+  function append(parent, child) {
+    parent.appendChild(child);
+    return child;
   }
 
-  // Render the initial employee/employer choice buttons
-  function renderInitialButtons() {
-    clearSimulationLists();
+  // Read TEXT labels if available; fallback to defaults
+  const T = (typeof window !== 'undefined' && window.TEXT) ? window.TEXT : {};
+  const LABELS = {
+    title: (T?.index?.title) || 'Company Services',
+    usernameLabel: (T?.login?.usernameLabel) || 'Username',
+    usernamePlaceholder: (T?.login?.usernamePlaceholder) || 'Enter your username',
+    passwordLabel: (T?.login?.passwordLabel) || 'Password',
+    passwordPlaceholder: (T?.login?.passwordPlaceholder) || 'Enter your password',
+    submitText: (T?.login?.submitText) || 'Sign In',
+    welcomeMessage: (T?.login?.welcomeMessage) || 'Welcome',
+    errors: {
+      length: (T?.login?.errors?.length) || 'Length must be 4–26 characters.',
+      emoji: (T?.login?.errors?.emoji) || 'Emoji/icons are not allowed.',
+      required: (T?.login?.errors?.required) || 'This field is required.'
+    }
+  };
 
-    main.appendChild(createButton({
-      value: 'employee',
-      text: TEXT.index.home.buttons.employee.text,
-      info: TEXT.index.home.buttons.employee.info,
-  enabled: true,
-  onClick: employeeHandler,
-  extraClass: ''
-    }));
+/* =========================
+   Validation
+   ========================= */
+  // Block symbols/emoji/surrogate: So/Sk/Cs
+  const EMOJI_ICON_REGEX = /[\p{So}\p{Sk}\p{Cs}]/u;
 
-    main.appendChild(createButton({
-      value: 'freelancer',
-      text: TEXT.index.home.buttons.freelancer.text,
-      info: TEXT.index.home.buttons.freelancer.info,
-      enabled: true,
-      extraClass: 'unavailable' // off
-    }));
-
-    main.appendChild(createButton({
-      value: 'employer',
-      text: TEXT.index.home.buttons.employer.text,
-      info: TEXT.index.home.buttons.employer.info,
-      enabled: true,
-      onClick: employerHandler,
-      extraClass: '',
-    }));
+  function validateField(value) {
+    const v = (value || '').trim();
+    if (!v) return { ok: false, reason: 'required' };
+    if (v.length < 4 || v.length > 26) return { ok: false, reason: 'length' };
+    if (EMOJI_ICON_REGEX.test(v)) return { ok: false, reason: 'emoji' };
+    return { ok: true };
   }
 
-  // Handler for employee button
-  function employeeHandler() {
-    clearSimulationLists();
-    main.appendChild(createButton({
-      value: 'gross-to-net',
-  text: TEXT.index.home.buttons.employeeGrossToNet.text,
-  info: TEXT.index.home.buttons.employeeGrossToNet.info,
-      enabled: true,
-      onClick : () => { window.location.href = 'employee-gross-to-net.html' },
-      extraClass: 'employee-choice'
+  // Build a single input row with label, input, and error box
+  function inputRow({ id, label, placeholder }) {
+    const row = createEl('div', { class: 'form-group' });
+    const lab = append(row, createEl('label', { htmlFor: id }, label));
+    // Make labels bold per spec
+    lab.style.fontWeight = '700';
+
+    const inp = append(row, createEl('input', {
+      id,
+      name: id,
+      type: id === 'password' ? 'password' : 'text',
+      placeholder,
+      autocomplete: id === 'password' ? 'current-password' : 'username',
+      required: true
     }));
-    main.appendChild(createButton({
-      value: 'net-to-gross',
-  text: TEXT.index.home.buttons.employeeNetToGross.text,
-  info: TEXT.index.home.buttons.employeeNetToGross.info,
-      enabled: true,
-      onClick: () => { window.location.href = 'employee-net-to-gross.html' },
-      extraClass: 'employee-choice'
-    }));
-    main.appendChild(createBackButton(renderInitialButtons));
+    const err = append(row, createEl('div', { id: `${id}-error`, class: 'form-error', ariaLive: 'polite' }));
+    // Hidden by default; shown only when user skips (blur) or on submit
+    err.style.display = 'none';
+    err.style.color = 'var(--color-primary)'; // red tone from theme
+    err.style.marginTop = '0.25rem';
+    err.style.fontSize = '0.95rem';
+
+    return { row, inp, err, lab, touched: false };
   }
 
-  // Handler for employer button
-  function employerHandler() {
-    clearSimulationLists();
-    main.appendChild(createButton({
-      value: 'from-gross',
-  text: TEXT.index.home.buttons.employerFromGross.text,
-  info: TEXT.index.home.buttons.employerFromGross.info,
-      enabled: true,
-      onClick: () => { window.location.href = 'employer-gross-to-net.html'; },
-      extraClass: 'employer-choice'
-    }));
-    main.appendChild(createButton({
-      value: 'from-net',
-  text: TEXT.index.home.buttons.employerFromNet.text,
-  info: TEXT.index.home.buttons.employerFromNet.info,
-      enabled: true,
-      onClick: () => { window.location.href = 'employer-net-to-gross.html'; },
-      extraClass: 'employer-choice'
-    }));
-    main.appendChild(createBackButton(renderInitialButtons));
+  // Show/hide an error message element
+  function setErr(el, reason) {
+    if (!el) return;
+    if (!reason) {
+      el.textContent = '';
+      el.style.display = 'none';
+      return;
+    }
+    const msg = reason === 'required' ? LABELS.errors.required
+      : reason === 'length' ? LABELS.errors.length
+      : LABELS.errors.emoji;
+    el.textContent = msg;
+    el.style.display = 'block';
   }
 
-  // Initial render
-  renderInitialButtons();
+  /* =========================
+     Render & behavior
+     ========================= */
+  function renderLoginForm(root) {
+    root.innerHTML = '';
 
-  // Show version in bottom-right on index page
-  createVersionDisplay();
-});
+    // Wrapper keeps current layout look (list + one button)
+    const wrapper = append(root, createEl('div', { class: 'simulation-list' }));
+
+    const form = append(wrapper, createEl('form', { id: 'login-form', noValidate: true }));
+
+    const u = inputRow({
+      id: 'username',
+      label: LABELS.usernameLabel,
+      placeholder: LABELS.usernamePlaceholder
+    });
+    form.appendChild(u.row);
+
+    const p = inputRow({
+      id: 'password',
+      label: LABELS.passwordLabel,
+      placeholder: LABELS.passwordPlaceholder
+    });
+    form.appendChild(p.row);
+
+    // Submit button
+    const submitBtn = append(form, createEl('button', {
+      id: 'login-submit-btn',
+      type: 'submit',
+      class: 'simulation-button',
+    }, LABELS.submitText));
+    submitBtn.disabled = true;
+
+    // Sync page header with a login-specific title (avoid "sticking" shared route title)
+    let h1 = document.querySelector('h1');
+    if (!h1) {
+      // Create a lightweight header if missing
+      const logo = document.querySelector('.logo') || document.querySelector('a[href$="index.html"] img');
+      h1 = createEl('h1', {}, 'Sign In');
+      // Insert after logo when possible
+      if (logo && logo.parentElement) {
+        logo.parentElement.insertAdjacentElement('afterend', h1);
+        h1.insertAdjacentElement('afterend', createEl('hr'));
+      } else {
+        document.body.prepend(createEl('hr'));
+        document.body.prepend(h1);
+      }
+    } else {
+      h1.textContent = 'Sign In';
+      // Ensure we have a divider under header similar to other pages
+      const nextHr = h1.nextElementSibling;
+      if (!(nextHr && nextHr.tagName === 'HR')) {
+        h1.insertAdjacentElement('afterend', createEl('hr'));
+      }
+    }
+
+    // Track "touched" state: show "required" only after blur or on submit
+    let submitAttempted = false;
+    function runValidation() {
+      const vu = validateField(u.inp.value);
+      const vp = validateField(p.inp.value);
+      // Only show errors if field is touched OR this is a submit attempt
+      setErr(u.err, (u.touched || submitAttempted) && !vu.ok ? vu.reason : null);
+      setErr(p.err, (p.touched || submitAttempted) && !vp.ok ? vp.reason : null);
+      submitBtn.disabled = !(vu.ok && vp.ok);
+      return vu.ok && vp.ok;
+    }
+
+    // Input changes continuously validate but do not force-show "required" yet
+    form.addEventListener('input', runValidation);
+    // On blur, mark field as touched so "required" appears only after user leaves it empty
+    u.inp.addEventListener('blur', () => { u.touched = true; runValidation(); });
+    p.inp.addEventListener('blur', () => { p.touched = true; runValidation(); });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      submitAttempted = true;
+      if (!runValidation()) return;
+      const username = (u.inp.value || '').trim();
+      // Temporary UX only — backend integration not required yet
+      console.log('[login] submitted', { username });
+      alert(`${LABELS.welcomeMessage}, ${username}!`);
+
+      // When real login succeeds, navigate as needed, e.g.:
+      // window.location.href = '/';
+    });
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      submitAttempted = true;
+      if (!runValidation()) return;
+      const username = (u.inp.value || '').trim();
+
+  // Temporary: auto redirect to salary-simulation-tool.html after sign in
+    console.log('[login] submitted', { username });
+    window.location.href = 'salary-simulation-tool.html';
+  });
+
+    // Initial validation sets correct disabled state
+    runValidation();
+  }
+
+  // Bootstrapping
+  document.addEventListener('DOMContentLoaded', () => {
+    const root = document.getElementById('login-root') || document.getElementById('simulation-root') || document.body;
+    renderLoginForm(root);
+  });
+
+})();
