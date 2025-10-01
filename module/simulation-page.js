@@ -3,13 +3,31 @@
 
 import { initStandardForm } from './input-form.js';
 import { renderResultTables } from './result-table.js';
-import { simulateSalary } from '../be/cal.js';
 import { createStandardFooter } from './footer.js';
 import { exportResultToPdf, buildStandardPdfFilename } from './download-pdf.js';
 import { TEXT } from '../lang/eng.js';
 import { createPageHeader, buildExportHeader } from './header.js';
 
 function parseNumber(v){ if(typeof v==='number') return v; if(!v) return 0; return parseFloat(String(v).replace(/[,.]/g,''))||0; }
+
+const REMOTE_SIMULATION_ENDPOINT = 'https://salary-simulation-calculator-306769121763.asia-southeast1.run.app';
+
+async function simulateSalaryRemote(params){
+	try {
+		const res = await fetch(REMOTE_SIMULATION_ENDPOINT, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(params)
+		});
+		if(!res.ok){
+			return { error: `Remote calculation failed (${res.status}).` };
+		}
+		const data = await res.json();
+		return data;
+	} catch(err){
+		return { error: 'Network error while calculating. Please try again.' };
+	}
+}
 
 function collectParams({ direction }) {
 	const taxResidentStatus = document.getElementById('tax-resident-status')?.value || 'local';
@@ -131,13 +149,18 @@ export function createSalarySimulationPage({ rootId='simulator-root', textConfig
 	const buttons = createButtons(root, textConfig);
 	createStandardFooter({ root: document.body, footerConfig: textConfig.footer, version: TEXT.version });
 
-	function handleCalculation(){
+	async function handleCalculation(){
 		const fieldIds = direction==='gross-to-net'
 			? ['tax-resident-status','gross-salary','allowance-lunch','allowance-fuel','allowance-phone','allowance-travel','allowance-uniform','allowance-other','total-bonus','benefit-child-tuition','benefit-rental','benefit-health-insurance']
 			: ['tax-resident-status','net-salary','allowance-lunch','allowance-fuel','allowance-phone','allowance-travel','allowance-uniform','allowance-other','total-bonus','benefit-child-tuition','benefit-rental','benefit-health-insurance'];
 		lastInputValues = fieldIds.reduce((acc,id)=>{ const el=document.getElementById(id); if(el) acc[id]=el.value; return acc; },{});
 		const params = collectParams({ direction });
-		const data = simulateSalary(params);
+		// UI feedback (optional minimal): disable calculate & show transient status
+		const calcBtn = document.getElementById('calculate-btn');
+		const previousCalcText = calcBtn ? calcBtn.textContent : '';
+		if(calcBtn){ calcBtn.disabled = true; calcBtn.textContent = (TEXT.loading && TEXT.loading.calculating) || 'Calculating...'; }
+		const data = await simulateSalaryRemote(params);
+		if(calcBtn){ calcBtn.disabled = false; calcBtn.textContent = previousCalcText; }
 		if(data && data.error){
 			resultDiv.innerHTML = `<span class="result-error-text">${data.error}</span>`;
 			buttons.container.classList.remove('show');
