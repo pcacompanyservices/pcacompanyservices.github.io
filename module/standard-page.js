@@ -119,6 +119,8 @@ function buildPdfExport({ textConfig, mode }) {
 export function createSalarySimulationPage({ rootId='gross-to-net-root', textConfig, direction='gross-to-net', mode='employee', minSalary= (direction==='gross-to-net'?5000000:0), maxDigits=9 }) {
   const host = document.getElementById(rootId);
   if(host){ host.innerHTML=''; createPageHeader({ root: host, title: textConfig.pageTitle }); }
+  // Holds the raw string values the user entered prior to calculation (for Modify Information)
+  let lastInputValues = null;
   const init = initStandardForm({
     rootId,
     textConfig,
@@ -136,6 +138,11 @@ export function createSalarySimulationPage({ rootId='gross-to-net-root', textCon
   createStandardFooter({ root: document.body, footerConfig: textConfig.footer, version: TEXT.version });
 
   function handleCalculation(){
+    // Capture current raw input values BEFORE calculation so we can restore on Modify
+    const fieldIds = direction==='gross-to-net'
+      ? ['tax-resident-status','gross-salary','allowance-lunch','allowance-fuel','allowance-phone','allowance-travel','allowance-uniform','allowance-other','total-bonus','benefit-child-tuition','benefit-rental','benefit-health-insurance']
+      : ['tax-resident-status','net-salary','allowance-lunch','allowance-fuel','allowance-phone','allowance-travel','allowance-uniform','allowance-other','total-bonus','benefit-child-tuition','benefit-rental','benefit-health-insurance'];
+    lastInputValues = fieldIds.reduce((acc,id)=>{ const el=document.getElementById(id); if(el) acc[id]=el.value; return acc; },{});
     const params = collectParams({ direction });
     const data = simulateSalary(params);
     if(data && data.error){
@@ -143,7 +150,9 @@ export function createSalarySimulationPage({ rootId='gross-to-net-root', textCon
       buttons.container.classList.remove('show');
       return;
     }
-    if(salaryForm.parentNode) salaryForm.parentNode.removeChild(salaryForm);
+  // Always remove the CURRENT salary form (the original reference may be stale after a Modify action rebuild)
+  const currentForm = document.getElementById('salary-form');
+  if(currentForm && currentForm.parentNode) currentForm.parentNode.removeChild(currentForm);
     const pb = document.getElementById('progress-bar'); if(pb) pb.style.display='none';
     renderResultTables({ root: resultDiv, data, textConfig, mode });
     buttons.container.classList.add('show');
@@ -154,8 +163,10 @@ export function createSalarySimulationPage({ rootId='gross-to-net-root', textCon
 
   // Reset / hard reset
   buttons.modify.onclick = () => {
+    // Hide result tables & buttons, rebuild form at step 0
     resultDiv.innerHTML='';
     buttons.container.classList.remove('show');
+    const pbExisting = document.getElementById('progress-bar');
     if(!document.getElementById('salary-form')) {
       const rebuilt = initStandardForm({
         rootId,
@@ -166,9 +177,19 @@ export function createSalarySimulationPage({ rootId='gross-to-net-root', textCon
         focusSalaryStepIndex: 1,
         onCalculate: (e)=>{ e.preventDefault(); handleCalculation(); }
       });
-      if(rebuilt){ rebuilt.form.addEventListener('submit', e=>{ e.preventDefault(); handleCalculation(); }); }
+      if(rebuilt){
+        rebuilt.form.addEventListener('submit', e=>{ e.preventDefault(); handleCalculation(); });
+        // Ensure progress bar visible
+        const pbNew = document.getElementById('progress-bar'); if(pbNew) pbNew.style.display='flex';
+        // Restore previous input values (if any)
+        if(lastInputValues){
+          Object.entries(lastInputValues).forEach(([id,val])=>{ const el=document.getElementById(id); if(el){ el.value=val; el.dispatchEvent(new Event('input',{bubbles:true})); }});
+        }
+      }
+    } else if(pbExisting){
+      pbExisting.style.display='flex';
     }
-    const pb = document.getElementById('progress-bar'); if(pb) pb.style.display='flex';
+    // Reset progress bar step to first if navigation API present
     if(nav && nav.goTo) nav.goTo(0);
   };
   buttons.hardReset.onclick = () => window.location.reload();

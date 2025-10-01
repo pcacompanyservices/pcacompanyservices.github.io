@@ -143,11 +143,19 @@ export function initStandardForm({
 }) {
   const root = document.getElementById(rootId);
   if (!root) return null;
-  root.innerHTML = '';
-  const h1 = document.createElement('h1');
-  h1.textContent = textConfig.pageTitle;
-  root.appendChild(h1);
-  root.appendChild(document.createElement('hr'));
+  // Preserve existing header (logo + title + hr) if already injected by createPageHeader.
+  // Remove any previously rendered form/progress bar for rebuild scenarios.
+  const existingForm = root.querySelector('#salary-form');
+  if (existingForm) existingForm.remove();
+  const existingProgress = root.querySelector('#progress-bar');
+  if (existingProgress) existingProgress.remove();
+  // If no title present (direct navigation), create minimal heading.
+  if (!root.querySelector('h1')) {
+    const h1 = document.createElement('h1');
+    h1.textContent = textConfig.pageTitle;
+    root.appendChild(h1);
+    root.appendChild(document.createElement('hr'));
+  }
   const progressSteps = [
     textConfig.progressSteps.taxResidentStatus,
     salaryType === 'gross' ? textConfig.progressSteps.grossSalary : textConfig.progressSteps.netSalary,

@@ -18,40 +18,32 @@ export function createStandardFooter({ root, footerConfig, version }) {
     <span class="footer-title">${footerConfig.disclaimerTitle}</span>
     <div class="footer-text">${footerConfig.disclaimerText}</div>
   `;
-
-  function positionFooter() {
+  function applyLayout() {
+    // Skip export/PDF temporary footers (they are laid out inside export container)
+    if (footer.classList.contains('export-footer')) return;
     const viewportHeight = window.innerHeight;
-    const documentHeight = document.documentElement.scrollHeight;
-    if (documentHeight <= viewportHeight) {
-      footer.style.position = 'fixed';
-      footer.style.bottom = '1rem';
-      footer.style.left = '50%';
-      footer.style.transform = 'translateX(-50%)';
-      footer.style.zIndex = '1000';
-      footer.style.margin = '2rem auto';
-      footer.style.width = '70vw';
-      const footerHeight = footer.offsetHeight;
+    const footerHeight = footer.offsetHeight || 0;
+    // Prefer a main content container if available
+    const main = document.getElementById('gross-to-net-root')
+               || document.getElementById('simulation-root')
+               || document.querySelector('#result')
+               || document.body;
+    const mainRectHeight = main.getBoundingClientRect().height;
+    // Determine if combined content (main + footer + small gap) fits within viewport
+    const shouldFix = (mainRectHeight + footerHeight + 100) <= viewportHeight;
+    footer.classList.toggle('app-footer-fixed', shouldFix);
+    footer.classList.toggle('app-footer-static', !shouldFix);
+    if (shouldFix) {
       document.body.style.paddingBottom = `${footerHeight + 32}px`;
     } else {
-      footer.style.position = '';
-      footer.style.bottom = '';
-      footer.style.left = '';
-      footer.style.transform = '';
-      footer.style.zIndex = '';
-      footer.style.marginTop = '12rem';
-      footer.style.width = '';
       document.body.style.paddingBottom = '';
     }
   }
-  setTimeout(positionFooter, 200);
-  window.addEventListener('resize', () => setTimeout(positionFooter, 100));
-  const observer = new MutationObserver(() => setTimeout(positionFooter, 150));
-  observer.observe(root, { childList: true, subtree: true });
-  const progressBar = document.querySelector('#progress-bar');
-  if (progressBar) {
-    const progressObserver = new MutationObserver(() => setTimeout(positionFooter, 100));
-    progressObserver.observe(progressBar, { attributes: true, subtree: true });
-  }
+  setTimeout(applyLayout, 150);
+  window.addEventListener('resize', () => setTimeout(applyLayout, 80));
+  const observerTargets = [document.body, document.getElementById('gross-to-net-root'), document.getElementById('simulation-root')].filter(Boolean);
+  const observer = new MutationObserver(() => setTimeout(applyLayout, 120));
+  observerTargets.forEach(t => observer.observe(t, { childList: true, subtree: true, attributes: true }));
 
   if (version) {
     if (!document.querySelector('.version-display')) {

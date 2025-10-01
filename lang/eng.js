@@ -41,7 +41,7 @@ const TAX_RESIDENT_STATUS_TOOLTIP_HTML_EMPLOYER = html`
 `;
 
 export const TEXT = {
-  version: 'Version: 1.1.24',
+  version: 'Version: 1.1.36',
   // Generic defaults used as final fallback by shared modules (no UI string hard-coded in modules)
   defaults: {
     statusTitle: 'Status',
