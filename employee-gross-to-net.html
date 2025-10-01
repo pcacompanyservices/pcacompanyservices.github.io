@@ -16,12 +16,11 @@
   <!-- Footer content is injected by template/employee-gross-to-net.js using TEXT.employeeGrossToNet.footer -->
 
   <script type="module">
-    import { TEXT } from './lang/eng.js';
-  import { createSalarySimulationPage } from './module/simulation-page.js';
+    import { createSalarySimulationPage } from './module/simulation-page.js';
     document.addEventListener('DOMContentLoaded', () => {
       createSalarySimulationPage({
   rootId: 'simulator-root',
-        textConfig: TEXT.employeeGrossToNet,
+        scenario: 'employeeGrossToNet',
         direction: 'gross-to-net',
         mode: 'employee',
         minSalary: 5000000

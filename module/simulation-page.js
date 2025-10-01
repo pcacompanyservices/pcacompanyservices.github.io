@@ -129,13 +129,18 @@ function buildPdfExport({ textConfig, mode }) {
 	};
 }
 
-export function createSalarySimulationPage({ rootId='simulator-root', textConfig, direction='gross-to-net', mode='employee', minSalary= (direction==='gross-to-net'?5000000:0), maxDigits=9 }) {
+export function createSalarySimulationPage({ rootId='simulator-root', scenario, textConfig, direction='gross-to-net', mode='employee', minSalary= (direction==='gross-to-net'?5000000:0), maxDigits=9 }) {
+	const resolvedText = textConfig || (scenario && TEXT[scenario]);
+	if(!resolvedText){
+		console.error('createSalarySimulationPage: missing textConfig and invalid or absent scenario key');
+		return null;
+	}
 	const host = document.getElementById(rootId);
-	if(host){ host.innerHTML=''; createPageHeader({ root: host, title: textConfig.pageTitle }); }
+	if(host){ host.innerHTML=''; createPageHeader({ root: host, title: resolvedText.pageTitle }); }
 	let lastInputValues = null;
 	const init = initStandardForm({
 		rootId,
-		textConfig,
+		textConfig: resolvedText,
 		salaryType: direction==='gross-to-net' ? 'gross' : 'net',
 		maxDigits,
 		minSalary,
@@ -146,8 +151,8 @@ export function createSalarySimulationPage({ rootId='simulator-root', textConfig
 	const { form: salaryForm, nav } = init;
 	const root = document.getElementById(rootId);
 	const resultDiv = createResultSection(root);
-	const buttons = createButtons(root, textConfig);
-	createStandardFooter({ root: document.body, footerConfig: textConfig.footer, version: TEXT.version });
+	const buttons = createButtons(root, resolvedText);
+	createStandardFooter({ root: document.body, footerConfig: resolvedText.footer, version: TEXT.version });
 
 	async function handleCalculation(){
 		const fieldIds = direction==='gross-to-net'
@@ -169,7 +174,7 @@ export function createSalarySimulationPage({ rootId='simulator-root', textConfig
 		const currentForm = document.getElementById('salary-form');
 		if(currentForm && currentForm.parentNode) currentForm.parentNode.removeChild(currentForm);
 		const pb = document.getElementById('progress-bar'); if(pb) pb.style.display='none';
-		renderResultTables({ root: resultDiv, data, textConfig, mode });
+		renderResultTables({ root: resultDiv, data, textConfig: resolvedText, mode });
 		buttons.container.classList.add('show');
 	}
 
@@ -182,7 +187,7 @@ export function createSalarySimulationPage({ rootId='simulator-root', textConfig
 		if(!document.getElementById('salary-form')) {
 			const rebuilt = initStandardForm({
 				rootId,
-				textConfig,
+				textConfig: resolvedText,
 				salaryType: direction==='gross-to-net' ? 'gross':'net',
 				maxDigits,
 				minSalary,
@@ -203,8 +208,8 @@ export function createSalarySimulationPage({ rootId='simulator-root', textConfig
 	};
 	buttons.resetBtn.onclick = () => window.location.reload();
 
-	const doExport = buildPdfExport({ textConfig, mode });
+	const doExport = buildPdfExport({ textConfig: resolvedText, mode });
 	buttons.download.onclick = (e)=>{ e.preventDefault(); doExport(); };
 
-	return { handleCalculation, resultDiv, buttons };
+	return { handleCalculation, resultDiv, buttons, scenario, textConfig: resolvedText };
 }
