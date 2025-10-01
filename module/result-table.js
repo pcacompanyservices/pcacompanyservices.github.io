@@ -76,7 +76,8 @@ function buildEmployeePayslipTable({ data, cfg, unit }) {
     allowanceRow = html`<tr><td colspan="2"><div class="result-title">${cfg.results.sections.allowance}</div><div class="result-list">${allowanceItems.map(it=>`<div class=\"result-item\">${it.label}: <span>${formatCurrency(it.value, unit)}</span></div>`).join('')}</div><hr class="result-divider" /><div class="result-total"><span>${formatCurrency(data.grossTotalAllowance, unit)}</span></div></td></tr>`;
   }
   if (bonusItems.length) {
-    bonusRow = html`<tr><td colspan="2"><div class="result-title">${cfg.results.sections.bonus}</div><div class="result-list">${bonusItems.map(it=>`<div class=\"result-item\">${it.label}: <span>${formatCurrency(it.value, unit)}</span></div>`).join('')}</div><hr class="result-divider" /><div class="result-total"><span>${formatCurrency(data.grossTotalBonus, unit)}</span></div></td></tr>`;
+    // Simplified bonus layout: title then amount (stacked)
+    bonusRow = html`<tr><td colspan="2"><div class="result-title">${cfg.results.sections.bonus}</div><div class="result-title result-tight">${formatCurrency(data.grossTotalBonus, unit)}</div></td></tr>`;
   }
   if (!allowanceItems.length && !bonusItems.length) {
     noAllowanceBonusRow = html`<tr><td colspan="2"><div class="result-none-text">${cfg.results.allowanceOrBonusNone}</div></td></tr>`;
