@@ -60,14 +60,14 @@ function createButtons(root, textConfig){
 	const container = document.createElement('div');
 	container.className = 'result-buttons-container';
 	container.id = 'result-buttons-container';
-	const hardReset = document.createElement('button');
-	hardReset.className='simulation-button return-button';
-	hardReset.id='hard-reset-btn';
-	hardReset.type='button';
-	hardReset.textContent = textConfig.buttons.reset;
+	const resetBtn = document.createElement('button');
+	resetBtn.className='simulation-button return-button';
+	resetBtn.id='reset-btn';
+	resetBtn.type='button';
+	resetBtn.textContent = textConfig.buttons.reset;
 	const modify = document.createElement('button');
 	modify.className='simulation-button return-button';
-	modify.id='reset-btn';
+	modify.id='modify-btn';
 	modify.type='button';
 	modify.textContent = textConfig.buttons.modify;
 	const download = document.createElement('button');
@@ -75,9 +75,9 @@ function createButtons(root, textConfig){
 	download.id='download-pdf-btn';
 	download.type='button';
 	download.textContent=textConfig.buttons.downloadPdf;
-	container.appendChild(hardReset); container.appendChild(modify); container.appendChild(download);
+	container.appendChild(resetBtn); container.appendChild(modify); container.appendChild(download);
 	root.appendChild(container);
-	return { container, hardReset, modify, download };
+	return { container, resetBtn, modify, download };
 }
 
 function buildPdfExport({ textConfig, mode }) {
@@ -178,7 +178,7 @@ export function createSalarySimulationPage({ rootId='simulator-root', textConfig
 		}
 		if(nav && nav.goTo) nav.goTo(0);
 	};
-	buttons.hardReset.onclick = () => window.location.reload();
+	buttons.resetBtn.onclick = () => window.location.reload();
 
 	const doExport = buildPdfExport({ textConfig, mode });
 	buttons.download.onclick = (e)=>{ e.preventDefault(); doExport(); };
