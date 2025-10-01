@@ -11,8 +11,20 @@
 </head>
 <body>
 
-  <div id="gross-to-net-root"></div>
+  <div id="simulator-root"></div>
 
-  <script type="module" src="template/employer-net-to-gross.js"></script>
+  <script type="module">
+    import { TEXT } from './lang/eng.js';
+  import { createSalarySimulationPage } from './module/simulation-page.js';
+    document.addEventListener('DOMContentLoaded', () => {
+      createSalarySimulationPage({
+  rootId: 'simulator-root',
+        textConfig: TEXT.employerNetToGross,
+        direction: 'net-to-gross',
+        mode: 'employer',
+        minSalary: 4475000
+      });
+    });
+  </script>
 </body>
 </html>

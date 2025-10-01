@@ -133,7 +133,7 @@ import { buildProgressBar, setProgressBarActiveStep } from '../module/progress-b
 import { initMultiStepNavigation } from '../module/multi-step.js';
 
 export function initStandardForm({
-  rootId = 'gross-to-net-root',
+  rootId = 'simulator-root',
   textConfig,
   salaryType = 'gross',
   maxDigits = 9,

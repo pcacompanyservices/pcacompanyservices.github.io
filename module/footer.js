@@ -24,7 +24,7 @@ export function createStandardFooter({ root, footerConfig, version }) {
     const viewportHeight = window.innerHeight;
     const footerHeight = footer.offsetHeight || 0;
     // Prefer a main content container if available
-    const main = document.getElementById('gross-to-net-root')
+  const main = document.getElementById('simulator-root')
                || document.getElementById('simulation-root')
                || document.querySelector('#result')
                || document.body;
@@ -41,7 +41,7 @@ export function createStandardFooter({ root, footerConfig, version }) {
   }
   setTimeout(applyLayout, 150);
   window.addEventListener('resize', () => setTimeout(applyLayout, 80));
-  const observerTargets = [document.body, document.getElementById('gross-to-net-root'), document.getElementById('simulation-root')].filter(Boolean);
+  const observerTargets = [document.body, document.getElementById('simulator-root'), document.getElementById('simulation-root')].filter(Boolean);
   const observer = new MutationObserver(() => setTimeout(applyLayout, 120));
   observerTargets.forEach(t => observer.observe(t, { childList: true, subtree: true, attributes: true }));
 
