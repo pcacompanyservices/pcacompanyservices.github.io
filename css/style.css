@@ -15,7 +15,7 @@
   --color-background-light: #f3f3f3;
   --color-disabled-bg: #e0e0e0;
   --color-disabled-text: #aaa;
-  --color-title-text: #333;
+  --color-title-text: #343434;
 
   /* Fonts */
   --font-primary: 'EB Garamond', serif;
@@ -781,6 +781,959 @@ button:hover,
 
 .app-footer {
   width: 70vw;
+  margin: 2rem auto;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+/* Fixed footer state (when content shorter than viewport) */
+.app-footer.app-footer-fixed {
+  position: fixed;
+  bottom: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  margin: 2rem auto;
+  width: 70vw;
+}
+
+/* Static / flowing state */
+.app-footer.app-footer-static {
+  position: static;
+  margin-top: 12rem;
+}
+
+.app-footer a,
+.app-footer a:visited,
+.app-footer a:active {
+  color: inherit !important;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.footer-title {
+  display: block;
+  text-align: center;
+  color: #222;
+  font-size: 0.8rem;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.footer-text {
+  text-align: justify;
+  line-height: 1.2;
+}
+
+.terms-agreement {
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--color-title-text);
+  margin: 0 auto;
+  width: fit-content;
+  padding: 0.5rem 0;
+}
+
+.terms-checkbox {
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  cursor: pointer;
+  transform: scale(1.2);
+}
+
+.checkbox-text {
+  font-weight: 500;
+  user-select: none;
+}
+
+.terms-warning {
+  color: var(--color-primary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: center;
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.terms-warning.show {
+  display: block;
+  opacity: 1;
+}
+
+/* ============================================================================
+   PDF EXPORT CONTAINER
+   ============================================================================ */
+
+.pdf-export-title {
+  text-align: center;
+  margin-bottom: 16px;
+  font-size: 1.5rem;
+}
+
+.pdf-export-container {
+  font-family: 'EB Garamond', Garamond, serif;
+  background: #fff;
+  color: #222;
+  width: 794px; /* A4 width at 96dpi */
+  height: 1123px; /* A4 height at 96dpi */
+  margin: 0 auto;
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  z-index: -1;
+  padding: 1.875rem;
+  box-sizing: border-box;
+}
+
+/* PDF Export specific adjustments */
+.pdf-export-container .logo {
+  margin: 0 auto 0.5rem auto !important;
+}
+
+.pdf-export-container h1 {
+  margin: 0 0 0.375rem 0 !important;
+}
+
+.pdf-export-container hr {
+  border: none !important;
+  border-top: 1px solid #666 !important;
+  height: 0 !important;
+  margin: 0.375rem auto 1rem auto !important;
+  width: 100%;
+}
+
+/* ============================================================================
+   VERSION DISPLAY
+   ============================================================================ */
+
+.version-display {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  font-size: 0.75rem;
+  color: #888;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: 'EB Garamond', serif;
+  z-index: 1000;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ============================================================================
+  UTILITY & INLINE STYLE REPLACEMENTS (Employee flows)
+  ============================================================================ */
+.hidden-initial { display: none; }
+.mb-0 { margin-bottom: 0 !important; }
+.result-tight { padding: 0.05rem 0 !important; }
+.result-title-small { font-size: 1em !important; color: #000 !important; }
+.result-note { text-align: center; margin-top: 2px; font-size: 0.85em; }
+.text-red { color: var(--color-primary) !important; }
+.text-green { color: var(--color-success) !important; }
+.center { text-align: center !important; }
+.flex-col-center-80 { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; min-height: 80px; }
+.p-0 { padding: 0 !important; }
+.va-top { vertical-align: top !important; }
+.va-middle { vertical-align: middle !important; }
+/* Balanced padding wrapper for Adjusted Gross Salary cell so top/bottom spacing match */
+.adjusted-gross-cell { padding: 0.25rem 0 0.3rem 0; }
+/* ============================================================================
+   GLOBAL STYLES AND RESET
+   ============================================================================ */
+
+:root {
+  /* Colors */
+  --color-primary: #c1272d;
+  --color-primary-hover: #a72126;
+  --color-secondary: #6c757d;
+  --color-secondary-hover: #5a6268;
+  --color-success: #1a7f3c;
+  --color-text-primary: #212529;
+  --color-text-secondary: #555;
+  --color-border: #ccc;
+  --color-background-light: #f3f3f3;
+  --color-disabled-bg: #e0e0e0;
+  --color-disabled-text: #aaa;
+  --color-title-text: #343434;
+
+  /* Fonts */
+  --font-primary: 'EB Garamond', serif;
+
+  /* Sizing */
+  --container-max-width: 55rem;
+  --form-max-width: 26.25rem;
+  --border-radius: 0.375rem;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-primary);
+  color: var(--color-text-primary);
+  max-width: 90vw;
+  margin: 3.125rem auto;
+  padding: 0 0.625rem;
+}
+
+h1, h2 {
+  text-align: center;
+  font-weight: bold;
+}
+
+hr {
+  max-width: 70vw;
+  border: 0;
+  border-top: 1px solid var(--color-border);
+}
+
+/* ============================================================================
+   LAYOUT CONTAINERS
+   ============================================================================ */
+
+#salary-form,
+[id$="-form"] { /* General selector for all calculator forms */
+  max-width: var(--form-max-width);
+  width: 100%;
+  margin: 0 auto 1.5rem auto;
+  padding: 0 0.5rem;
+}
+
+/* ============================================================================
+   FORM STEP NAVIGATION
+   ============================================================================ */
+
+.form-step {
+  display: none;
+}
+
+.form-step.active {
+  display: block;
+}
+
+/* ============================================================================
+   PROGRESS BAR STYLES
+   ============================================================================ */
+
+#progress-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 480px;
+  margin: 1.25rem auto;
+  user-select: none;
+}
+
+.progress-step {
+  flex: 0 1 5rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  background: #f6f6f6;
+  border-radius: var(--border-radius);
+  padding: 0.25rem 0.5rem;
+  transition: color 0.2s, background 0.2s;
+}
+
+.progress-step.active {
+  color: var(--color-primary);
+  background: #f8eaea;
+  font-weight: 700;
+}
+
+.progress-step.completed {
+  color: var(--color-success);
+  background: #eaf8ee;
+  font-weight: 600;
+}
+
+.progress-bar-line {
+  flex: 1;
+  height: 2px;
+  background: #ddd;
+  transition: background 0.2s;
+}
+
+.progress-bar-line.completed {
+  background: var(--color-success);
+}
+
+/* ============================================================================
+   STEP TITLES AND QUESTION ICONS
+   ============================================================================ */
+
+.step-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3125rem;
+  width: 100%;
+  margin-bottom: 0.625rem;
+}
+
+.step-title-row h2 {
+  margin: 0 0 0 1.0125rem;
+  padding: 0;
+  text-align: center;
+  font-size: 1.5em;
+  font-weight: 700;
+}
+
+.question-icon {
+  width: 0.7rem;
+  height: 0.7rem;
+  display: inline-block;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.question-icon img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.question-icon:hover .info-box,
+.question-icon:focus .info-box {
+  opacity: 0.95;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.info-box {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translateX(-50%);
+  min-width: 3.125rem;
+  width: max-content;
+  max-width: 43.75rem;
+  background: #fffcee;
+  color: #111;
+  border: 1px solid #e2cb7f;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-family: 'EB Garamond', serif;
+  z-index: 10000; /* ensure tooltip stays above all UI layers */
+  margin-top: 0.5rem;
+  pointer-events: none;
+  text-align: left;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  background-clip: padding-box;
+}
+
+/* ============================================================================
+   FORM INPUTS AND CONTROLS
+   ============================================================================ */
+
+label, input, select, button {
+  display: block;
+  width: 100%;
+  margin: 0px auto 0.3125rem auto;
+  padding: 0.5rem;
+  font-size: 1.125rem;
+  font-family: 'EB Garamond', serif;
+}
+
+label.input-label {
+  padding-left: none;
+}
+
+input {
+  margin-bottom: 0.3175rem;
+}
+
+#base-salary.number-input,
+select#national {
+  margin: 0.9375rem 0;
+}
+
+.input-warning.show {
+  display: block;
+}
+
+.input-error-text {
+  color: red !important;
+  font-size: 0.875rem !important;
+  margin-top: 0.25rem !important;
+  display: none;
+}
+
+.input-error-text.show {
+  display: block;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.3125rem;
+  font-size: 1.125rem;
+}
+
+input, select {
+  display: block;
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1.125rem;
+  font-family: var(--font-primary);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--color-border);
+  background: #fff;
+}
+
+.input-warning {
+  color: var(--color-primary);
+  font-size: 0.9em;
+  margin-top: 0.25rem;
+  display: none;
+}
+
+/* ============================================================================
+   BUTTON STYLES
+   ============================================================================ */
+button,
+.simulation-button,
+.return-button {
+  display: block;
+  max-width: 25.625rem;
+  width: 100%;
+  padding: 0.75rem 0;
+  font-size: 1.125rem;
+  font-family: var(--font-primary);
+  text-align: center;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  color: white;
+  background-color: var(--color-primary);
+  border-color: var(--color-primary-hover);
+  position: relative;
+  overflow: visible;
+}
+
+button:hover,
+.simulation-button:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.return-button {
+  background-color: var(--color-secondary);
+  border-color: var(--color-secondary);
+}
+
+.return-button:hover {
+  background-color: var(--color-secondary-hover);
+}
+
+/* Disabled return button style */
+.simulation-button:disabled,
+.return-button:disabled {
+  background-color: var(--color-disabled-bg);
+  color: var(--color-disabled-text);
+  border-color: var(--color-disabled-bg);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.return-button.disabled:hover,
+.return-button.disabled:focus {
+  background-color: #f0f0f0 !important;
+  color: #999 !important;
+}
+
+/* Unavailable simulation button style */
+.simulation-button.unavailable {
+  background-color: #f8cece !important;
+  color: var(--color-disabled-text);
+  border: 1px solid #f3dede !important;
+  cursor: not-allowed !important;
+  opacity: 1;
+  box-shadow: none;
+  pointer-events: auto;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.simulation-button.unavailable:hover,
+.simulation-button.unavailable:focus {
+  background-color: #fff8f8 !important;
+  color: var(--color-disabled-text) !important;
+}
+
+/* Deactivated simulation button style */
+.simulation-button.deactivated {
+  background-color: var(--color-disabled-bg) !important;
+  color: var(--color-disabled-text) !important;
+  border: 1px solid var(--color-disabled-bg) !important;
+  cursor: not-allowed !important;
+  opacity: 0.6;
+  box-shadow: none;
+  pointer-events: none;
+  transition: background-color 0.2s, color 0.2s, opacity 0.2s;
+}
+
+/* Terms disabled simulation button style */
+.simulation-button.terms-disabled {
+  background-color: #f0f0f0 !important;
+  color: #888 !important;
+  border: 1px solid #ddd !important;
+  cursor: pointer !important;
+  opacity: 0.7;
+  box-shadow: none;
+  transition: background-color 0.2s, color 0.2s, opacity 0.2s;
+}
+
+.simulation-button.terms-disabled:hover {
+  background-color: #e8e8e8 !important;
+  color: #666 !important;
+}
+
+.simulation-button:hover .info-box,
+.simulation-button:focus .info-box {
+  opacity: 0.85;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* ============================================================================
+   FORM NAVIGATION
+   ============================================================================ */
+
+.form-navigation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.5rem auto;
+  max-width: var(--container-max-width);
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.form-navigation .simulation-button,
+.form-navigation .return-button {
+  flex: 1;
+  min-width: 12rem;
+  max-width: 16rem;
+  margin: 0;
+  display: none;
+}
+
+.form-navigation .simulation-button.show,
+.form-navigation .return-button.show {
+  display: block;
+}
+/* ============================================================================
+   RESULT CONTAINERS AND TABLES
+   ============================================================================ */
+
+.result {
+  font-size: 1.125rem;
+  color: var(--color-text-primary);
+}
+
+.result-table-container {
+  width: 100%;
+  max-width: 55vw;
+  margin: 0 auto;
+}
+
+.result-table {
+  width: 100%;
+  max-width: 80vw;
+  margin: 0 auto;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  border-radius: 0.25rem;
+  overflow: hidden;
+  border: 1px solid #000000;
+}
+
+.result-table-vertical tr {
+  width: 100%;
+}
+
+.result-table-vertical td {
+  vertical-align: top;
+}
+
+.result-table-bordered {
+  border: 1px solid var(--color-title-text);
+}
+
+.result-table-bordered td,
+.result-table-bordered th {
+  border: 1px solid var(--color-title-text);
+  padding: 2px 4px; /* reduce inner gap */
+}
+
+.result-table th {
+  font-weight: 700;
+  font-size: 1.25rem;
+  text-align: center;
+}
+
+/* Table layout styling */
+.employee-table-layout tr:first-child td,
+.employee-table-layout tr:nth-last-child(4) td,
+.employee-table-layout tr:nth-last-child(2) td,
+.employee-table-layout tr:last-child td {
+  background: var(--color-background-light);
+}
+
+.employer-table-layout tr:first-child td,
+.employer-table-layout tr:nth-last-child(3) td,
+.employer-table-layout tr:last-child td {
+  background: var(--color-background-light);
+}
+
+/* Payslip table styling (maintains current behavior) */
+.payslip-table-layout tr:first-child td,
+.payslip-table-layout tr:nth-last-child(3) td,
+.payslip-table-layout tr:last-child td {
+  background: var(--color-background-light);
+}
+
+/* Employer cost table styling (only first and last row) */
+.employer-cost-table-layout tr:first-child td,
+.employer-cost-table-layout tr:last-child td {
+  background: var(--color-background-light);
+}
+
+/* Override employer-table-layout styling for employer cost table middle rows */
+.employer-cost-table-layout tr:nth-last-child(3) td,
+.employer-cost-table-layout tr:nth-last-child(2) td {
+  background: transparent !important;
+}
+
+.employer-cost-table-layout .employer-cost-header-row,
+.employer-cost-table-layout .employer-cost-footer-row {
+  background-color: #f5f5f5;
+}
+
+/* ============================================================================
+   RESULT CONTENT STYLING
+   ============================================================================ */
+
+.result-content {
+  display: none;
+  margin-top: 1.5rem;
+}
+
+.result-content.show {
+  display: block;
+}
+
+.result-title {
+  font-size: 1.125rem; /* align with employer text size */
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 0.05em;
+  letter-spacing: 0.03125rem;
+}
+
+.result-table-title {
+  font-size: 1.4rem;
+  color: #000 !important;
+  font-weight: 700 !important;
+  margin: 1rem 0 1rem 0 !important;
+  text-align: center !important;
+}
+
+.result-list {
+  width: 100%;
+  max-width: 21.25rem;
+  margin: 0 auto 0.2rem auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.01em;
+}
+
+.result-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.01em;
+  padding: 0 0.75rem;
+  font-size: 0.95em; /* slightly tighter */
+  width: 99%;
+  margin: 0 auto;
+}
+
+.result-title-muted {
+  font-size: 1em;
+  color: #888;
+  text-align: center;
+  font-weight: normal;
+}
+
+/* Neutral gray, non-bold for absence messages */
+.result-none-text {
+  font-size: 1em;
+  color: #888 !important;
+  text-align: center;
+  font-weight: normal !important;
+  margin: 0.25rem 0;
+}
+
+.result-total {
+  font-weight: 600;
+  text-align: center;
+  margin-top: 0.02em;
+  font-size: 1.125rem; /* align with employer text size */
+}
+
+/* All employee value cells now use .result-title; remove deprecated center-value styles */
+/* Tight spacing when two consecutive .result-title elements occur in a cell */
+.employee-table-layout td > .result-title + .result-title {
+  padding: 0.05rem 0 !important;
+}
+
+.result-box {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: 0.125rem;
+  padding: 0.18rem 0.3rem 0.15rem 0.3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  font-size: 1.125rem;
+}
+
+.result-divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  width: 55%;
+  margin: 0.08em auto 0.05em auto;
+}
+
+.result-divider-insurance {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  width: 90%;
+  margin: 0.08em auto 0.05em auto;
+}
+
+.employee-total-value {
+  color: var(--color-success) !important;
+}
+
+.employer-total-value {
+  color: var(--color-primary) !important;
+}
+
+/* Result titles */
+.employer-cost-title {
+  text-align: center;
+  margin-bottom: 16px;
+  font-size: 30px;
+}
+
+.employer-cost-title {
+  margin-top: 24px;
+}
+
+.no-benefit-message {
+  font-size: 1em;
+  color: #888;
+}
+
+/* ============================================================================
+   RESULT BUTTONS CONTAINER
+   ============================================================================ */
+
+.result-error-text {
+  color: var(--color-primary) !important;
+  font-size: 1rem !important;
+  text-align: center !important;
+  margin: 1rem 0 !important;
+  display: block;
+}
+
+.result-buttons-container {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin: 2rem auto 1rem auto;
+  flex-wrap: wrap;
+  max-width: 55rem;
+  width: 100%;
+}
+
+.result-buttons-container.show {
+  display: flex;
+}
+
+.progress-bar-hidden {
+  display: none !important;
+}
+
+.progress-bar-visible {
+  display: flex !important;
+}
+
+.result-buttons-container .simulation-button {
+  flex: 1;
+  min-width: 12rem;
+  max-width: 16rem;
+  margin: 0;
+}
+
+/* ============================================================================
+   MISCELLANEOUS COMPONENTS
+   ============================================================================ */
+
+/* Checkbox and list styles */
+.checkbox-group {
+  display: flex;
+  margin-top: 0.25rem;
+}
+
+.checkbox-item {
+  display: flex;
+  justify-content: left;
+  align-items: baseline;
+  gap: 0.375rem;
+  font-family: inherit;
+  width: fit-content;
+  margin-left: 0;
+  margin-top: 0.3125rem;
+  line-height: 1.2;
+  color: var(--color-title-text);
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.simulation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.875rem;
+}
+
+/* Logo styling */
+.logo {
+  display: block;
+  margin: 0 auto 1.25rem;
+  max-width: 11.25rem;
+  cursor: pointer;
+}
+
+/* Allowance and bonus input containers */
+#allowance-inputs,
+#bonus-inputs {
+  margin-bottom: 1.25rem;
+}
+
+/* Result details grid */
+.result-details-grid {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: space-between;
+  margin: 1.1em 0 0.5em 0;
+}
+
+.result-details-col {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+  font-size: 1rem;
+  min-width: 0;
+}
+
+.result-details-col b {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: #222;
+}
+
+.result-details-label {
+  color: var(--color-title-text);
+  font-weight: 500;
+}
+
+.result-details-value {
+  color: #222;
+  font-weight: 600;
+  margin-left: 0.2em;
+}
+
+/* ============================================================================
+   CHART STYLES
+   ============================================================================ */
+
+.pie-chart-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5rem;
+  margin: 1.25rem auto 0.75rem;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 37.5rem;
+}
+
+.pie-chart-container > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+#salary-breakdown-chart,
+#cost-breakdown-chart {
+  width: 100%;
+  max-width: 14.375rem;
+  height: auto;
+  max-height: 14.375rem;
+  border-radius: 0.5rem;
+}
+
+#salary-breakdown-chart-label,
+#cost-breakdown-chart-label {
+  margin-top: 0.625rem;
+  font-weight: bold;
+  font-family: 'EB Garamond', serif;
+  font-size: 1.125rem;
+  text-align: center;
+  color: var(--color-title-text);
+}
+
+/* ============================================================================
+   FOOTER STYLES
+   ============================================================================ */
+
+.app-footer {
+  width: 80%;
   margin: 2rem auto;
   font-size: 0.8rem;
   color: var(--color-text-secondary);
