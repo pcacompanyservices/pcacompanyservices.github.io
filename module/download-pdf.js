@@ -2,6 +2,7 @@
 // Usage:
 // import { buildStandardPdfFilename, exportResultToPdf } from '../module/download-pdf.js';
 
+import { TEXT } from '../lang/eng.js';
 let _pdfLibPromise = null;
 
 export function ensurePdfLibsLoaded() {
@@ -14,7 +15,7 @@ export function ensurePdfLibsLoaded() {
       const s = document.createElement('script');
       s.src = src;
       s.onload = () => { loaded++; done(); };
-      s.onerror = () => { errored = true; reject(new Error('Failed loading ' + src)); };
+  s.onerror = () => { errored = true; reject(new Error((TEXT.defaults.pdf.errorScriptPrefix || 'Failed loading') + ' ' + src)); };
       document.head.appendChild(s);
     }
     if (!window.jspdf || !window.jspdf.jsPDF) {
@@ -40,7 +41,7 @@ function withExportStyles() {
   };
 }
 
-export function buildStandardPdfFilename(prefix = '[PCA_Salary_Simulation]') {
+export function buildStandardPdfFilename(prefix = TEXT.defaults.pdf.filenamePrefix) {
   const now = new Date();
   const day = String(now.getDate()).padStart(2, '0');
   const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -51,7 +52,7 @@ export function buildStandardPdfFilename(prefix = '[PCA_Salary_Simulation]') {
 export async function exportResultToPdf({ exportContainer, filename = buildStandardPdfFilename(), onStart = () => {}, onComplete = () => {} }) {
   await ensurePdfLibsLoaded();
   if (!window.jspdf || !window.jspdf.jsPDF || !window.html2canvas) {
-    throw new Error('PDF export libraries not available');
+  throw new Error(TEXT.defaults.pdf.errorLibs || 'PDF export libraries not available');
   }
   onStart();
   await document.fonts.ready;

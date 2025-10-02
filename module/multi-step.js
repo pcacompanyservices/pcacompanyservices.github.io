@@ -17,7 +17,9 @@ export function initMultiStepNavigation({
   continueBtn,
   returnBtn,
   calculateBtn,
+  // Provide either a progressBarSelector OR an explicit progressUpdater fn
   progressBarSelector = '#progress-bar',
+  progressUpdater, // (idx) => void
   focusSalaryStepIndex = 1
 }) {
   let currentStep = 0;
@@ -25,6 +27,10 @@ export function initMultiStepNavigation({
   function getEl(id) { return document.getElementById(id); }
 
   function updateProgressBar(idx) {
+    if (typeof progressUpdater === 'function') {
+      progressUpdater(idx);
+      return;
+    }
     const bar = document.querySelector(progressBarSelector);
     if (!bar) return;
     const stepEls = bar.querySelectorAll('.progress-step');

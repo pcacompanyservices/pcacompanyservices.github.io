@@ -6,16 +6,16 @@
   /* Colors */
   --color-primary: #c1272d;
   --color-primary-hover: #a72126;
-  --color-secondary: #6c757d;
-  --color-secondary-hover: #5a6268;
+  --color-secondary: #999;
+  --color-secondary-hover: #666;
   --color-success: #1a7f3c;
-  --color-text-primary: #343434;
+  --color-text-primary: #212529;
   --color-text-secondary: #555;
   --color-border: #ccc;
   --color-background-light: #f3f3f3;
   --color-disabled-bg: #e0e0e0;
   --color-disabled-text: #aaa;
-  --color-title-text: #343434;
+  --color-title-text: #333;
 
   /* Fonts */
   --font-primary: 'EB Garamond', serif;
@@ -780,10 +780,27 @@ button:hover,
    ============================================================================ */
 
 .app-footer {
-  width: 80%;
+  width: 70vw;
   margin: 2rem auto;
   font-size: 0.8rem;
   color: var(--color-text-secondary);
+}
+
+/* Fixed footer state (when content shorter than viewport) */
+.app-footer.app-footer-fixed {
+  position: fixed;
+  bottom: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  margin: 2rem auto;
+  width: 70vw;
+}
+
+/* Static / flowing state */
+.app-footer.app-footer-static {
+  position: static;
+  margin-top: 12rem;
 }
 
 .app-footer a,
@@ -798,7 +815,7 @@ button:hover,
   display: block;
   text-align: center;
   color: #222;
-  font-size: 1.05em;
+  font-size: 0.8rem;
   width: fit-content;
   margin-left: auto;
   margin-right: auto;
@@ -820,7 +837,7 @@ button:hover,
   justify-content: center;
   gap: 0.5rem;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: var(--color-title-text);
   margin: 0 auto;
   width: fit-content;

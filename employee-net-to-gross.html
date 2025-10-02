@@ -11,12 +11,22 @@
 </head>
 <body>
 
-  <a href="salary-simulation-tool.html"><img src="asset/pca-logo.webp" alt="PCA Logo" class="logo"></a>
-  <div id="gross-to-net-root"></div>
+  <div id="simulator-root"></div>
 
 
   <!-- Footer content is injected by template/employee-net-to-gross.js using TEXT.employeeNetToGross.footer -->
 
-  <script type="module" src="template/employee-net-to-gross.js"></script>
+  <script type="module">
+    import { createSalarySimulationPage } from './module/simulation-page.js';
+    document.addEventListener('DOMContentLoaded', () => {
+      createSalarySimulationPage({
+  rootId: 'simulator-root',
+        scenario: 'employeeNetToGross',
+        direction: 'net-to-gross',
+        mode: 'employee',
+        minSalary: 4475000
+      });
+    });
+  </script>
 </body>
 </html>
