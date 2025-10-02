@@ -215,3 +215,187 @@
   });
 
 })();
+
+/* --------------------------------------------------------------------------
+   Firebase Web SDK integration (non-breaking, opt-in)
+   - This block assumes you load Firebase Web SDK via <script> tags in HTML.
+   - It supports two modes:
+       1) "compat" SDK (global `firebase`), e.g.:
+          <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+          <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
+       2) (Optional) Firestore compat if you enable username->email lookup:
+          <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+   - If SDK is NOT present, this code becomes a no-op and your existing UI flow remains intact.
+   -------------------------------------------------------------------------- */
+(function () {
+  'use strict';
+
+  // ---- Configuration ------------------------------------------------------
+  // Provide your Firebase config here or via window.FIREBASE_CONFIG.
+  // Keeping it inline makes the module self-contained but you can externalize if preferred.
+  const CFG = (window.FIREBASE_CONFIG) || {
+    apiKey: "AIzaSyDkHvGy0gmFSq0b7s_eXS-Csrje7nK625E",
+    authDomain: "pcagate.firebaseapp.com",
+    projectId: "pcagate",
+    appId: "1:495812654469:web:67ed791a5223ade84040ec",
+    storageBucket: "pcagate.firebasestorage.app",
+    // ...add other fields (optional but recommended): appId, storageBucket, etc.
+  };
+
+  // Feature flag: if true and Firestore compat is loaded, we allow username->email lookup.
+  // If false, we treat the "username" input as an email directly.
+  const USE_USERNAME_LOOKUP = true; 
+  const USERNAME_MAP_COLLECTION = "profiles";     // where username/email is stored
+  const USERNAME_FIELD = "username";              // field name for username
+  const EMAIL_FIELD = "email";                    // field name for email in profile docs
+
+  // Role-based redirects (optional). Adjust to your pages/routes.
+  // When no role is present, we fall back to a safe default path.
+  const REDIRECTS = {
+    admin: "/admin.html",
+    staff: "/staff.html",
+    user:  "/index.html",
+    default: "/index.html"
+  };
+
+  // ---- Guard: only run when DOM + UI form are present --------------------
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('login-form');
+    if (!form) return; // No login form in DOM; nothing to do.
+
+    // Check if Firebase compat SDK is available. If not, keep existing behavior.
+    // We purposely use compat to avoid converting your file to ES modules.
+    if (!window.firebase || !firebase.app) {
+      // Soft log for developers; end users won't see this.
+      console.warn("[firebase] SDK not found; falling back to existing non-auth flow.");
+      return;
+    }
+
+    // ---- Initialize app safely (idempotent) ------------------------------
+    let app;
+    try {
+      // If an app with the same name already exists, reuse it.
+      app = firebase.apps?.length ? firebase.app() : firebase.initializeApp(CFG);
+    } catch (e) {
+      console.error("[firebase] Failed to initialize:", e);
+      return;
+    }
+    const auth = firebase.auth();
+
+    // Optionally prepare Firestore for username->email lookup
+    let db = null;
+    if (USE_USERNAME_LOOKUP && firebase.firestore) {
+      try {
+        db = firebase.firestore();
+      } catch {
+        // Firestore not loaded; we will gracefully skip username lookup.
+        db = null;
+      }
+    }
+
+    // ---- Small helpers ----------------------------------------------------
+    const $ = (sel, root = document) => root.querySelector(sel);
+    const usernameInput = $('#username', form);
+    const passwordInput = $('#password', form);
+    const usernameErrEl = $('#username-error', form);
+    const passwordErrEl = $('#password-error', form);
+
+    // Render error message under the input (reusing your existing error boxes)
+    function showError(el, msg) {
+      if (!el) return;
+      el.textContent = msg || "";
+      el.style.display = msg ? "block" : "none";
+    }
+
+    // Decide target path based on custom claims; fallback to default
+    function pickRedirectPath(claims) {
+      const role = (claims && claims.role) || "user";
+      return REDIRECTS[role] || REDIRECTS.default;
+    }
+
+    // Username->email lookup in Firestore (optional)
+    async function resolveEmailFromUsername(username) {
+      if (!db) return null; // Firestore not available; skip
+      try {
+        // Strategy A: /profiles/{uid} scan by where("username","==",username)
+        const snap = await db.collection(USERNAME_MAP_COLLECTION)
+          .where(USERNAME_FIELD, "==", username)
+          .limit(1)
+          .get();
+        if (snap.empty) return null;
+        const doc = snap.docs[0];
+        const data = doc.data() || {};
+        return data[EMAIL_FIELD] || null;
+      } catch (e) {
+        console.error("[firebase] Username lookup failed:", e);
+        return null;
+      }
+    }
+
+    // ---- Capture-phase submit handler: preempt the fallback redirect ------
+    // We attach on capture phase so we can stop the event if Firebase handles it.
+    form.addEventListener('submit', async (evt) => {
+      // If Auth SDK is not ready, do nothing; let the existing listeners run.
+      if (!auth) return;
+
+      // Always prevent default here; we will decide whether to stop propagation.
+      evt.preventDefault();
+
+      // Clear previous error messages (if any)
+      showError(usernameErrEl, "");
+      showError(passwordErrEl, "");
+
+      const rawUsername = (usernameInput?.value || "").trim();
+      const password = (passwordInput?.value || "");
+      if (!rawUsername || !password) {
+        // Defer to your existing validation flow (which will show "required")
+        return; // allow bubbling to your current submit listeners
+      }
+
+      try {
+        // If input contains "@", treat it as an email; otherwise try mapping.
+        let email = rawUsername.includes("@") ? rawUsername : null;
+        if (!email && USE_USERNAME_LOOKUP) {
+          email = await resolveEmailFromUsername(rawUsername);
+        }
+
+        if (!email) {
+          // Show a friendly error, but do not break your original handler.
+          showError(usernameErrEl, "Unknown username or email.");
+          // Stop further handlers to avoid false redirects.
+          evt.stopImmediatePropagation();
+          return;
+        }
+
+        // Sign in with Firebase Auth (Email/Password)
+        const cred = await auth.signInWithEmailAndPassword(email, password);
+        const user = cred.user;
+        // Force refresh token to fetch latest custom claims (if admin assigned roles recently)
+        await user.getIdToken(true);
+        const idTokenResult = await user.getIdTokenResult();
+        const nextPath = pickRedirectPath(idTokenResult.claims);
+
+        // Prevent the legacy redirect handlers from running.
+        evt.stopImmediatePropagation();
+        // Navigate based on role (admin/staff/user), fallback to default.
+        window.location.href = nextPath;
+      } catch (err) {
+        // Known errors: auth/user-not-found, auth/wrong-password, auth/too-many-requests, etc.
+        console.error("[firebase] signIn error:", err);
+        const code = err?.code || "";
+        if (code === "auth/user-not-found") {
+          showError(usernameErrEl, "Account does not exist.");
+        } else if (code === "auth/wrong-password") {
+          showError(passwordErrEl, "Incorrect password.");
+        } else if (code === "auth/too-many-requests") {
+          showError(passwordErrEl, "Too many attempts. Please try again later.");
+        } else {
+          showError(passwordErrEl, err?.message || "Sign-in failed. Please try again.");
+        }
+        // Block legacy redirects on error to keep UX consistent.
+        evt.stopImmediatePropagation();
+      }
+    }, true); // <-- capture phase
+
+  }); // DOMContentLoaded
+})();

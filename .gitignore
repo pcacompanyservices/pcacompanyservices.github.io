@@ -3,3 +3,4 @@ be/test/
 **/.DS_Store
 **fb_admin
 .env
+service-account.json
