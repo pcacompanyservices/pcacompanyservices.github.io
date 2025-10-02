@@ -17,7 +17,7 @@
  *   - Firebase Auth Compat SDK (`firebase-auth-compat.js`)
  *   - A global `window.FIREBASE_CONFIG` object must be defined in the HTML.
  */
-
+import { TEXT as T } from '../lang/eng.js';
 (function () {
   'use strict';
 
@@ -42,7 +42,7 @@
 
   // --- Text Labels & Configuration ------------------------------------------
   // All text labels are overridable via `window.TEXT.login.*`.
-  const T = (typeof window !== 'undefined' && window.TEXT) ? window.TEXT : {};
+  //const T = (typeof window !== 'undefined' && window.TEXT) ? window.TEXT : {};
 
   // The domain used to construct a full email from a username.
   // This must align with the domain used in the admin user-creation script.
@@ -50,34 +50,35 @@
 
   // --- Route Definitions ----------------------------------------------------
   // Defines navigation paths for post-login redirection.
-  const NEXT_ROUTE = '/salary-simulation-tool.html'; // Default page after successful login
+  const NEXT_ROUTE = '/simulator.html'; // Default page after successful login
   const PASSWORD_RESET_ROUTE = '/password-reset.html'; // Page for mandatory password changes
 
 
   const LABELS = {
-    title: (T?.index?.title) || 'Company Services',
-    usernameLabel: (T?.login?.usernameLabel) || 'Usenername',
-    usernamePlaceholder: (T?.login?.usernamePlaceholder) || 'Enter your username',
-    passwordLabel: (T?.login?.passwordLabel) || 'Password',
-    passwordPlaceholder: (T?.login?.passwordPlaceholder) || 'Enter your password',
-    submitText: (T?.login?.submitText) || 'Sign In',
-    errors: {
-      required: (T?.login?.errors?.required) || 'This field is required.',
-      email: (T?.login?.errors?.email) || 'Please enter a valid email address.',
-      generic: (T?.login?.errors?.generic) || 'Sign-in failed. Please try again.',
-      userNotFound: (T?.login?.errors?.userNotFound) || 'Account does not exist.',
-      wrongPassword: (T?.login?.errors?.wrongPassword) || 'Incorrect password.',
-      tooMany: (T?.login?.errors?.tooMany) || 'Too many attempts. Try again later.',
-      invalidCredential: (T?.login?.errors?.invalidCredential) || 'Invalid credentials.',
-      sdkMissing: 'Authentication service is unavailable. Please contact support.',
-    }
+  title: T?.index?.title,
+  pageTitle: T?.login?.pageTitle,
+  usernameLabel: T?.login?.usernameLabel,
+  usernamePlaceholder: T?.login?.usernamePlaceholder,
+  passwordLabel: T?.login?.passwordLabel,
+  passwordPlaceholder: T?.login?.passwordPlaceholder,
+  submitText: T?.login?.submitText,
+  errors: {
+    required: T?.login?.errors?.required,
+    email: T?.login?.errors?.email,
+    generic: T?.login?.errors?.generic,
+    userNotFound: T?.login?.errors?.userNotFound,
+    wrongPassword: T?.login?.errors?.wrongPassword,
+    tooMany: T?.login?.errors?.tooMany,
+    invalidCredential: T?.login?.errors?.invalidCredential,
+    sdkMissing: 'Authentication service is unavailable. Please contact support.'
+  }
   };
 
   /* ==========================================================================
      Input Validation
      ========================================================================== */
-  // Username validation: letters/digits/._- (3-64)
-  const USERNAME_RE = /^[A-Za-z0-9._-]{3,64}$/;
+  // Username validation: letters/digits/._- (1-64)
+  const USERNAME_RE = /^[A-Za-z0-9._-]{1,64}$/;
   const validateUsername = (v) => {
     const s = (v || '').trim();
     if (!s) return { ok: false, reason: 'required' };

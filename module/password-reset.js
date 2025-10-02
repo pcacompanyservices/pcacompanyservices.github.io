@@ -22,6 +22,7 @@
  *     - `firebase-firestore-compat.js` (optional, for updating the profile flag)
  *   - A global `window.FIREBASE_CONFIG` object must be defined in the HTML.
  */
+import { TEXT as T  } from '../lang/eng.js';
 (function () {
   'use strict';
 
@@ -44,26 +45,28 @@
 
   // --- Text Labels & Configuration ------------------------------------------
   // All text labels are overridable via `window.TEXT.passwordReset.*`.
-  const T = (typeof window !== 'undefined' && window.TEXT) ? window.TEXT : {};
+  
+  //const T = (typeof window !== 'undefined' && window.TEXT) ? window.TEXT : {};
+
   const LABELS = {
-    pageTitle: (T?.passwordReset?.pageTitle) || 'Change your password',
-    currentLabel: (T?.passwordReset?.currentLabel) || 'Current password',
-    newLabel: (T?.passwordReset?.newLabel) || 'New password',
-    confirmLabel: (T?.passwordReset?.confirmLabel) || 'Confirm new password',
-    placeholderCurrent: (T?.passwordReset?.placeholderCurrent) || 'Enter current password',
-    placeholderNew: (T?.passwordReset?.placeholderNew) || 'Enter new password',
-    placeholderConfirm: (T?.passwordReset?.placeholderConfirm) || 'Re-enter new password',
-    submitText: (T?.passwordReset?.submitText) || 'Update password',
-    doneText: (T?.passwordReset?.doneText) || 'Password updated successfully.',
-    nextRoute: (T?.passwordReset?.nextRoute) || '/index.html',
+    pageTitle: T?.passwordReset?.pageTitle,
+    currentLabel: T?.passwordReset?.currentLabel,
+    newLabel: T?.passwordReset?.newLabel,
+    confirmLabel: T?.passwordReset?.confirmLabel,
+    placeholderCurrent: T?.passwordReset?.placeholderCurrent,
+    placeholderNew: T?.passwordReset?.placeholderNew,
+    placeholderConfirm: T?.passwordReset?.placeholderConfirm,
+    submitText: T?.passwordReset?.submitText,
+    doneText: T?.passwordReset?.doneText,
+    nextRoute: T?.passwordReset?.nextRoute || '/index.html',
     errors: {
-      required: (T?.passwordReset?.errors?.required) || 'This field is required.',
-      weak: (T?.passwordReset?.errors?.weak) || 'Password must be at least 6 characters.',
-      mismatch: (T?.passwordReset?.errors?.mismatch) || 'Passwords do not match.',
-      notSignedIn: (T?.passwordReset?.errors?.notSignedIn) || 'You are not signed in.',
-      wrongPassword: (T?.passwordReset?.errors?.wrongPassword) || 'Current password is incorrect.',
-      requiresRecentLogin: (T?.passwordReset?.errors?.requiresRecentLogin) || 'Please sign in again to continue.',
-      generic: (T?.passwordReset?.errors?.generic) || 'Something went wrong. Please try again.'
+      required: T?.passwordReset?.errors?.required,
+      weak: T?.passwordReset?.errors?.weak,
+      mismatch: T?.passwordReset?.errors?.mismatch,
+      notSignedIn: T?.passwordReset?.errors?.notSignedIn,
+      wrongPassword: T?.passwordReset?.errors?.wrongPassword,
+      requiresRecentLogin: T?.passwordReset?.errors?.requiresRecentLogin,
+      generic: T?.passwordReset?.errors?.generic
     }
   };
 
@@ -101,6 +104,9 @@
     }));
     const err = append(row, createEl('div', { id: `${id}-error`, class: 'form-error', ariaLive: 'polite' }));
     err.style.display = 'none';
+    err.style.color = 'var(--color-primary)'; 
+    err.style.marginTop = '0.25rem';
+    err.style.fontSize = '0.95rem';
     return { row, inp, err, touched: false };
   }
 
@@ -112,7 +118,7 @@
 
     const current = inputRow({
       id: 'current-password',
-      label: LABELS.currentLabel,
+      label: LABELS.currentLabel  || 'Current Password',
       placeholder: LABELS.placeholderCurrent
     });
     form.appendChild(current.row);
