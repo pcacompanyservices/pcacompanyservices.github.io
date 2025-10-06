@@ -58,7 +58,7 @@ import { TEXT as T  } from '../lang/eng.js';
     placeholderConfirm: T?.passwordReset?.placeholderConfirm,
     submitText: T?.passwordReset?.submitText,
     doneText: T?.passwordReset?.doneText,
-    nextRoute: T?.passwordReset?.nextRoute || '/index.html',
+    nextRoute: T?.passwordReset?.nextRoute , // || '/index.html',
     errors: {
       required: T?.passwordReset?.errors?.required,
       weak: T?.passwordReset?.errors?.weak,
