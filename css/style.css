@@ -1905,3 +1905,139 @@ button:hover,
 /* Balanced padding wrapper for Adjusted Gross Salary cell so top/bottom spacing match */
 .adjusted-gross-cell { padding: 0.25rem 0 0.3rem 0; }
 .pdf-export-container .adjusted-gross-cell { padding: 0.3rem 0 0.35rem 0; }
+
+/* =========================
+ * Home Dashboard (scoped)
+ * Works with: #home-title, .tool-panel, .tool-card, .tool-actions, .tool-btn
+ * ========================= */
+
+#home-root {
+  /* Local tokens (fallbacks keep things safe if project tokens differ) */
+  --pcacs-radius: 14px;
+  --pcacs-shadow: 0 6px 20px rgba(0,0,0,.08);
+  --pcacs-gap: 16px;
+  --pcacs-gap-lg: 24px;
+  --pcacs-border-color: rgba(0,0,0,.08);
+  --pcacs-muted: #6b7280;        /* neutral-500 */
+  --pcacs-btn-bg: #111827;       /* gray-900 */
+  --pcacs-btn-bg-disabled: #9ca3af; /* gray-400 */
+  padding: 24px;
+}
+
+#home-root #home-title {
+  margin: 0 0 16px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+/* Horizontal panel of 3 tools */
+#home-root .tool-panel {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--pcacs-gap-lg);
+  align-items: stretch;
+}
+
+
+/* Tool card */
+#home-root .tool-card {
+  position: relative; /* needed for tooltip positioning */
+  flex: 1 1 0;
+  min-width: 0;
+  border: 1px solid var(--pcacs-border-color);
+  border-radius: var(--pcacs-radius);
+  box-shadow: var(--pcacs-shadow);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  transition: transform .15s ease, box-shadow .15s ease, opacity .2s ease;
+  background: #fff;
+}
+
+#home-root .tool-card:hover {
+  transform: translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #home-root .tool-card { transition: none; }
+}
+
+/* Card content */
+#home-root .tool-card img {
+  width: 100%;
+  height: 140px;
+  object-fit: contain;
+  margin-bottom: 12px;
+}
+
+#home-root .tool-card h2 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+#home-root .tool-card p {
+  font-size: 13px;
+  color: var(--pcacs-muted);
+  margin: 0 0 12px;
+  line-height: 1.35;
+  flex: 1; /* push actions to bottom */
+}
+
+/* Actions */
+#home-root .tool-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+#home-root .tool-btn {
+  appearance: none;
+  border: 1px solid var(--pcacs-border-color);
+  background: var(--pcacs-btn-bg);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+#home-root .tool-btn:focus-visible {
+  outline: 3px solid rgba(59,130,246,.4);
+  outline-offset: 2px;
+}
+
+/* Disabled state + tooltip */
+#home-root .tool-card[aria-disabled="true"] {
+  opacity: .6;
+}
+
+#home-root .tool-card[aria-disabled="true"] .tool-btn {
+  background: var(--pcacs-btn-bg-disabled);
+  cursor: not-allowed;
+}
+
+/* Tooltip shown on hover when data-tooltip is present (disabled tools) */
+#home-root .tool-card .tool-btn[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 56px;
+  right: 16px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: #111827;
+  color: #fff;
+  font-size: 12px;
+  white-space: nowrap;
+  box-shadow: var(--pcacs-shadow);
+  z-index: 10;
+}
+
+/* Responsive: wrap to 2 cols then 1 col */
+@media (max-width: 920px) {
+  #home-root .tool-panel { flex-wrap: wrap; }
+  #home-root .tool-card { flex: 1 1 calc(50% - var(--pcacs-gap-lg)); }
+}
+
+@media (max-width: 640px) {
+  #home-root .tool-card { flex: 1 1 100%; }
+}

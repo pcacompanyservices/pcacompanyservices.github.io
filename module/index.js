@@ -21,6 +21,22 @@ import { TEXT as T } from '../lang/eng.js';
 (function () {
   'use strict';
 
+  // --- URL helpers for returnTo ---
+  function getReturnTo() {
+    try {
+      const url = new URL(location.href);
+      return url.searchParams.get('returnTo');
+    } catch { return null; }
+  }
+  function goAfterLogin(fallback) {
+    const ret = getReturnTo();
+    if (ret) {
+      location.assign(ret);
+    } else {
+      location.assign(fallback);
+    }
+  }
+
   /* ==========================================================================
      DOM & Utility Helpers
      ========================================================================== */

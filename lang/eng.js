@@ -388,7 +388,38 @@ export const TEXT = {
     currencyUnit: 'VND',
     payslipTitle: 'PAYSLIP',
     footer: SHARED_CALC_FOOTER
+  },
+
+HOME: {
+    TITLE: "Tools Dashboard",
+    SUBTITLE: "Jump into the right tool quickly.",
+        TOOLS: [
+      {
+        key: "tax-simulation",
+        title: "Tax Simulation",
+        info: "Explore usage metrics and trends.",
+        img: "asset/tool-reports.png",
+        route: "/tax-simulation.html",
+        disabled: true
+      },
+      {
+        key: "salary-simulation",
+        title: "Salary Simulation",
+        info: "Run scenario-based simulations.",
+        img: "asset/tool-simulator.png",
+        route: "/simulator.html",
+        disabled: false
+      },
+      {
+        key: "dashboard",
+        title: "Dashboard",
+        info: "Generate exportable reports.",
+        img: "asset/admin.png",
+        route: "/dashboard.html",
+        disabled: true
+      }
+    ]
   }
-};
+}
 
 export default TEXT;

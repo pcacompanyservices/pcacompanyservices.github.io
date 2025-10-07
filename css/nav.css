@@ -1,0 +1,92 @@
+/* nav.css */
+/* Compact, accessible floating nav capsule. Comment in EN only. */
+
+:root {
+  --pcacs-nav-z: 2147483000;         /* high but under modals if needed */
+  --pcacs-nav-radius: 14px;
+  --pcacs-nav-gap: 8px;
+  --pcacs-nav-pad: 8px;
+  --pcacs-nav-shadow: 0 6px 20px rgba(0,0,0,.18);
+  --pcacs-nav-bg: #ffffff;
+  --pcacs-nav-border: 1px solid rgba(0,0,0,.08);
+  --pcacs-nav-btn-size: 36px;
+  --pcacs-nav-btn-font: 18px;
+}
+
+.pcacs-nav {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;                     /* default: bottom-right */
+  z-index: var(--pcacs-nav-z);
+  background: var(--pcacs-nav-bg);
+  border: var(--pcacs-nav-border);
+  border-radius: var(--pcacs-nav-radius);
+  box-shadow: var(--pcacs-nav-shadow);
+  padding: var(--pcacs-nav-pad);
+  display: flex;
+  gap: var(--pcacs-nav-gap);
+  align-items: center;
+  pointer-events: auto;
+}
+
+.pcacs-nav[data-pos="top-right"] { top: 16px; right: 16px; bottom: auto; }
+.pcacs-nav[data-pos="top-left"] { top: 16px; left: 16px; right: auto; bottom: auto; }
+.pcacs-nav[data-pos="bottom-left"] { bottom: 16px; left: 16px; right: auto; }
+
+.pcacs-nav__btn {
+  /* Semantically buttons for a11y */
+  width: var(--pcacs-nav-btn-size);
+  height: var(--pcacs-nav-btn-size);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,.08);
+  background: #fff;
+  cursor: pointer;
+  font: 600 var(--pcacs-nav-btn-font)/1 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  transition: transform .1s ease, background .15s ease, box-shadow .15s ease;
+}
+
+.pcacs-nav__btn:focus-visible {
+  outline: 2px solid #005fcc;
+  outline-offset: 2px;
+}
+
+.pcacs-nav__btn:hover {
+  background: #f7f7f7;
+  box-shadow: 0 2px 8px rgba(0,0,0,.10);
+}
+
+.pcacs-nav__btn:active { transform: translateY(1px); }
+
+.pcacs-nav__btn[disabled] {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+/* Icon-only text hidden but accessible label remains via aria-label/title */
+.pcacs-nav__icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+}
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .pcacs-nav__btn { transition: none; }
+}
+
+/* High contrast tweak */
+@media (prefers-contrast: more) {
+  .pcacs-nav { border-color: #000; }
+  .pcacs-nav__btn { border-color: #000; }
+}
+
+/* Image-based icons for nav buttons */
+.pcacs-nav__icon-img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  pointer-events: none;
+}

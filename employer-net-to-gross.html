@@ -6,6 +6,7 @@
   <title>PCA Salary Simulation</title>
   <link rel="icon" type="image/png" href="asset/favicon.png" />
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/nav.css">
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&display=swap" rel="stylesheet" />
   <script src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'></script>
   <script src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'></script>
@@ -26,5 +27,10 @@
       });
     });
   </script>
+  <script type="module">
+  import '/module/logout.js'; // UMD Create global Logout
+  Logout.init({ redirectTo: '/login.html' });
+  </script>
+  <script type="module" src="module/nav.js" data-home="home.html" data-pos="bottom-right"></script>
 </body>
 </html>
