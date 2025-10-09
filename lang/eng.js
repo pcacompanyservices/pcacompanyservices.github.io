@@ -89,6 +89,48 @@ export const TEXT = {
     }
   },
 
+  // Login page (index.js)
+  login: {
+    pageTitle: 'Sign In',
+    usernameLabel: 'Username',
+    usernamePlaceholder: 'Enter your username',
+    passwordLabel: 'Password',
+    passwordPlaceholder: 'Enter your password',
+    submitText: 'Sign In',
+    errors: {
+      required: 'This field is required.',
+      email: 'Please enter a valid email address.',
+      generic: 'Sign-in failed. Please try again.',
+      userNotFound: 'Account does not exist.',
+      wrongPassword: 'Incorrect password.',
+      tooMany: 'Too many attempts. Try again later.',
+      invalidCredential: 'Invalid credentials.'
+    }
+  },
+
+  // Password Reset page (password-reset.js)
+  passwordReset: {
+    pageTitle: 'Change your password',
+    currentLabel: 'Current password',
+    newLabel: 'New password',
+    confirmLabel: 'Confirm new password',
+    placeholderCurrent: 'Enter current password',
+    placeholderNew: 'Enter new password',
+    placeholderConfirm: 'Re-enter new password',
+    submitText: 'Update password',
+    doneText: 'Password updated successfully.',
+    nextRoute: '/index.html',
+    errors: {
+      required: 'This field is required.',
+      weak: 'Password must be at least 6 characters.',
+      mismatch: 'Passwords do not match.',
+      notSignedIn: 'You are not signed in.',
+      wrongPassword: 'Current password is incorrect.',
+      requiresRecentLogin: 'Please sign in again to continue.',
+      generic: 'Something went wrong. Please try again.'
+    }
+  },
+
   // 1) Employer – Gross to Net
   employerGrossToNet: {
     pageTitle: "Calculate from Employee's Gross Salary",
@@ -346,7 +388,38 @@ export const TEXT = {
     currencyUnit: 'VND',
     payslipTitle: 'PAYSLIP',
     footer: SHARED_CALC_FOOTER
+  },
+
+HOME: {
+    TITLE: "Service Portal",
+    SUBTITLE: "Jump into the right tool quickly.",
+        TOOLS: [
+      {
+        key: "landingcost-calculator",
+        title: "Landing Cost Calculator",
+        info: "Calculate the total landing cost for imported goods.",
+        img: "asset/calculator.png",
+        route: "/landingcost-calculator.html",
+        disabled: true
+      },
+      {
+        key: "salary-simulation",
+        title: "Salary Simulation",
+        info: "Run scenario-based simulations.",
+        img: "asset/tool-simulator.png",
+        route: "/simulator.html",
+        disabled: false
+      },
+      {
+        key: "dashboard",
+        title: "Dashboard",
+        info: "Generate exportable reports.",
+        img: "asset/dashboard.png",
+        route: "/dashboard.html",
+        disabled: true
+      }
+    ]
   }
-};
+}
 
 export default TEXT;
