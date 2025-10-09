@@ -5,4 +5,4 @@ be/test/
 .env
 service-account.json
 **firebasecfg
-fb-init.js
+fb_init.js
