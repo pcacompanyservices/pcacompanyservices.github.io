@@ -391,15 +391,15 @@ export const TEXT = {
   },
 
 HOME: {
-    TITLE: "Tools Dashboard",
+    TITLE: "Service Portal",
     SUBTITLE: "Jump into the right tool quickly.",
         TOOLS: [
       {
-        key: "tax-simulation",
-        title: "Tax Simulation",
-        info: "Explore usage metrics and trends.",
-        img: "asset/tool-reports.png",
-        route: "/tax-simulation.html",
+        key: "landingcost-calculator",
+        title: "Landing Cost Calculator",
+        info: "Calculate the total landing cost for imported goods.",
+        img: "asset/calculator.png",
+        route: "/landingcost-calculator.html",
         disabled: true
       },
       {
@@ -414,7 +414,7 @@ HOME: {
         key: "dashboard",
         title: "Dashboard",
         info: "Generate exportable reports.",
-        img: "asset/admin.png",
+        img: "asset/dashboard.png",
         route: "/dashboard.html",
         disabled: true
       }

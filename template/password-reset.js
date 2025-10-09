@@ -1,34 +1,16 @@
 /*
- * password-reset.js: Secure Password Change Flow for Firebase
- *
- * This script provides a robust user interface and logic for changing a user's password.
- * It is designed to work seamlessly with Firebase Authentication and Firestore, ensuring
- * a secure and user-friendly experience.
- *
- * Features:
- *   1. Renders a form with fields for current, new, and confirmation passwords.
- *   2. Waits for Firebase's authentication state to be confirmed before enabling the form,
- *      preventing premature submissions.
- *   3. Securely re-authenticates the user with their current password before proceeding.
- *   4. Updates the password using Firebase Authentication.
- *   5. On success, updates the `mustChangePassword` flag in the user's Firestore profile
- *      to `false` as a best-effort operation.
- *   6. Redirects the user to a specified route upon successful password change.
- *
- * Requirements:
- *   - Firebase SDKs must be loaded in the HTML before this script:
- *     - `firebase-app-compat.js`
- *     - `firebase-auth-compat.js`
- *     - `firebase-firestore-compat.js` (optional, for updating the profile flag)
- *   - A global `window.FIREBASE_CONFIG` object must be defined in the HTML.
+ * password-reset.js: Secure Password Change Flow (Production Only)
+ * - Removed all localhost/emulator hooks
+ * - Direct Firebase usage with window.FIREBASE_CONFIG
  */
-import { TEXT as T  } from '../lang/eng.js';
+import { TEXT as T } from '../lang/eng.js';
+
 (function () {
   'use strict';
 
-  /* ==========================================================================
-     DOM & Utility Helpers
-     ========================================================================== */
+  /* ========================================================================== */
+  /* DOM & Utilities                                                            */
+  /* ========================================================================== */
   const $id = (id) => document.getElementById(id);
   const createEl = (tag, attrs = {}, text = '') => {
     const el = document.createElement(tag);
@@ -43,36 +25,32 @@ import { TEXT as T  } from '../lang/eng.js';
   };
   const append = (parent, child) => (parent.appendChild(child), child);
 
-  // --- Text Labels & Configuration ------------------------------------------
-  // All text labels are overridable via `window.TEXT.passwordReset.*`.
-  
-  //const T = (typeof window !== 'undefined' && window.TEXT) ? window.TEXT : {};
-
+  // --- Labels ----------------------------------------------------------------
   const LABELS = {
-    pageTitle: T?.passwordReset?.pageTitle,
-    currentLabel: T?.passwordReset?.currentLabel,
-    newLabel: T?.passwordReset?.newLabel,
-    confirmLabel: T?.passwordReset?.confirmLabel,
-    placeholderCurrent: T?.passwordReset?.placeholderCurrent,
-    placeholderNew: T?.passwordReset?.placeholderNew,
-    placeholderConfirm: T?.passwordReset?.placeholderConfirm,
-    submitText: T?.passwordReset?.submitText,
-    doneText: T?.passwordReset?.doneText,
-    nextRoute: T?.passwordReset?.nextRoute , // || '/index.html',
+    pageTitle: (T?.passwordReset?.pageTitle),
+    currentLabel: (T?.passwordReset?.currentLabel),
+    newLabel: (T?.passwordReset?.newLabel),
+    confirmLabel: (T?.passwordReset?.confirmLabel),
+    placeholderCurrent: (T?.passwordReset?.placeholderCurrent),
+    placeholderNew: (T?.passwordReset?.placeholderNew),
+    placeholderConfirm: (T?.passwordReset?.placeholderConfirm),
+    submitText: (T?.passwordReset?.submitText),
+    doneText: (T?.passwordReset?.doneText),
+    nextRoute: (T?.passwordReset?.nextRoute),
     errors: {
-      required: T?.passwordReset?.errors?.required,
-      weak: T?.passwordReset?.errors?.weak,
-      mismatch: T?.passwordReset?.errors?.mismatch,
-      notSignedIn: T?.passwordReset?.errors?.notSignedIn,
-      wrongPassword: T?.passwordReset?.errors?.wrongPassword,
-      requiresRecentLogin: T?.passwordReset?.errors?.requiresRecentLogin,
-      generic: T?.passwordReset?.errors?.generic
+      required: (T?.passwordReset?.errors?.required),
+      weak: (T?.passwordReset?.errors?.weak),
+      mismatch: (T?.passwordReset?.errors?.mismatch),
+      notSignedIn: (T?.passwordReset?.errors?.notSignedIn),
+      wrongPassword: (T?.passwordReset?.errors?.wrongPassword),
+      requiresRecentLogin: (T?.passwordReset?.errors?.requiresRecentLogin),
+      generic: (T?.passwordReset?.errors?.generic)
     }
   };
 
-  /* ==========================================================================
-     Input Validation
-     ========================================================================== */
+  /* ========================================================================== */
+  /* Validation                                                                 */
+  /* ========================================================================== */
   const validateRequired = (v) => (v && v.trim()) ? { ok: true } : { ok: false, reason: 'required' };
   const validateStrong  = (v) => (v && v.length >= 6) ? { ok: true } : { ok: false, reason: 'weak' };
 
@@ -92,9 +70,9 @@ import { TEXT as T  } from '../lang/eng.js';
     el.style.display = 'block';
   };
 
-  /* ==========================================================================
-     UI Rendering
-     ========================================================================== */
+  /* ========================================================================== */
+  /* UI                                                                         */
+  /* ========================================================================== */
   function inputRow({ id, label, placeholder }) {
     const row = createEl('div', { class: 'form-group' });
     const lab = append(row, createEl('label', { htmlFor: id }, label));
@@ -104,9 +82,6 @@ import { TEXT as T  } from '../lang/eng.js';
     }));
     const err = append(row, createEl('div', { id: `${id}-error`, class: 'form-error', ariaLive: 'polite' }));
     err.style.display = 'none';
-    err.style.color = 'var(--color-primary)'; 
-    err.style.marginTop = '0.25rem';
-    err.style.fontSize = '0.95rem';
     return { row, inp, err, touched: false };
   }
 
@@ -118,7 +93,7 @@ import { TEXT as T  } from '../lang/eng.js';
 
     const current = inputRow({
       id: 'current-password',
-      label: LABELS.currentLabel  || 'Current Password',
+      label: LABELS.currentLabel,
       placeholder: LABELS.placeholderCurrent
     });
     form.appendChild(current.row);
@@ -155,7 +130,6 @@ import { TEXT as T  } from '../lang/eng.js';
       if (!(hr && hr.tagName === 'HR')) h1.insertAdjacentElement('afterend', document.createElement('hr'));
     }
 
-    // Enable/disable form controls in one place
     const setFormDisabled = (disabled) => {
       [current.inp, next.inp, confirm.inp, submitBtn].forEach(el => el && (el.disabled = !!disabled));
     };
@@ -178,7 +152,7 @@ import { TEXT as T  } from '../lang/eng.js';
       return !submitBtn.disabled;
     };
 
-    // Initial: keep disabled until we confirm auth state
+    // Keep disabled until auth is confirmed
     setFormDisabled(true);
 
     form.addEventListener('input', runValidation);
@@ -189,25 +163,26 @@ import { TEXT as T  } from '../lang/eng.js';
     return { form, current, next, confirm, submitBtn, setFormDisabled, runValidation };
   }
 
-  /* ==========================================================================
-     Initialization and Firebase Integration
-     ========================================================================== */
+  /* ========================================================================== */
+  /* Initialization & Firebase (Production)                                     */
+  /* ========================================================================== */
   document.addEventListener('DOMContentLoaded', () => {
     const root = $id('password-reset-root') || $id('login-root') || $id('simulation-root') || document.body;
     const ui = renderForm(root);
 
-    // Guard: require SDK + config
     if (!window.firebase || !window.FIREBASE_CONFIG || !firebase.app) {
-      // We render UI but keep it disabled since Auth is unavailable
       ui.setFormDisabled(true);
       setError(ui.confirm?.err, 'generic');
       console.error('[password-reset] Firebase SDK/config missing.');
       return;
     }
 
-    // Initialize (idempotent)
     try {
-      firebase.apps?.length ? firebase.app() : firebase.initializeApp(window.FIREBASE_CONFIG);
+      if (!firebase.apps || !firebase.apps.length) {
+        firebase.initializeApp(window.FIREBASE_CONFIG);
+      } else {
+        firebase.app();
+      }
     } catch (e) {
       ui.setFormDisabled(true);
       setError(ui.confirm?.err, 'generic');
@@ -215,53 +190,33 @@ import { TEXT as T  } from '../lang/eng.js';
       return;
     }
 
-    // Emulator hooks for local dev (optional but handy)
-    if (location.hostname === 'localhost') {
-      try {
-        firebase.auth().useEmulator('http://127.0.0.1:9099');
-        if (firebase.firestore) firebase.firestore().useEmulator('127.0.0.1', 8080);
-      } catch (e) {
-        console.warn('[password-reset] emulator hook failed:', e);
-      }
-    }
-
     const auth = firebase.auth();
     const db = firebase.firestore ? firebase.firestore() : null;
 
-    // Ensure persistent session across tabs/windows
     try { auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); } catch {}
 
-    // Wait for auth state to be restored, then enable form
     auth.onAuthStateChanged((user) => {
       if (!user) {
-        // Not signed in → redirect to login to avoid confusion
         window.location.replace('/login.html');
         return;
       }
-      // Auth is ready; unlock the form
       ui.setFormDisabled(false);
       ui.runValidation();
     });
 
-    // Submit: re-auth + update password + clear flag + redirect
     ui.form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      // If disabled (e.g., waiting for auth state), do nothing
       if (ui.submitBtn.disabled) return;
 
-      let user = auth.currentUser;
+      const user = auth.currentUser;
       if (!user) {
         setError(ui.current.err, 'notSignedIn');
         return;
       }
 
-      // Validate fields
-      const valid = ui.runValidation();
-      if (!valid) return;
+      if (!ui.runValidation()) return;
 
       try {
-        // Reauthenticate using current password
-        // Note: need email; if null, fetch from profiles/{uid} (not expected for email/password provider)
         const email = user.email;
         if (!email) {
           setError(ui.current.err, 'generic');
@@ -272,11 +227,8 @@ import { TEXT as T  } from '../lang/eng.js';
 
         const cred = firebase.auth.EmailAuthProvider.credential(email, curPass);
         await user.reauthenticateWithCredential(cred);
-
-        // Update password
         await user.updatePassword(newPass);
 
-        // Best-effort: turn off mustChangePassword flag
         try {
           if (db) await db.collection('profiles').doc(user.uid).update({ mustChangePassword: false });
         } catch (flagErr) {

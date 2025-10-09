@@ -6,7 +6,6 @@
 // - Titles pulled from ENG: HOME.TITLE (fallback to "Tools Dashboard")
 
 import { TEXT as T } from '../lang/eng.js';
-
 /** Create tooltip node that matches .info-box styling contract */
 function createInfoBox(message) {
   const tip = document.createElement('div');

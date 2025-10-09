@@ -1,5 +1,5 @@
 import { TEXT } from '../lang/eng.js';
-import { createPageHeader } from './header.js';
+import { createPageHeader } from '../module/header.js';
 
 const html = (strings, ...values) => strings.reduce((acc,str,i)=> acc+str+(values[i]||''),'');
 let termsAgreed = false;
