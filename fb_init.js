@@ -20,12 +20,15 @@ export const firebaseConfig = window.FIREBASE_CONFIG || {
     appId: "1:495812654469:web:67ed791a5223ade84040ec"
 };
 
-// -----------------------------------------------------------------------------
-// Initialize Firebase
-// -----------------------------------------------------------------------------
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
+window.getFirebaseApp = function getFirebaseApp() {
+  if (!window.firebase || !firebase.app) {
+    throw new Error("Firebase SDK not loaded before fb_init.js");
+  }
+  if (!firebase.apps || !firebase.apps.length) {
+    firebase.initializeApp(window.FIREBASE_CONFIG);
+  }
+  return firebase.app();
+};
 
 // -----------------------------------------------------------------------------
 // Create handles (Auth + Firestore)

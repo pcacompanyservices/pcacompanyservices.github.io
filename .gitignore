@@ -4,5 +4,5 @@ be/test/
 **fb_admin
 .env
 service-account.json
-**firebasecfg/
+**firebasecfg
 firebasecfg/fb_init.js
