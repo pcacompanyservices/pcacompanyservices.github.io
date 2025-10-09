@@ -1,12 +1,38 @@
 // template/password-reset.js
-// Secure password change flow — dùng { auth, db } export từ fb_init.js
+// Password change functionality using Firebase compat. Configuration is loaded from /config/firebase.json.
+import "https://www.gstatic.com/firebasejs/10.12.3/firebase-app-compat.js";
+import "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth-compat.js";
+import "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore-compat.js";
 import { TEXT as T } from "../lang/eng.js";
-import { firebase, auth, db } from "..firebaseconfig/fb_init.js";
 
 (function () {
   "use strict";
 
-  // ------------------------ DOM helpers ------------------------
+  // ------------------------ Firebase Initialization ------------------------
+  const firebase = globalThis.firebase;
+
+  async function loadFirebaseConfig() {
+    const res = await fetch("/config/firebase.json", { cache: "no-store" });
+    if (!res.ok) throw new Error(`Cannot load /config/firebase.json: ${res.status}`);
+    return res.json();
+  }
+
+  async function ensureFirebaseReady() {
+    if (!firebase?.app) throw new Error("Firebase compat SDK not loaded");
+    if (!firebase.apps?.length) {
+      const cfg = await loadFirebaseConfig();
+      firebase.initializeApp(cfg);
+      try {
+        await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+      } catch {}
+    }
+    return {
+      auth: firebase.auth(),
+      db: firebase.firestore ? firebase.firestore() : null,
+    };
+  }
+
+  // ------------------------ DOM Utility Functions ------------------------
   const $id = (id) => document.getElementById(id);
   const createEl = (tag, attrs = {}, text = "") => {
     const el = document.createElement(tag);
@@ -21,7 +47,7 @@ import { firebase, auth, db } from "..firebaseconfig/fb_init.js";
   };
   const append = (parent, child) => (parent.appendChild(child), child);
 
-  // ------------------------ Labels ------------------------
+  // ------------------------ UI Labels ------------------------
   const LABELS = {
     pageTitle: T?.passwordReset?.pageTitle,
     currentLabel: T?.passwordReset?.currentLabel,
@@ -44,11 +70,9 @@ import { firebase, auth, db } from "..firebaseconfig/fb_init.js";
     },
   };
 
-  // ------------------------ Validation ------------------------
-  const validateRequired = (v) =>
-    (v && v.trim()) ? { ok: true } : { ok: false, reason: "required" };
-  const validateStrong = (v) =>
-    (v && v.length >= 6) ? { ok: true } : { ok: false, reason: "weak" };
+  // ------------------------ Input Validation ------------------------
+  const validateRequired = (v) => (v && v.trim()) ? { ok: true } : { ok: false, reason: "required" };
+  const validateStrong = (v) => (v && v.length >= 6) ? { ok: true } : { ok: false, reason: "weak" };
 
   const setError = (el, reason) => {
     if (!el) return;
@@ -66,7 +90,7 @@ import { firebase, auth, db } from "..firebaseconfig/fb_init.js";
     el.style.display = "block";
   };
 
-  // ------------------------ UI ------------------------
+  // ------------------------ UI Rendering ------------------------
   function inputRow({ id, label, placeholder }) {
     const row = createEl("div", { class: "form-group" });
     const lab = append(row, createEl("label", { htmlFor: id }, label));
@@ -112,7 +136,7 @@ import { firebase, auth, db } from "..firebaseconfig/fb_init.js";
       class: "simulation-button",
     }, LABELS.submitText));
 
-    // Header normalization
+  // Normalize the header
     let h1 = document.querySelector("h1");
     if (!h1) {
       h1 = createEl("h1", {}, LABELS.pageTitle);
@@ -148,7 +172,7 @@ import { firebase, auth, db } from "..firebaseconfig/fb_init.js";
       return !submitBtn.disabled;
     };
 
-    // Giữ disable đến khi xác nhận auth state
+  // Disable form until authentication state is confirmed
     setFormDisabled(true);
 
     form.addEventListener("input", runValidation);
@@ -159,22 +183,32 @@ import { firebase, auth, db } from "..firebaseconfig/fb_init.js";
     return { form, current, next, confirm, submitBtn, setFormDisabled, runValidation };
   }
 
-  // ------------------------ Boot & Auth bindings ------------------------
-  document.addEventListener("DOMContentLoaded", () => {
+  // ------------------------ Application Bootstrapping ------------------------
+  document.addEventListener("DOMContentLoaded", async () => {
     const root = $id("password-reset-root") || $id("login-root") || $id("simulation-root") || document.body;
     const ui = renderForm(root);
 
-    // Theo dõi trạng thái đăng nhập
+  // Ensure Firebase is ready
+    let auth, db;
+    try {
+      ({ auth, db } = await ensureFirebaseReady());
+    } catch (e) {
+      console.error(e);
+      setError(ui.confirm?.err, "generic");
+      return;
+    }
+
+  // Monitor authentication state
     auth.onAuthStateChanged((user) => {
       if (!user) {
-        window.location.replace("/login.html");
+        location.replace("/login.html");
         return;
       }
       ui.setFormDisabled(false);
       ui.runValidation();
     });
 
-    // Submit flow
+  // Handle password change submission
     ui.form.addEventListener("submit", async (e) => {
       e.preventDefault();
       if (ui.submitBtn.disabled) return;
@@ -193,22 +227,18 @@ import { firebase, auth, db } from "..firebaseconfig/fb_init.js";
         const curPass = ui.current.inp.value;
         const newPass = ui.next.inp.value;
 
-        // Re-auth trước khi đổi mật khẩu (yêu cầu bảo mật của Firebase)
         const cred = firebase.auth.EmailAuthProvider.credential(email, curPass);
         await user.reauthenticateWithCredential(cred);
-
-        // Cập nhật mật khẩu
         await user.updatePassword(newPass);
 
-        // Bỏ cờ mustChangePassword (nếu có collection profiles)
         try {
           if (db) await db.collection("profiles").doc(user.uid).update({ mustChangePassword: false });
         } catch (flagErr) {
-          console.warn("[password-reset] could not update mustChangePassword flag:", flagErr);
+          console.warn("[password-reset] cannot update mustChangePassword:", flagErr);
         }
 
         alert(LABELS.doneText);
-        window.location.href = LABELS.nextRoute;
+        location.href = LABELS.nextRoute;
       } catch (err) {
         console.error("[password-reset] error:", err);
         const code = err?.code || "";

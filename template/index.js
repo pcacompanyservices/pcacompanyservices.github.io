@@ -1,12 +1,38 @@
 // template/index.js
-// Login UI + Auth flow, dùng trực tiếp { auth, db } từ fb_init.js
+// Login functionality using Firebase compat. Configuration is loaded from /config/firebase.json.
+import "https://www.gstatic.com/firebasejs/10.12.3/firebase-app-compat.js";
+import "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth-compat.js";
+import "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore-compat.js";
 import { TEXT as T } from "../lang/eng.js";
-import { firebase, auth, db } from "../firebaseconfig/fb_init.js";
 
 (function () {
   "use strict";
 
-  // ------------------------ DOM helpers ------------------------
+  // ------------------------ Firebase Initialization ------------------------
+  const firebase = globalThis.firebase;
+
+  async function loadFirebaseConfig() {
+    const res = await fetch("/config/firebase.json", { cache: "no-store" });
+    if (!res.ok) throw new Error(`Cannot load /config/firebase.json: ${res.status}`);
+    return res.json();
+  }
+
+  async function ensureFirebaseReady() {
+    if (!firebase?.app) throw new Error("Firebase compat SDK not loaded");
+    if (!firebase.apps?.length) {
+      const cfg = await loadFirebaseConfig();
+      firebase.initializeApp(cfg);
+      try {
+        await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+      } catch {}
+    }
+    return {
+      auth: firebase.auth(),
+      db: firebase.firestore ? firebase.firestore() : null,
+    };
+  }
+
+  // ------------------------ DOM Utility Functions ------------------------
   const $id = (id) => document.getElementById(id);
   const createEl = (tag, attrs = {}, text = "") => {
     const el = document.createElement(tag);
@@ -23,7 +49,7 @@ import { firebase, auth, db } from "../firebaseconfig/fb_init.js";
   };
   const append = (parent, child) => (parent.appendChild(child), child);
 
-  // ------------------------ Config ------------------------
+  // ------------------------ Configuration and Labels ------------------------
   const AUTH_USERNAME_DOMAIN = "pcacs.com";
   const NEXT_ROUTE = "/home.html";
   const PASSWORD_RESET_ROUTE = "/password-reset.html";
@@ -47,7 +73,7 @@ import { firebase, auth, db } from "../firebaseconfig/fb_init.js";
     },
   };
 
-  // ------------------------ Validation ------------------------
+  // ------------------------ Input Validation ------------------------
   const USERNAME_RE = /^[A-Za-z0-9._-]{3,64}$/;
   const validateUsername = (v) => {
     const s = (v || "").trim();
@@ -78,7 +104,7 @@ import { firebase, auth, db } from "../firebaseconfig/fb_init.js";
     el.style.display = "block";
   };
 
-  // ------------------------ UI ------------------------
+  // ------------------------ UI Rendering ------------------------
   function inputRow({ id, label, placeholder, type }) {
     const row = createEl("div", { class: "form-group" });
     const lab = append(row, createEl("label", { htmlFor: id }, label));
@@ -100,7 +126,6 @@ import { firebase, auth, db } from "../firebaseconfig/fb_init.js";
       createEl("div", { id: `${id}-error`, class: "form-error", ariaLive: "polite" })
     );
     err.style.display = "none";
-    err.style.color = "var(--color-primary)";
     err.style.marginTop = "0.25rem";
     err.style.fontSize = "0.95rem";
 
@@ -133,11 +158,7 @@ import { firebase, auth, db } from "../firebaseconfig/fb_init.js";
       form,
       createEl(
         "button",
-        {
-          id: "login-submit-btn",
-          type: "submit",
-          class: "simulation-button",
-        },
+        { id: "login-submit-btn", type: "submit", class: "simulation-button" },
         LABELS.submitText
       )
     );
@@ -172,61 +193,68 @@ import { firebase, auth, db } from "../firebaseconfig/fb_init.js";
     }
 
     form.addEventListener("input", runValidation);
-    u.inp.addEventListener("blur", () => {
-      u.touched = true;
-      runValidation();
-    });
-    p.inp.addEventListener("blur", () => {
-      p.touched = true;
-      runValidation();
-    });
+    u.inp.addEventListener("blur", () => { u.touched = true; runValidation(); });
+    p.inp.addEventListener("blur", () => { p.touched = true; runValidation(); });
 
-    // ------------------------ Auth submit ------------------------
-    form.addEventListener("submit", async (e) => {
+    return { form, u, p, submitBtn, runValidation, setErr };
+  }
+
+  // ------------------------ Application Bootstrapping ------------------------
+  document.addEventListener("DOMContentLoaded", async () => {
+    const root = $id("login-root") || $id("simulation-root") || document.body;
+    const ui = renderLoginForm(root);
+
+  // Wait for Firebase to be ready before enabling the form
+    let auth, db;
+    try {
+      ({ auth, db } = await ensureFirebaseReady());
+    } catch (e) {
+      console.error(e);
+      ui.setErr?.(ui.p?.err, "sdkMissing");
+      return;
+    }
+
+  // Handle form submission
+    let submitAttempted = false;
+    ui.form.addEventListener("submit", async (e) => {
       e.preventDefault();
       submitAttempted = true;
-      if (!runValidation()) return;
+      if (!ui.runValidation()) return;
 
       try {
-        const rawUser = u.inp.value.trim();
-        const username = rawUser.toLowerCase();
+        const username = ui.u.inp.value.trim().toLowerCase();
         const email = `${username}@${AUTH_USERNAME_DOMAIN}`;
-        const password = p.inp.value;
+        const password = ui.p.inp.value;
 
         const cred = await auth.signInWithEmailAndPassword(email, password);
         const user = cred.user;
         await user.getIdToken(true);
 
-        // Decide next route using Firestore flag (best-effort)
+  // Determine the next route based on Firestore flag (best-effort)
         let goTo = NEXT_ROUTE;
         try {
           if (db) {
             const snap = await db.collection("profiles").doc(user.uid).get();
-            const data = snap.exists ? snap.data() || {} : {};
+            const data = snap.exists ? (snap.data() || {}) : {};
             goTo = data.mustChangePassword === true ? PASSWORD_RESET_ROUTE : NEXT_ROUTE;
           }
         } catch (e) {
-          console.warn("[login] could not read profiles.mustChangePassword:", e);
+          console.warn("[login] cannot read profiles.mustChangePassword:", e);
         }
 
-        window.location.href = goTo;
+        location.href = goTo;
       } catch (err) {
-        console.error("[login] Firebase sign-in error:", err);
+        console.error("[login] sign-in error:", err);
         const code = err?.code || "";
-        if (code === "auth/user-not-found") setErr(u.err, "userNotFound");
-        else if (code === "auth/wrong-password") setErr(p.err, "wrongPassword");
-        else if (code === "auth/too-many-requests") setErr(p.err, "tooMany");
-        else if (code === "auth/invalid-credential") setErr(p.err, "invalidCredential");
-        else setErr(p.err, "generic");
+        if (code === "auth/user-not-found") ui.setErr(ui.u.err, "userNotFound");
+        else if (code === "auth/wrong-password") ui.setErr(ui.p.err, "wrongPassword");
+        else if (code === "auth/too-many-requests") ui.setErr(ui.p.err, "tooMany");
+        else if (code === "auth/invalid-credential") ui.setErr(ui.p.err, "invalidCredential");
+        else ui.setErr(ui.p.err, "generic");
       }
     });
 
-    runValidation();
-  }
-
-  // ------------------------ Boot ------------------------
-  document.addEventListener("DOMContentLoaded", () => {
-    const root = $id("login-root") || $id("simulation-root") || document.body;
-    renderLoginForm(root);
+  // Perform initial validation
+    ui.runValidation();
   });
 })();
