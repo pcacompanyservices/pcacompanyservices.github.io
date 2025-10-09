@@ -4,10 +4,5 @@ be/test/
 **fb_admin
 .env
 service-account.json
-firebasecfg/.firebaserc
-firebasecfg/firebase-debug.log
-firebasecfg/firebase.json
-firebasecfg/firestore-debug.log
-firebasecfg/firestore.indexes.json
-firebasecfg/firestore.rules
+**firebasecfg/
 firebasecfg/fb_init.js
