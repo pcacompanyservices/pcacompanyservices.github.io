@@ -10,3 +10,4 @@ firebasecfg/firebase.json
 firebasecfg/firestore-debug.log
 firebasecfg/firestore.indexes.json
 firebasecfg/firestore.rules
+firebasecfg/fb_init.js

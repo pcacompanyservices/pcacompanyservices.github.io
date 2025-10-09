@@ -11,7 +11,7 @@ const firebase = window.firebase;
 // -----------------------------------------------------------------------------
 // Configuration (use your actual config here or from window.FIREBASE_CONFIG)
 // -----------------------------------------------------------------------------
-const firebaseConfig = window.FIREBASE_CONFIG || {
+export const firebaseConfig = window.FIREBASE_CONFIG || {
     apiKey: "AIzaSyDkHvGy0gmFSq0b7s_eXS-Csrje7nK625E",
     authDomain: "pcagate.firebaseapp.com",
     projectId: "pcagate",
@@ -37,3 +37,4 @@ const db = firebase.firestore();
 // Export handles for other modules
 // -----------------------------------------------------------------------------
 export { firebase, auth, db };
+export default firebaseConfig;
