@@ -407,6 +407,7 @@ button:hover,
   width: 100%;
   max-width: 55vw;
   margin: 0 auto;
+  position: relative; /* enable pseudo-element positioning for watermark */
 }
 
 .result-table {
@@ -419,6 +420,26 @@ button:hover,
   border-radius: 0.25rem;
   overflow: hidden;
   border: 1px solid #000000;
+  position: relative; /* ensure table sits above watermark */
+  z-index: 1;
+}
+
+/* Watermark overlay for result tables */
+.result-table-container::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-30deg);
+  width: 100%; /* scale with the container/table width */
+  height: 100%; /* scale with the container/table height */
+  background-image: url('../asset/pca_watermark.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 90%; /* increase relative size for better visibility */
+  opacity: 0.08; /* slightly increased for visibility, still subtle */
+  pointer-events: none; /* ensure it doesn’t interfere with UI */
+  z-index: 5; /* sit above the table content */
 }
 
 .result-table-vertical tr {

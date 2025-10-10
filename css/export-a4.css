@@ -1,3 +1,24 @@
+/* Watermark for tables inside the PDF export container */
+.pdf-export-container .result-table-container {
+  position: relative;
+}
+
+.pdf-export-container .result-table-container::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-30deg);
+  width: 100%;
+  height: 100%;
+  background-image: url('../asset/pca_watermark.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 90%;
+  opacity: 0.08; /* slightly increased for visibility */
+  pointer-events: none;
+  z-index: 5;
+}
 /* Export-only A4 layout (px-based). Loaded dynamically during PDF export. */
 
 /* Root export mode flag to avoid affecting normal layout */

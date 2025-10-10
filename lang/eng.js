@@ -41,7 +41,7 @@ const TAX_RESIDENT_STATUS_TOOLTIP_HTML_EMPLOYER = html`
 `;
 
 export const TEXT = {
-  version: 'Version: 1.1.38',
+  version: 'Version: 1.1.39',
   // Generic defaults used as final fallback by shared modules (no UI string hard-coded in modules)
   defaults: {
     statusTitle: 'Status',
@@ -95,20 +95,39 @@ export const TEXT = {
     payslipTitle: 'PAYSLIP',
     progressSteps: { taxResidentStatus: 'Status', grossSalary: 'Base Salary', allowance: 'Allowance', bonus: 'Bonus', benefit: 'Benefit' },
     steps: {
-      taxResidentStatus: { title: 'Tax Resident Status', selectPlaceholder: "Select your Employee's Tax Resident status", options: { local: 'Local – Tax Resident', expat: 'Expat – Tax Resident' } },
-      grossSalary: { title: 'Gross Base Salary', placeholder: 'Min 5.000.000 VND' },
+      taxResidentStatus: { title: 'Tax Resident Status', tooltip: TAX_RESIDENT_STATUS_TOOLTIP_HTML_EMPLOYER, selectPlaceholder: "Select your Employee's Tax Resident status", options: { local: 'Local – Tax Resident', expat: 'Expat – Tax Resident' }, continue: 'Continue' },
+      grossSalary: { title: 'Gross Base Salary', tooltip: "Enter your Employee's monthly gross (contract) salary. Minimum 5.000.000 VND.", placeholder: 'Min 5.000.000 VND', warningMaxDigits: 'Maximum 9 digits allowed.', continue: 'Continue' },
       allowance: {
         title: 'Allowance',
+        tooltip: "Enter your Employee's monthly allowances as per the labor contract. Amounts above statutory caps may be taxable.",
+        hasAllowanceLabel: 'There are Allowances in the Contract',
+        warningMaxDigits: 'Maximum 9 digits allowed.',
         types: { lunch: 'Lunch', fuel: 'Fuel', phone: 'Phone', travel: 'Travel', uniform: 'Uniform', other: 'Other Allowance' },
-        placeholders: { lunch: 'Lunch allowance (VND)', fuel: 'Fuel allowance (VND)', phone: 'Phone allowance (VND)', travel: 'Travel allowance (VND)', uniform: 'Uniform allowance (VND)', other: 'Other allowance (VND)' }
+        placeholders: { lunch: 'Lunch allowance (VND)', fuel: 'Fuel allowance (VND)', phone: 'Phone allowance (VND)', travel: 'Travel allowance (VND)', uniform: 'Uniform allowance (VND)', other: 'Other allowance (VND)' },
+        tooltips: {
+          lunch: "Specify your Employee's monthly lunch allowance in the contract.",
+          fuel: "Specify your Employee's monthly fuel allowance in the contract.",
+          phone: "Specify your Employee's monthly phone allowance in the contract.",
+          travel: "Specify your Employee's monthly travel allowance in the contract.",
+          uniform: "Specify your Employee's monthly uniform allowance in the contract.",
+          other: 'Enter any other allowances for your Employee in the contract that are not listed above.'
+        },
+        continue: 'Continue'
       },
   // Shared single total bonus input
-  bonus: { title: 'Bonus', placeholder: 'Total bonus (VND)' },
+  bonus: { title: 'Bonus', tooltip: "Enter your Employee's total monthly bonuses as per the labor contract (e.g., performance, KPI). Enter 0 if none.", warningMaxDigits: 'Maximum 9 digits allowed.', placeholder: 'Total bonus (VND)' },
       // Shared benefit structure reused across paths
       benefit: {
         title: 'Benefit',
+  tooltip: 'Enter benefits provided by the Employer (e.g., Rental, Health Insurance, Child’s Tuition). For Health Insurance, enter the annual fee.',
+        warningMaxDigits: 'Maximum 9 digits allowed.',
         types: { childTuition: "Child's Tuition Fee", rental: 'Rental', healthInsurance: 'Health Insurance' },
-        placeholders: { childTuition: "Child's tuition fee (VND)", rental: 'Rental benefit (VND)', healthInsurance: 'Health insurance annual fee (VND)' }
+        placeholders: { childTuition: "Child's tuition fee (VND)", rental: 'Rental benefit (VND)', healthInsurance: 'Health insurance annual fee (VND)' },
+        tooltips: {
+          childTuition: "Specify your Employee's child's tuition fee benefit.",
+          rental: "Specify your Employee's monthly rental benefit.",
+          healthInsurance: "Specify your Employee's annual Health Insurance fee."
+        }
       }
     },
     buttons: { continue: 'Continue', calculate: 'Calculate', return: 'Return', reset: 'Reset', modify: 'Modify Information', downloadPdf: 'Download PDF' },
@@ -153,20 +172,20 @@ export const TEXT = {
       }
     },
     infoTooltips: {
-      taxResidentStatus: TAX_RESIDENT_STATUS_TOOLTIP_HTML_EMPLOYER,
+  taxResidentStatus: TAX_RESIDENT_STATUS_TOOLTIP_HTML_EMPLOYER,
       grossSalary: "Enter your Employee's monthly gross (contract) salary. Minimum 5.000.000 VND.",
       allowance: "Enter your Employee's monthly allowances as per the labor contract. Amounts above statutory caps may be taxable.",
       bonus: "Enter your Employee's total monthly bonuses as per the labor contract (e.g., performance, KPI). Enter 0 if none.",
-      benefit: "Enter monthly benefits provided by the Employer (e.g., Rental, Health Insurance, Child’s Tuition) as per the labor contract.",
+  benefit: "Enter benefits provided by the Employer (e.g., Rental, Health Insurance, Child’s Tuition). For Health Insurance, enter the annual fee.",
       lunch: "Specify your Employee's monthly lunch allowance in the contract.",
       fuel: "Specify your Employee's monthly fuel allowance in the contract.",
       phone: "Specify your Employee's monthly phone allowance in the contract.",
       travel: "Specify your Employee's monthly travel allowance in the contract.",
       uniform: "Specify your Employee's monthly uniform allowance in the contract.",
       otherAllowance: "Enter any other allowances for your Employee in the contract that are not listed above.",
-      childTuition: "Specify your Employee's child's tuition fee benefit in the contract.",
-      rental: "Specify your Employee's monthly rental benefit in the contract.",
-  healthInsurance: "Specify your Employee's annual Health Insurance fee in the contract."
+    childTuition: "Specify your Employee's child's tuition fee benefit.",
+    rental: "Specify your Employee's monthly rental benefit.",
+  healthInsurance: "Specify your Employee's annual Health Insurance fee."
     },
     footer: SHARED_CALC_FOOTER,
     currencyUnit: 'VND'
@@ -178,12 +197,14 @@ export const TEXT = {
     payslipTitle: 'PAYSLIP',
     progressSteps: { taxResidentStatus: 'Status', netSalary: 'Base Salary', allowance: 'Allowance', bonus: 'Bonus', benefit: 'Benefit' },
     steps: {
-      taxResidentStatus: { title: 'Tax Resident Status', selectPlaceholder: "Select your Employee's Tax Resident status", options: { local: 'Local – Tax Resident', expat: 'Expat – Tax Resident' } },
-      netSalary: { title: 'Net Base Salary', placeholder: 'Min 4.475.000 VND' },
-      allowance: { title: 'Allowance', types: { lunch: 'Lunch', fuel: 'Fuel', phone: 'Phone', travel: 'Travel', uniform: 'Uniform', other: 'Other Allowance' }, placeholders: { lunch: 'Net lunch allowance (VND)', fuel: 'Net fuel allowance (VND)', phone: 'Net phone allowance (VND)', travel: 'Net travel allowance (VND)', uniform: 'Net uniform allowance (VND)', other: 'Net other allowance (VND)' } },
-  bonus: { title: 'Bonus', placeholder: 'Total bonus (VND)' },
+  taxResidentStatus: { title: 'Tax Resident Status', tooltip: TAX_RESIDENT_STATUS_TOOLTIP_HTML_EMPLOYER, selectPlaceholder: "Select your Employee's Tax Resident status", options: { local: 'Local – Tax Resident', expat: 'Expat – Tax Resident' }, continue: 'Continue' },
+  netSalary: { title: 'Net Base Salary', tooltip: "Enter your Employee's desired monthly net (take-home) salary. Minimum 4.475.000 VND.", placeholder: 'Min 4.475.000 VND', warningMaxDigits: 'Maximum 9 digits allowed.', continue: 'Continue' },
+      allowance: { title: 'Allowance', tooltip: "Enter your Employee's monthly allowances in net amounts (after tax). The calculator will gross them up.", hasAllowanceLabel: 'There are Allowances in the Contract', warningMaxDigits: 'Maximum 9 digits allowed.', types: { lunch: 'Lunch', fuel: 'Fuel', phone: 'Phone', travel: 'Travel', uniform: 'Uniform', other: 'Other Allowance' }, placeholders: { lunch: 'Net lunch allowance (VND)', fuel: 'Net fuel allowance (VND)', phone: 'Net phone allowance (VND)', travel: 'Net travel allowance (VND)', uniform: 'Net uniform allowance (VND)', other: 'Net other allowance (VND)' }, tooltips: { lunch: "Specify your Employee's monthly lunch allowance in the contract.", fuel: "Specify your Employee's monthly fuel allowance in the contract.", phone: "Specify your Employee's monthly phone allowance in the contract.", travel: "Specify your Employee's monthly travel allowance in the contract.", uniform: "Specify your Employee's monthly uniform allowance in the contract.", other: 'Enter any other allowances for your Employee in the contract that are not listed above.' } },
+  bonus: { title: 'Bonus', tooltip: "Enter your Employee's total monthly bonuses in net amounts (after tax). The calculator will gross them up. Enter 0 if none.", warningMaxDigits: 'Maximum 9 digits allowed.', placeholder: 'Total bonus (VND)' },
       benefit: {
         title: 'Benefit',
+  tooltip: 'Enter benefits provided by the Employer (e.g., Rental, Health Insurance, Child’s Tuition). For Health Insurance, enter the annual fee.',
+        warningMaxDigits: 'Maximum 9 digits allowed.',
         types: { childTuition: "Child's Tuition Fee", rental: 'Rental', healthInsurance: 'Health Insurance' },
         placeholders: { childTuition: "Child's tuition fee (VND)", rental: 'Rental benefit (VND)', healthInsurance: 'Health insurance annual fee (VND)' }
       }
@@ -234,16 +255,16 @@ export const TEXT = {
       netSalary: "Enter your Employee's desired monthly net (take-home) salary. Minimum 4.475.000 VND.",
       allowance: "Enter your Employee's monthly allowances in net amounts (after tax). The calculator will gross them up.",
       bonus: "Enter your Employee's total monthly bonuses in net amounts (after tax). The calculator will gross them up.",
-      benefit: "Enter monthly benefits provided by the Employer (e.g., Rental, Health Insurance, Child’s Tuition) as per the labor contract.",
+  benefit: "Enter benefits provided by the Employer (e.g., Rental, Health Insurance, Child’s Tuition). For Health Insurance, enter the annual fee.",
       lunch: "Specify your Employee's monthly lunch allowance in the contract.",
       fuel: "Specify your Employee's monthly fuel allowance in the contract.",
       phone: "Specify your Employee's monthly phone allowance in the contract.",
       travel: "Specify your Employee's monthly travel allowance in the contract.",
       uniform: "Specify your Employee's monthly uniform allowance in the contract.",
       otherAllowance: "Enter any other allowances for your Employee in the contract that are not listed above.",
-      childTuition: "Specify your Employee's child's tuition fee benefit in the contract.",
-      rental: "Specify your Employee's monthly rental benefit in the contract.",
-  healthInsurance: "Specify your Employee's annual Health Insurance fee in the contract."
+    childTuition: "Specify your Employee's child's tuition fee benefit.",
+    rental: "Specify your Employee's monthly rental benefit.",
+  healthInsurance: "Specify your Employee's annual Health Insurance fee."
     },
     footer: SHARED_CALC_FOOTER,
     currencyUnit: 'VND'
@@ -283,6 +304,7 @@ export const TEXT = {
   bonus: { title: 'Bonus', tooltip: 'Enter your total monthly bonuses as per your labor contract (e.g., performance, KPI). Enter 0 if none.', warningMaxDigits: 'Maximum 9 digits allowed.', placeholder: 'Total bonus (VND)' },
       benefit: {
         title: 'Benefit',
+  tooltip: 'Enter benefits provided by the Employer (e.g., Rental, Health Insurance, Child’s Tuition). For Health Insurance, enter the annual fee.',
         warningMaxDigits: 'Maximum 9 digits allowed.',
         types: { childTuition: "Child's Tuition Fee", rental: 'Rental', healthInsurance: 'Health Insurance' },
         placeholders: { childTuition: "Child's tuition fee (VND)", rental: 'Rental benefit (VND)', healthInsurance: 'Health insurance annual fee (VND)' },
@@ -294,6 +316,23 @@ export const TEXT = {
       }
     },
   buttons: { continue: 'Continue', calculate: 'Calculate', return: 'Return', downloadPdf: 'Download PDF', modify: 'Modify Information', reset: 'Reset' },
+    warnings: { maxDigits: 'Maximum 9 digits allowed.', noAllowanceOrBonus: '(There is no Allowance or Bonus in the Contract)' },
+    infoTooltips: {
+      taxResidentStatus: TAX_RESIDENT_STATUS_TOOLTIP_HTML_EMPLOYEE,
+      grossSalary: 'Enter your gross (contract) salary.',
+      allowance: 'Enter your monthly allowances as per your labor contract. Amounts above statutory caps may be taxable.',
+      bonus: 'Enter your total monthly bonuses as per your labor contract (e.g., performance, KPI). Enter 0 if none.',
+  benefit: 'Enter benefits provided by the Employer (e.g., Rental, Health Insurance, Child’s Tuition). For Health Insurance, enter the annual fee.',
+      lunch: 'Specify your monthly allowance for lunch in the contract.',
+      fuel: 'Specify your monthly allowance for fuel in the contract.',
+      phone: 'Specify your monthly allowance for phone in the contract.',
+      travel: 'Specify your monthly allowance for traveling in the contract.',
+      uniform: 'Specify your monthly allowance for uniform in the contract.',
+      otherAllowance: 'Enter any other allowances in the contract that are not listed above.',
+  childTuition: "Specify your monthly child's tuition fee benefit.",
+  rental: 'Specify your monthly rental benefit.',
+  healthInsurance: 'Specify your annual Health Insurance fee.'
+    },
     charts: { salaryBreakdown: 'Salary Breakdown', costBreakdown: 'Cost Breakdown', bonusAndAllowance: 'Bonuses & Allowances', grossSalary: 'Gross Salary' },
   results: { employeeTypes: { local: 'Local Employee – Tax Resident', expat: 'Expat Employee – Tax Resident', default: 'Employee' }, sections: { grossSalary: 'Gross Salary', adjustedGrossSalary: 'Adjusted Gross Salary', allowance: 'Allowance', bonus: 'Bonus', benefit: 'Benefit', employerCost: 'Employer Cost', employeeTakeHome: 'Statutory Contribution', takeHomeTotal: 'Take-home Salary', compulsoryInsurances: 'Compulsory Insurances', personalIncomeTax: 'Personal Income Tax', statutoryContribution: 'Statutory Contribution' }, allowanceOrBonusNone: '(There is no Allowance or Bonus in the Contract)', costBreakdown: { employeeInsurance: 'Employee Insurance', socialInsurance: 'Social Insurance', healthInsurance: 'Health Insurance', unemploymentInsurance: 'Unemployment Insurance', personalIncomeTax: 'Personal Income Tax', employerInsurance: 'Employer Insurance', employerUnionFee: 'Employer Trade Union Fund', netSalary: 'Employee Take-home (Net) Salary' }, salaryVisualizationTitle: 'Salary Visualization', totalBonusLabel: 'Total Bonus', totalEmployerCostLabel: 'Total Employer Cost', totalEmployerCostBenefitIncluded: '– Benefit included', employerCostTable: { title: "EMPLOYER'S COST", sections: { adjustedGrossSalary: 'Adjusted Gross Salary', statutoryContribution: 'Statutory Contribution', benefit: 'Benefit', totalEmployerCost: 'Total Employer Cost' }, noBenefit: '(There is no Benefit in the Contract)' } },
     currencyUnit: 'VND',
@@ -334,13 +373,30 @@ export const TEXT = {
   bonus: { title: 'Bonus', tooltip: 'Enter your total monthly bonuses in net amounts (after tax). The calculator will gross them up. Enter 0 if none.', warningMaxDigits: 'Maximum 9 digits allowed.', placeholder: 'Total bonus (VND)' },
       benefit: {
         title: 'Benefit',
-        tooltip: 'Enter benefits provided by the Employer (e.g., Rental, Health Insurance, Child’s Tuition) as per the labor contract. For Health Insurance, enter the annual fee.',
+  tooltip: 'Enter benefits provided by the Employer (e.g., Rental, Health Insurance, Child’s Tuition). For Health Insurance, enter the annual fee.',
         warningMaxDigits: 'Maximum 9 digits allowed.',
         types: { childTuition: "Child's Tuition Fee", rental: 'Rental', healthInsurance: 'Health Insurance' },
         placeholders: { childTuition: "Child's tuition fee (VND)", rental: 'Rental benefit (VND)', healthInsurance: 'Health insurance annual fee (VND)' }
       }
     },
   buttons: { continue: 'Continue', calculate: 'Calculate', return: 'Return', downloadPdf: 'Download PDF', modify: 'Modify Information', reset: 'Reset' },
+    warnings: { maxDigits: 'Maximum 9 digits allowed.', noAllowanceOrBonus: '(There is no Allowance or Bonus in the Contract)' },
+    infoTooltips: {
+      taxResidentStatus: TAX_RESIDENT_STATUS_TOOLTIP_HTML_EMPLOYEE,
+      netSalary: 'Enter your net (take-home) salary.',
+      allowance: 'Enter your monthly allowances in net amounts (after tax). The calculator will gross them up.',
+      bonus: 'Enter your total monthly bonuses in net amounts (after tax). The calculator will gross them up. Enter 0 if none.',
+  benefit: 'Enter benefits provided by the Employer (e.g., Rental, Health Insurance, Child’s Tuition). For Health Insurance, enter the annual fee.',
+      lunch: 'Specify your monthly allowance for lunch in the contract.',
+      fuel: 'Specify your monthly allowance for fuel in the contract.',
+      phone: 'Specify your monthly allowance for phone in the contract.',
+      travel: 'Specify your monthly allowance for traveling in the contract.',
+      uniform: 'Specify your monthly allowance for uniform in the contract.',
+      otherAllowance: 'Enter any other allowances in the contract that are not listed above.',
+  childTuition: "Specify your monthly child's tuition fee benefit.",
+  rental: 'Specify your monthly rental benefit.',
+  healthInsurance: 'Specify your annual Health Insurance fee.'
+    },
     charts: { salaryBreakdown: 'Salary Breakdown', costBreakdown: 'Cost Breakdown', bonusAndAllowance: 'Bonuses & Allowances', grossSalary: 'Gross Salary' },
   results: { employeeTypes: { local: 'Local Employee – Tax Resident', expat: 'Expat Employee – Tax Resident', default: 'Employee' }, sections: { grossSalary: 'Gross Salary', adjustedGrossSalary: 'Adjusted Gross Salary', allowance: 'Allowance', bonus: 'Bonus', benefit: 'Benefit', employerCost: 'Employer Cost', employeeTakeHome: 'Statutory Contribution', takeHomeTotal: 'Take-home Salary', compulsoryInsurances: 'Compulsory Insurances', personalIncomeTax: 'Personal Income Tax', statutoryContribution: 'Statutory Contribution' }, allowanceOrBonusNone: '(There is no Allowance or Bonus in the Contract)', costBreakdown: { employeeInsurance: 'Employee Insurance', socialInsurance: 'Social Insurance', healthInsurance: 'Health Insurance', unemploymentInsurance: 'Unemployment Insurance', personalIncomeTax: 'Personal Income Tax', employerInsurance: 'Employer Insurance', employerUnionFee: 'Employer Trade Union Fund', netSalary: 'Employee Take-home (Net) Salary' }, salaryVisualizationTitle: 'Salary Visualization', totalBonusLabel: 'Total Bonus', totalEmployerCostLabel: 'Total Employer Cost', totalEmployerCostBenefitIncluded: '– Benefit included', employerCostTable: { title: "EMPLOYER'S COST", sections: { adjustedGrossSalary: 'Adjusted Gross Salary', statutoryContribution: 'Statutory Contribution', benefit: 'Benefit', totalEmployerCost: 'Total Employer Cost' }, noBenefit: '(There is no Benefit in the Contract)' } },
     currencyUnit: 'VND',
