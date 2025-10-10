@@ -23,7 +23,7 @@ const SHARED_CALC_FOOTER = {
 const TAX_RESIDENT_STATUS_TOOLTIP_HTML_EMPLOYEE = html`
   <p>You are a Vietnamese Tax Resident if you meet any of the following criteria:</p>
   <ul>
-    <li>Residing in Vietnam for 183 days or more in either (i) the calendar year or (ii) any 12-month period beginning from your date of arrival.</li>
+  <li>Residing in Vietnam for 183 days or more in either (i) the calendar year or (ii) the period of 12 consecutive months from their first date of arrival.</li>
     <li>Having a permanent residence in Vietnam (including (i) a registered residence recorded on the permanent/temporary residence card, or (ii) leased accommodation in Vietnam under a lease of 183 days or more within the tax year, for foreigners) and unable to substantiate tax residency in another country.</li>
   </ul>
   <p>Individuals not meeting these conditions are considered <strong>Tax Non-Residents</strong> in Vietnam and are outside the scope of this simulation.</p>
@@ -33,7 +33,7 @@ const TAX_RESIDENT_STATUS_TOOLTIP_HTML_EMPLOYEE = html`
 const TAX_RESIDENT_STATUS_TOOLTIP_HTML_EMPLOYER = html`
   <p>Your Employee is a Vietnamese Tax Resident if they meet any of the following criteria:</p>
   <ul>
-    <li>Residing in Vietnam for 183 days or more in either (i) the calendar year or (ii) any 12-month period beginning from their date of arrival.</li>
+  <li>Residing in Vietnam for 183 days or more in either (i) the calendar year or (ii) the period of 12 consecutive months from their first date of arrival.</li>
     <li>Having a permanent residence in Vietnam (including (i) a registered residence recorded on the permanent/temporary residence card, or (ii) leased accommodation in Vietnam under a lease of 183 days or more within the tax year, for foreigners) and unable to substantiate tax residency in another country.</li>
   </ul>
   <p>Individuals not meeting these conditions are considered <strong>Tax Non-Residents</strong> in Vietnam and are outside the scope of this simulation.</p>
@@ -64,6 +64,21 @@ export const TEXT = {
       filenamePrefix: '[PCA_Salary_Simulation]',
       errorLibs: 'PDF export libraries not available',
       errorScriptPrefix: 'Failed loading'
+    },
+    feedbackModal: {
+      title: 'Help us improve',
+      desc: 'Before we calculate, please share your email and feedback. Your input helps us improve this tool.',
+      emailLabel: 'Email',
+      emailPlaceholder: 'name@example.com',
+      feedbackLabel: 'Your feedback (minimum 50 words)',
+      feedbackPlaceholder: 'Please share any thoughts about your needs, expectations, or how we could improve this calculator... ',
+      checkboxLabel: 'I would like PCA teams to contact me',
+      submit: 'Submit & Calculate',
+      cancel: 'Cancel',
+      errors: {
+        email: 'Please enter a valid email address.',
+        feedback: 'Please write at least 50 words.'
+      }
     }
   },
   sharedFooter: SHARED_CALC_FOOTER,

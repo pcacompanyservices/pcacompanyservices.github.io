@@ -5,6 +5,33 @@
 :root {
   /* Colors */
   --color-primary: #c1272d;
+
+/* ==========================================================================
+  FEEDBACK MODAL (pre-calculation)
+  ============================================================================ */
+.pca-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; z-index: 10000; }
+.pca-modal { background: #fff; width: min(92vw, 640px); max-width: 640px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); padding: 1.25rem 1.25rem; font-family: 'EB Garamond', serif; color: #222; position: relative; overflow: hidden; }
+.pca-modal h3 { margin: 0 0 0.5rem 0; font-size: 1.4rem; text-align: center; }
+.pca-modal p.pca-modal-desc { margin: 0 0 0.75rem 0; text-align: center; color: #555; font-size: 1rem; }
+.pca-modal .pca-form-group { margin: 0.5rem 0 0.75rem; }
+.pca-modal label { display:block; font-weight: 600; margin-bottom: 0.25rem; }
+.pca-modal input[type="email"], .pca-modal textarea { width: 100%; padding: 0.5rem; font-size: 1.05rem; border: 1px solid #ccc; border-radius: 6px; font-family: 'EB Garamond', serif; }
+.pca-modal textarea { min-height: 140px; resize: vertical; }
+.pca-modal .pca-checkbox { display:flex; align-items: center; justify-content: center; gap: 0.5ch; margin: 0.25rem 0 0.75rem; }
+.pca-modal .pca-checkbox input[type="checkbox"] { width: auto; height: auto; transform: translateY(2px); flex-shrink: 0; }
+.pca-modal .pca-checkbox label { display: inline-block; margin: 0; font-weight: 600; }
+.pca-modal .pca-error { color: #c1272d; font-size: 0.95rem; margin-top: 0.25rem; display:none; }
+.pca-modal .pca-error.show { display:block; }
+.pca-modal .pca-actions { display:flex; gap: 0.75rem; justify-content: stretch; align-items: center; margin-top: 0.75rem; flex-wrap: nowrap; width: 100%; padding: 0 0.25rem; box-sizing: border-box; }
+.pca-modal .pca-actions .pca-btn { flex: 1 1 0%; min-width: 0; white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; width: auto !important; max-width: none !important; margin: 0; text-align: center; }
+.pca-modal button { width: auto !important; max-width: none !important; display: inline-flex; align-items: center; justify-content: center; }
+.pca-modal .pca-btn { appearance: none; border: 1px solid transparent; border-radius: 6px; padding: 0.6rem 1rem; font-size: 1.05rem; cursor: pointer; font-family: 'EB Garamond', serif; }
+.pca-modal .pca-btn.primary { background: #c1272d; color: #fff; border-color: #a72126; }
+.pca-modal .pca-btn.primary:hover { background: #a72126; }
+.pca-modal .pca-btn.ghost { background: #f3f3f3; color: #333; border-color: #e0e0e0; }
+.pca-modal .pca-btn.ghost:hover { background: #e9e9e9; }
+.pca-modal .pca-close { position: absolute; top: 8px; right: 10px; font-size: 1.25rem; line-height: 1; cursor: pointer; color: #666; }
+.pca-modal .pca-close:hover { color: #333; }
   --color-primary-hover: #a72126;
   --color-secondary: #999;
   --color-secondary-hover: #666;
@@ -408,6 +435,7 @@ button:hover,
   max-width: 55vw;
   margin: 0 auto;
   position: relative; /* enable pseudo-element positioning for watermark */
+  overflow: hidden; /* ensure rotated watermark stays inside the table */
 }
 
 .result-table {
@@ -433,11 +461,12 @@ button:hover,
   transform: translate(-50%, -50%) rotate(-30deg);
   width: 100%; /* scale with the container/table width */
   height: 100%; /* scale with the container/table height */
+  /* single centered watermark */
   background-image: url('../asset/pca_watermark.png');
   background-repeat: no-repeat;
   background-position: center;
-  background-size: 90%; /* increase relative size for better visibility */
-  opacity: 0.08; /* slightly increased for visibility, still subtle */
+  background-size: 90%; /* larger watermark, still scales with container */
+  opacity: 0.10; /* subtle increase in opacity */
   pointer-events: none; /* ensure it doesn’t interfere with UI */
   z-index: 5; /* sit above the table content */
 }

@@ -15,7 +15,7 @@
   background-repeat: no-repeat;
   background-position: center;
   background-size: 90%;
-  opacity: 0.08; /* slightly increased for visibility */
+  opacity: 0.10; /* slightly increased for visibility */
   pointer-events: none;
   z-index: 5;
 }

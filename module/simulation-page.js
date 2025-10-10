@@ -7,6 +7,7 @@ import { createStandardFooter } from './footer.js';
 import { exportResultToPdf, buildStandardPdfFilename } from './download-pdf.js';
 import { TEXT } from '../lang/eng.js';
 import { createPageHeader, buildExportHeader } from './header.js';
+import { openFeedbackModal } from './feedback-form.js';
 
 function parseNumber(v){ if(typeof v==='number') return v; if(!v) return 0; return parseFloat(String(v).replace(/[,.]/g,''))||0; }
 
@@ -64,6 +65,8 @@ function collectParams({ direction }) {
 		healthInsuranceBenefit: parseNumber(document.getElementById('benefit-health-insurance')?.value)
 	};
 }
+
+// Inject lightweight styles for the feedback modal (isolated, prefixed)
 
 function createResultSection(root){
 	const div = document.createElement('div');
@@ -155,6 +158,9 @@ export function createSalarySimulationPage({ rootId='simulator-root', scenario, 
 	createStandardFooter({ root: document.body, footerConfig: resolvedText.footer, version: TEXT.version });
 
 	async function handleCalculation(){
+		// Gate calculation behind the feedback modal; proceed only on valid submit
+		const proceed = await openFeedbackModal();
+		if(!proceed) return;
 		const fieldIds = direction==='gross-to-net'
 			? ['tax-resident-status','gross-salary','allowance-lunch','allowance-fuel','allowance-phone','allowance-travel','allowance-uniform','allowance-other','total-bonus','benefit-child-tuition','benefit-rental','benefit-health-insurance']
 			: ['tax-resident-status','net-salary','allowance-lunch','allowance-fuel','allowance-phone','allowance-travel','allowance-uniform','allowance-other','total-bonus','benefit-child-tuition','benefit-rental','benefit-health-insurance'];
